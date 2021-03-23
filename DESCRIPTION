@@ -1,16 +1,21 @@
 Package: mrQC
-Title: What the Package Does (One Line, Title Case)
+Title: Quality Control of Outcome Summary Genetic Data for Mendelian Randomisation analyses
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Philip",
+           family = "Haycock",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "philip.haycock@bristol.ac.uk",
+           comment = c(ORCID = "0000-0001-5001-3350"))
+Description: mrQC is an R package for checking the accuracy of meta- and summary-data prior to their use in Mendelian randomisation analyses. The package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the summary data that might introduce bias into downstream Mendelian randomisation analyses.  
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    gwasrapidd,
+    stats
