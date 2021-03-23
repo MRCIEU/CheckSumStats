@@ -37,6 +37,8 @@ First retrieve the top hits from the NHGRI-EBI GWAS catalog for the trait of int
 library(mrQC)
 snplist<-make_snplist(efo_id="EFO_0004541")
 length(snplist)
+head(snplist)
 ```
-We see that our search identified ```{r example_hnc} length(snplist) ``` hits for head and neck cancer in the NHGRI-EBI GWAS catalog. 
+
+We see that our search identified 187 genetic associations for head and neck cancer in the NHGRI-EBI GWAS catalog. 
 

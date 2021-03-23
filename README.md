@@ -36,7 +36,10 @@ library(mrQC)
 snplist<-make_snplist(efo_id="EFO_0004541")
 length(snplist)
 #> [1] 187
+head(snplist)
+#> [1] "rs10486607" "rs2066219"  "rs2877832"  "rs2877832"  "rs7072268" 
+#> [6] "rs1402837"
 ```
 
-We see that our search identified `{r example_hnc} length(snplist)` hits
-for head and neck cancer in the NHGRI-EBI GWAS catalog.
+We see that our search identified 187 genetic associations for head and
+neck cancer in the NHGRI-EBI GWAS catalog.
