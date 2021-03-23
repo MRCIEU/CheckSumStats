@@ -33,8 +33,9 @@ description/name).
 
 ``` r
 library(mrQC)
-## snplist<-make_snplist(efo_id="EFO_0004541")
-## length(snplist)
+snplist<-make_snplist(efo_id="EFO_0004541")
+length(snplist)
+#> [1] 187
 ```
 
 We see that our search identified `{r example_hnc} length(snplist)` hits

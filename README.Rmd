@@ -35,8 +35,8 @@ First retrieve the top hits from the NHGRI-EBI GWAS catalog for the trait of int
 
 ```{r example_hnc}
 library(mrQC)
-## snplist<-make_snplist(efo_id="EFO_0004541")
-## length(snplist)
+snplist<-make_snplist(efo_id="EFO_0004541")
+length(snplist)
 ```
 We see that our search identified ```{r example_hnc} length(snplist) ``` hits for head and neck cancer in the NHGRI-EBI GWAS catalog. 
 
