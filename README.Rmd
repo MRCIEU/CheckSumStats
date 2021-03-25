@@ -35,7 +35,7 @@ First retrieve the top hits from the NHGRI-EBI GWAS catalog for the trait of int
 
 ```{r example_hnc}
 library(mrQC)
-snplist<-make_snplist(efo_id="EFO_0004541")
+snplist<-make_snplist(efo_id="EFO_0006859")
 length(snplist)
 head(snplist)
 ```

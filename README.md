@@ -33,12 +33,12 @@ description/name).
 
 ``` r
 library(mrQC)
-snplist<-make_snplist(efo_id="EFO_0004541")
+snplist<-make_snplist(efo_id="EFO_0006859")
 length(snplist)
-#> [1] 187
+#> [1] 2302
 head(snplist)
-#> [1] "rs10486607" "rs2066219"  "rs2877832"  "rs2877832"  "rs7072268" 
-#> [6] "rs1402837"
+#> [1] "rs2299187"   "rs10950641"  "rs4804217"   "rs6796803"   "rs4775319"  
+#> [6] "rs201015357"
 ```
 
 We see that our search identified 187 genetic associations for head and

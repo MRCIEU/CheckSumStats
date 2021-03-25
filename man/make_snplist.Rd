@@ -4,7 +4,13 @@
 \alias{make_snplist}
 \title{make a SNP list}
 \usage{
-make_snplist(trait = NULL, efo_id = NULL, efo = NULL)
+make_snplist(
+  trait = NULL,
+  efo_id = NULL,
+  efo = NULL,
+  ref1000G_superops = TRUE,
+  snplist_user = NULL
+)
 }
 \arguments{
 \item{trait}{the trait of interest}
@@ -12,12 +18,16 @@ make_snplist(trait = NULL, efo_id = NULL, efo = NULL)
 \item{efo_id}{ID for trait of interest in the experimental factor ontology}
 
 \item{efo}{trait of intersest in the experimental factor ontology}
+
+\item{ref1000G_superops}{include reference SNPs from 1000 genomes super populations. Default=TRUE}
+
+\item{snplist_user}{character vector of user specified rsids.}
 }
 \value{
 character vector
 }
 \description{
-Identify SNPs associated with your trait of interest in the GWAS catalog
+Create a list of rsids corresponding to "top hits" in the GWAS catalog, the 1000 genomes super popualtions and SNPs of specific interest to the user (e.g. genetic instruments/proxies for the exposure of interest).
 }
 \examples{
 snplist<-make_snplist(efo_id="EFO_0004541") 

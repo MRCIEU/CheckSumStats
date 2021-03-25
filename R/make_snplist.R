@@ -1,18 +1,20 @@
 
 #' make a SNP list
 #'
-#' Identify SNPs associated with your trait of interest in the GWAS catalog
+#' Create a list of rsids corresponding to "top hits" in the GWAS catalog, the 1000 genomes super popualtions and SNPs of specific interest to the user (e.g. genetic instruments/proxies for the exposure of interest).
 #'
 #' @param trait the trait of interest
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of intersest in the experimental factor ontology
+#' @param ref1000G_superops include reference SNPs from 1000 genomes super populations. Default=TRUE
+#' @param snplist_user character vector of user specified rsids. 
 #'
 #' @return character vector
 #' @export
 #' @examples
 #' snplist<-make_snplist(efo_id="EFO_0004541") 
 
-make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL){
+make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,snplist_user=NULL){
 	requireNamespace("gwasrapidd", quietly=TRUE)
 	if(!is.null(efo_id)){
 		top_hits<-gwas_catalog_hits(efo_id=efo_id)	
@@ -28,11 +30,14 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL){
 	top_hits_rsids<-top_hits$rsid	
 	
 	# # snplist<-c(snplist,top_hits_rsids)
-	# load(paste0(Dir,"refdat_1000G_superpops.Rdata"))
-	# snplist<-c(top_hits_rsids,unique(refdat_1000G_superpops$SNP))	
+	data("refdat_1000G_superpops")
+	snplist<-c(top_hits_rsids,unique(refdat_1000G_superpops$SNP))	
+	if(!is.null(snplist_user)){
+		snplist<-c(snplist,snplist_user)
+	}
 	# snplist<-unique(snplist)		
 	
-	return(top_hits_rsids)
+	return(unique(snplist))
 }
 
 #' GWAS top hits 
@@ -46,7 +51,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL){
 #' @return data frame
 #' @export
 #' @examples
-#' Dat<-gwas_catalog_hits(efo_id="EFO_0004541")
+#' Dat<-gwas_catalog_hits(efo_id="")
 
 gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 	requireNamespace("gwasrapidd", quietly=TRUE)
