@@ -17,7 +17,7 @@ make_snplist(
 
 \item{efo_id}{ID for trait of interest in the experimental factor ontology}
 
-\item{efo}{trait of intersest in the experimental factor ontology}
+\item{efo}{trait of interest in the experimental factor ontology}
 
 \item{ref1000G_superops}{include reference SNPs from 1000 genomes super populations. Default=TRUE}
 
@@ -30,5 +30,5 @@ character vector
 Create a list of rsids corresponding to "top hits" in the GWAS catalog, the 1000 genomes super popualtions and SNPs of specific interest to the user (e.g. genetic instruments/proxies for the exposure of interest).
 }
 \examples{
-snplist<-make_snplist(efo_id="EFO_0004541") 
+snplist<-make_snplist(efo_id="EFO_0006859") 
 }

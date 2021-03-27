@@ -19,6 +19,3 @@ data frame
 \description{
 Extract results for top hits for the trait of interest from the NHGRI-EBI GWAS catalog
 }
-\examples{
-Dat<-gwas_catalog_hits(efo_id="")
-}

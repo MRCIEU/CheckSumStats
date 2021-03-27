@@ -30,6 +30,10 @@ rsids}
 
 \item{Test.gz}{is the target data a gz file? Default set to FALSE}
 
+\item{fill}{argument from read.table. logical. If ‘TRUE’ then in case the rows have unequal length, blank fields are implicitly added.  Default is FALSE}
+
+\item{Comment}{comment to pass to comment.char in read.table. default = "#"}
+
 \item{Head}{Does the file have a header ? Default set to TRUE}
 }
 \value{
@@ -38,7 +42,4 @@ data frame
 \description{
 Exract the summary data for the rsids of interest from a target study. This only works on linux/
 mac operating systems. Will not work on Windows.
-}
-\examples{
-hnc<-extract_snps(snplist=snplist, File="~/inhance/HNC_summStats_Oncoarray/HNC_NorthAmericaGWA_CEU_SummStats.txt")
 }

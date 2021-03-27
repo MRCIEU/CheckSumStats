@@ -12,11 +12,11 @@
 #' @param out_dir location to save temporary files. Default is home directory. 
 #' @param Test.gz is the target data a gz file? Default set to FALSE
 #' @param Head Does the file have a header ? Default set to TRUE
+#' @param fill argument from read.table. logical. If ‘TRUE’ then in case the rows have unequal length, blank fields are implicitly added.  Default is FALSE
+#' @param Comment comment to pass to comment.char in read.table. default = "#"
 #'
 #' @return data frame
 #' @export
-#' @examples
-#' hnc<-extract_snps(snplist=snplist, File="~/inhance/HNC_summStats_Oncoarray/HNC_NorthAmericaGWA_CEU_SummStats.txt")
 
 extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,path_to_target_file_sep="\t",out_dir="~/",Test.gz=FALSE,fill=FALSE,Comment = "#",Head=TRUE){
 
@@ -27,7 +27,7 @@ extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,pa
 		if(any(duplicated(snplist))) message("duplicate SNPs present in snplist")
 	}
 	# if(length(snplist)>1){
-	write.table(unique(snplist),paste(out_dir,"temp.txt",sep=""),col.names=F,row.names=F,quote=F)
+	utils::write.table(unique(snplist),paste(out_dir,"temp.txt",sep=""),col.names=F,row.names=F,quote=F)
 	snplist<-paste(out_dir,"temp.txt",sep="")
 	# }
 	
@@ -57,9 +57,9 @@ extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,pa
     }
     
   	if(fill){
-	    Res<-read.table(paste(out_dir,"output_head.txt",sep=""),sep=path_to_target_file_sep,head=Head,stringsAsFactors=F,fill=T,comment.char = Comment)
+	    Res<-utils::read.table(paste(out_dir,"output_head.txt",sep=""),sep=path_to_target_file_sep,head=Head,stringsAsFactors=F,fill=T,comment.char = Comment)
 	}else{
-		Res<-read.table(paste(out_dir,"output_head.txt",sep=""),sep=path_to_target_file_sep,head=Head,stringsAsFactors=F, comment.char = Comment)
+		Res<-utils::read.table(paste(out_dir,"output_head.txt",sep=""),sep=path_to_target_file_sep,head=Head,stringsAsFactors=F, comment.char = Comment)
 	}
     path_to_target_file_name<-unlist(strsplit(path_to_target_file,split="/"))
     if(nrow(Res)!=0) Res$path_to_target_file<-path_to_target_file_name[length(path_to_target_file_name)]
@@ -72,3 +72,18 @@ extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,pa
     return(Res)
 }    
 
+
+read_plink<-function(path_to_target_file=NULL){
+    ref<-readLines(File)
+    Dat<-NULL
+    for(i in 1:length(ref)){
+        # print(i)
+        A<-unlist(strsplit(ref[i],split=" "))
+        A<-A[A!=""]
+        Dat[[i]]<-A
+    }
+    Dat2<-data.frame(do.call(rbind,Dat),stringsAsFactors=F)
+    names(Dat2)<-Dat2[1,]
+    Dat2<-Dat2[2:nrow(Dat2),]
+    return(Dat2)
+}
