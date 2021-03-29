@@ -74,7 +74,7 @@ extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,pa
 
 
 read_plink<-function(path_to_target_file=NULL){
-    ref<-readLines(File)
+    ref<-readLines(path_to_target_file)
     Dat<-NULL
     for(i in 1:length(ref)){
         # print(i)

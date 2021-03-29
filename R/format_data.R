@@ -45,11 +45,6 @@
 #'
 #' @return data frame
 #' @export
-#' @examples
-#' data(glioma_test_dat.RData)
-#' dat<-format_data(dat=glioma_test_dat,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=67,efo="glioma")   
-
-
 
 format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=NA,ncontrol=NA,UKbiobank=NA,rsid=NA,effect_allele=NA,other_allele=NA,lnor=NA,se=NA,eaf=NA,p=NA,info1=NA,info2=NA,info3=NA,info4=NA,HWEp=NA,phet=NA,I2=NA,Q=NA,Direction=NA,effect_allele_confirmed=FALSE,or=NA,lci=NA,uci=NA,chr=NA,pos=NA,ID=NULL,test_statistic=NA,all_summary_stats=FALSE,open_gwas=FALSE,efo=NA,efo_id=NA){
 	# summary_set="FAsnps"
@@ -97,12 +92,12 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# odds ratio and p value but no standard error or confidence intervals
 	if(!is.na(or) & is.na(se) & is.na(uci)){
 		dat$lnor<-log(dat[,or])
-		dat$z<-utils::qnorm(dat[,p]/2,lower.tail=F)
+		dat$z<-stats::qnorm(dat[,p]/2,lower.tail=F)
 		dat$se<-abs(dat$lnor)/dat$z
 	}
 
 	if(!is.na(lnor) & is.na(se) & is.na(uci)){
-		dat$z<-utils::qnorm(dat[,p]/2,lower.tail=F)
+		dat$z<-stats::qnorm(dat[,p]/2,lower.tail=F)
 		dat$se<-abs(dat[,lnor])/dat$z
 	}
 
@@ -114,11 +109,11 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 
 	if(is.na(p)  & is.na(test_statistic)){
 		dat$test_statistic<-abs(as.numeric(dat[,lnor])/as.numeric(dat[,se]))
-		dat$p<-utils::pnorm(dat$test_statistic ,lower.tail=F)*2
+		dat$p<-stats::pnorm(dat$test_statistic ,lower.tail=F)*2
 	}	
 
 	if(is.na(p) & !is.na(test_statistic)){
-		dat$p<-utils::pnorm(dat[,test_statistic] ,lower.tail=F)*2
+		dat$p<-stats::pnorm(dat[,test_statistic] ,lower.tail=F)*2
     }
 
 

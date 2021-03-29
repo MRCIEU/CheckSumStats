@@ -28,11 +28,14 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,sn
 		top_hits<-gwas_catalog_hits(efo=efo)
 	}
 	
-	top_hits_rsids<-top_hits$rsid	
+	snplist<-top_hits$rsid	
 	
 	# # snplist<-c(snplist,top_hits_rsids)
-	utils::data("refdat_1000G_superpops",envir =environment())
-	snplist<-c(top_hits_rsids,unique(refdat_1000G_superpops$SNP))	
+	if(ref1000G_superops){
+		utils::data("refdat_1000G_superpops",envir =environment())
+		snplist<-unique(c(snplist,unique(refdat_1000G_superpops$SNP)))
+	}
+	
 	if(!is.null(snplist_user)){
 		snplist<-c(snplist,snplist_user)
 	}
