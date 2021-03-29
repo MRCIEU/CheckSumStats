@@ -122,7 +122,3 @@ data frame
 \description{
 Get the outcome summary data ready for the QC checks. The function assumes that the summary data was generated in a logistic regression model of a binary phenotype, e.g. cases and controls
 }
-\examples{
-data(glioma_test_dat.RData)
-dat<-format_data(dat=glioma_test_dat,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=67,efo="glioma")   
-}
