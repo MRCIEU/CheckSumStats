@@ -4,8 +4,10 @@
 #' Make a plot comparing minor allele frequency between outcome and reference studies.
 #'
 #' @param ref_dat user supplied reference dataset. data frame. optional 
-#' @param ref_1000G if not supplying a reference dataset, the user should indicate the 1000 genomes reference study of interest. options are: AFR, AMR, EAS, EUR, SAS or ALL
+#' @param ref_1000G if ref_dat is NULL, the user should indicate the 1000 genomes reference study of interest. options are: AFR, AMR, EAS, EUR, SAS or ALL. Default is to make plots for all super populations
+#' @param snp_reference rsid column in ref_dat
 #' @param target_dat  the outcome dataset of interest. Data frame. 
+#' @param snp_target rsid column in target_dat
 #' @param eaf name of the effect allele frequency column in target_dat 
 #' @param ref_dat_maf name of the minor allele frequency column in the reference dataset.  Only necessary if ref_dat is specified
 #' @param ref_dat_minor_allele name of the minor allele column in the reference dataset. Only necessary if ref_dat is specified
@@ -29,30 +31,39 @@
 #' @return plot 
 #' @export
 
-# eaf="eaf";snp="rsid";ref_dat_maf="maf";target_dat_effect_allele="Effect.Allele";target_dat_other_allele="Other.Allele";ref_dat_minor_allele="minor_allele";ref_dat_major_allele="major_allele";outcome="outcome";ID="ID";target_dat_population="population";ref_dat_population="population";target_study="study";ref_study="study";
 
 # should exclude palindromic SNPs which can cause apparent conflicts when target and reference datasets on different strands for some SNPs. drop palindromic SNPs or show in different shape?
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=10,Title_size=10,Title="",Ylab="",Xlab="",cowplot_title=NULL,Dir="~/"){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=10,Title_size=10,Title="",Ylab="",Xlab="",cowplot_title=NULL,Dir="~/"){	
 
 	# ref_dat<-load_refdata(refstudy=refstudy,Dir=Dir)
 	utils::data("refdat_1000G_superpops",envir =environment())
 	if(is.null(ref_dat)){
-		ref_dat<-refdat_1000G_superpops[refdat_1000G_superpops$population == ref_1000G,]
+		ref_dat<-refdat_1000G_superpops[refdat_1000G_superpops$population %in% ref_1000G,]
 		ref_dat$study <- paste0("1000G ",ref_1000G)
+		strand1<-c("A","G","T","C")
+		strand2<-c("T","C","A","G")
 	}
+
+	if(!any(names(ref_dat) == "minor_allele")) stop("minor_allele column missing")
+	if(!any(names(ref_dat) == "major_allele")) stop("major_allele column missing")
+
+
+	ref_dat2<-flip_strand(dat=ref_dat,allele1_col="minor_allele",allele2_col="major_allele")
+	ref_dat$minor_allele2<-ref_dat2$minor_allele
+	ref_dat$major_allele2<-ref_dat2$major_allele
+
 	# c("AFR","AMR","EAS","EUR","SAS", "ALL")
-	head(dat)
+
 	names(target_dat)[names(target_dat) == target_dat_population]<-"target_dat_population"
 	names(ref_dat)[names(ref_dat) == ref_dat_population]<-"ref_dat_population"
 	names(target_dat)[names(target_dat) == target_study]<-"target_study"
 	names(ref_dat)[names(ref_dat) == ref_study]<-"ref_study"
 	names(ref_dat)[names(ref_dat) == ref_dat_maf]<-"maf_ref"
 
-
 	if(any(names(ref_dat) %in% c(target_dat_effect_allele,target_dat_other_allele,target_dat_effect_allele))) warning("effect allele, other allele or eaf present in refererence dataset with same name as in target dataset")	
 
 	dat.m<-merge(ref_dat,target_dat,by.x=snp_reference,by.y=snp_target)
-
+	# dat.m[dat.m$SNP == "rs1298999",c("SNP",eaf,"maf_ref",target_dat_effect_allele,target_dat_other_allele,"minor_allele","major_allele","minor_allele2","major_allele2")]
 	Pos<-which(dat.m[,target_dat_effect_allele] != dat.m[,ref_dat_minor_allele])
 	
 	# harmonise study to ref dataset minor allele. need to clean this up as a new function with flip_strand and harmonise_allele functions like in the GWAS catalog functions
@@ -65,12 +76,10 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 	dat.m[,target_dat_other_allele][Pos]<-EA
 	
 	# harmonise SNPs on different strands
-	Pos1<-which(dat.m[,target_dat_effect_allele] != dat.m[,ref_dat_minor_allele])
+	Pos1<-which(dat.m[,target_dat_effect_allele] != dat.m[,ref_dat_minor_allele]) #make the assumption that if the alleles still do not match they are on different strands
 	Pos2<-which(dat.m[,target_dat_effect_allele] == dat.m[,ref_dat_minor_allele])
 	dat.m1<-dat.m[Pos1,]
 	dat.m2<-dat.m[Pos2,]
-	
-	# minor allele 2 is minor allele on other strand
 	
 	# dat.m1[,c("Effect.Allele","Other.Allele","minor_allele2","major_allele2")]
 	Pos<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
@@ -80,8 +89,12 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 	OA<-dat.m1[,target_dat_other_allele][Pos]
 	dat.m1[,target_dat_effect_allele][Pos]<-OA
 	dat.m1[,target_dat_other_allele][Pos]<-EA
+	Pos1<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
+	if(sum(Pos1) > 0 ) stop("there are still mismatched alleles after flipping the strands")
 
 	dat.m<-rbind(dat.m1,dat.m2)
+	
+	# dat.m[,c("SNP",eaf,"maf_ref",target_dat_effect_allele,"minor_allele","minor_allele2")]
 
 	# dat.m[,c("Effect.Allele","Other.Allele","minor_allele","major_allele","eaf","maf")]
 
@@ -112,12 +125,13 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 	dat.m.test<-dat.m.test[order(dat.m.test$ref_dat_population),]
 	Pops<-unique(dat.m.test$ref_dat_population)
 	# if(length(Pops)>1){
+		# i<-1
 	for(i in 1:length(Pops)){
 		# print(pop)
 		# dat1<-dat[dat$ref_dat_population==pop,]			
 		dat1<-dat.m.test[dat.m.test$ref_dat_population==Pops[i], ]
-		pop2<-c("European","East Asian","African","American","South Asian","Global","European","European")
-		Pops2<-c("EUR","EAS","AFR","AMR","SAS","ALL","EUR2","EUR1")
+		pop2<-c("European","East Asian","African","American","South Asian","Global")
+		Pops2<-c("EUR","EAS","AFR","AMR","SAS","ALL")
 		j<-which(Pops2 %in% Pops[i])
 		# if(Xlab==""){
 		# Xlab<-paste0(pop2[j]," MAF")
@@ -139,12 +153,12 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 		# fix harmonisation functions above so that efffect allele strand flipped to minor_allele (not harmonised with minor_allele2)
 		Colour[dat1$Effect.Allele!=dat1$minor_allele & dat1$Effect.Allele!=dat1$minor_allele2]<-"red"	
 
-		Diff<-abs(dat1[,eaf]-dat1[,ref_dat_maf])
+		Diff<-abs(dat1[,eaf]-dat1[,"maf_ref"])
 		Colour[which(Diff>0.10)]<-"red"
 		Shape<-rep(19,nrow(dat1))
 		Shape[which(dat1$alleles %in% c("AT","TA","GC","CG"))]<-1
 		dat1$eaf<-dat1[,eaf]
-		dat1$maf<-dat1[,ref_dat_maf]
+		dat1$maf<-dat1[,"maf_ref"]
 
 		Title_size1<-Title_size
 		Subtitle_size1<-8
@@ -167,6 +181,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 		# head(dat2.m[,c("rsid","Effect.Allele","Other.Allele","eaf", "maf", "minor_allele2","major_allele2" )])
 		
 		Subtitle<-unique(paste0("Reported population: ",dat1$target_dat_population))
+		
 		Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + ggplot2::geom_point(colour=Colour) +ggplot2::ggtitle(Title) +ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
 			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1)) 
 
@@ -185,3 +200,77 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=NULL,target_dat=NULL,eaf="eaf",sn
 	return(Plot)
 }
 
+
+flip_strand<-function(dat=NULL,allele1_col=NULL,allele2_col=NULL){
+	# Pos<-dat[,allele1]!=dat[,allele2]	
+	strand1<-c("A","T","G","C")
+	strand2<-c("T","A","C","G")
+	# lnor.y<-dat$lnor.y[Pos]*-1
+	# dat$lnor.y[Pos]<-lnor.y
+	allele1<-dat[,allele1_col]
+	if(!is.null(allele2_col)){
+		allele2<-dat[,allele2_col]
+		dat[,allele2_col]<-strand2[match(allele2,strand1)]				
+	}
+	dat[,allele1_col]<-strand2[match(allele1,strand1)]	
+	return(dat)
+}
+
+make_cow_plot<-function(Plot_list=NULL,Title="",Xlab="",Ylab="",out_file=NULL,return_plot=TRUE,width=1000,height=1000,Title_size=0,Title_axis_size=10,Subtitle="",Subtitle_size=0){
+	
+	Plot<-cowplot::plot_grid(plotlist=Plot_list)
+
+	if(Title!="") { 
+		title <- cowplot::ggdraw() + 
+				cowplot::draw_label(
+					Title,
+					# fontface = 'bold',
+					fontface = 'plain',
+					x = 0,
+					hjust = 0,
+					size=Title_size)  +
+				ggplot2::theme(
+				# add margin on the left of the drawing canvas,
+				# so title is aligned with left edge of first plot
+					plot.margin = ggplot2::margin(0, 0, 0, 7)
+					)
+
+		subtitle <- cowplot::ggdraw() + 
+		cowplot::draw_label(
+			Subtitle,
+			# fontface = 'bold',
+			fontface = 'plain',
+			x = 0,
+			hjust = 0,
+			# element = "plot.subtitle",
+			size=Subtitle_size)  +
+		ggplot2::theme(
+		# add margin on the left of the drawing canvas,
+		# so title is aligned with left edge of first plot
+			plot.margin = ggplot2::margin(0, 0, 0, 7)
+			)
+		# subtitle <- ggdraw() +
+  # 						draw_label_theme("By census tract, 2016",
+  #                  theme = theme_georgia(), 
+  #                  element = "plot.subtitle",
+
+  #                  x = 0.05, hjust = 0, vjust = 1)
+
+		Plot<-cowplot::plot_grid(title,subtitle, Plot,ncol = 1,rel_heights = c(0.05,0.05, 1))
+	}
+	y.grob <- grid::textGrob(Ylab, 
+	                   gp=grid::gpar(fontface="bold", col="black", fontsize=Title_axis_size), rot=90)
+
+	x.grob <- grid::textGrob(Xlab, 
+	                   gp=grid::gpar(fontface="bold", col="black", fontsize=Title_axis_size))
+
+	if(!return_plot){
+		grDevices::png(out_file, width = width, height = height)
+			gridExtra::grid.arrange(gridExtra::arrangeGrob(Plot, left = y.grob, bottom = x.grob))
+		grDevices::dev.off()	
+	}
+	if(return_plot){
+		return(Plot)
+	}
+
+}

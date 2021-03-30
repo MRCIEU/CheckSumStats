@@ -1,1 +1,7 @@
 utils::globalVariables(c("refdat_1000G_superpops"))
+utils::globalVariables(c("maf"))
+utils::globalVariables(c("z.x"))
+utils::globalVariables(c("z.y"))
+utils::globalVariables(c("plot_x"))
+utils::globalVariables(c("plot_y"))
+utils::globalVariables(c("colour"))

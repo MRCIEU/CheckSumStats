@@ -57,10 +57,13 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,sn
 
 gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 	requireNamespace("gwasrapidd", quietly=TRUE)
-
+	
 	if(!is.null(efo)){
 		efo<-trimws(unlist(strsplit(efo,split=";")))	
 		gwas_studies<-gwasrapidd::get_studies(efo_trait = efo)		
+		# head(gwas_studies@studies)
+		# which(gwas_studies@studies$study_id=="GCST001633")
+		 # gwasrapidd::get_studies(study_id = "GCST001633")
 		# unique(gwas_studies@studies$reported_trait)
 		if(nrow(gwas_studies@studies)==0){
 			warning(paste("search for efo -",efo,"- returned 0 studies from the GWAS catalog"))
@@ -87,6 +90,8 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 		ancestry_tab<-make_ancestry_table(gwas_studies=gwas_studies)		
 		study_ids<-gwas_studies@studies$study_id	
 		Dat<-NULL	
+		i<-1
+
 		for(i in 1:length(study_ids)){		
 		# print(i)			
 			gwas_associations<-gwasrapidd::get_associations(study_id = study_ids[i])
@@ -102,8 +107,9 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 			
 				gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
 				gwas_results$log_odds_ratios<-log(gwas_results$or_per_copy_number)
-				all(is.na(gwas_results$log_odds_ratios))
-				gwas_results$log_odds_ratios<-gwas_results$beta_number
+				if(all(is.na(gwas_results$log_odds_ratios))){
+					gwas_results$log_odds_ratios<-gwas_results$beta_number
+				}
 				gwas_results$standard_errors<-gwas_results$log_odds_ratios/gwas_results$z_scores
 				gwas_results$study_id<-study_ids[i]								
 				Dat[[i]]<-gwas_results	
@@ -118,7 +124,7 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 		if(!is.null(Dat)){
 			Dat<-do.call(rbind,Dat)
 			Dat<-Dat[,c("variant_id","risk_allele","log_odds_ratios","standard_errors","risk_frequency","pvalue","z_scores","study_id")]
-			names(Dat)<-c("rsid","Effect.Allele","lnor","se","eaf","p","test_statistic","study_id")		
+			names(Dat)<-c("rsid","effect_allele","lnor","se","eaf","p","test_statistic","study_id")		
 			Dat<-merge(Dat,ancestry_tab,by="study_id")				
 			return(Dat)
 		}

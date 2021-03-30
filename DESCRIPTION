@@ -19,4 +19,9 @@ Config/testthat/edition: 3
 Imports: 
     gwasrapidd,
     utils,
-    stats
+    stats,
+    ggplot2,
+    grid,
+    gridExtra,
+    cowplot,
+    grDevices
