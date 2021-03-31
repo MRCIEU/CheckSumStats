@@ -163,20 +163,21 @@ Pred<-predict_lnor_sh(dat=Dat1)
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
-The plot shows a strong positive correlation between the predicted log odds ratios and the reported effect size. This is expected. What's more useful is the intercept and the slope, which are displayed as part of the figure subheading. In this example, the intercept is close to zero and the slope is $>0.8, which is close to the expected values. When the predicted log odds ratios and reported effect sizes are identical, the intercept should be 0 and the slope should be 1. 
+The plot shows a strong positive correlation between the predicted log odds ratios and the reported effect size. This is expected. What's more useful is the intercept and the slope, which are displayed as part of the figure subheading. In this example, the intercept is close to zero and the slope is >0.8, which is close to the expected values. When the predicted log odds ratios and reported effect sizes are identical, the intercept should be 0 and the slope should be 1. 
 
 
-We can also plot the bias, i.e. the deviation of the predicted log odds ratio from the reported effect size, which we calculate as (predicted-reported)/reported$\times$100
+We can also plot the relative bias, i.e. the percentage deviation of the predicted log odds ratio from the reported effect size. 
 
 ```{r make_plot_predlnor3,eval = TRUE}
 Plot6<-make_plot_predlnor(dat=Pred,bias=TRUE)
 Plot6
 ```
-Overall the bias seems small and mostly varies from -10.9% to -13.5%,  although it does seem to get worse with stronger effect sizes. Since genetic effect sizes tend to be quite small, a bias of 10% is unlikely to make a material difference. 
+Overall the relative bias seems small and mostly varies from -10.9% to -13.5%. Since genetic effect sizes tend to be small, a relative bias of 10% is very small in absolute terms. 
+
 
 In the next example we show a dataset that returns a slope and intercept very different from expectation
 
-```{r make_plot_predlnor2,eval = FALSE}
+```{r make_plot_predlnor2,eval = TRUE}
 snplist<-make_snplist(efo = "kidney cancer",snplist_user=instruments$rsid)
 ukb <- data.frame(ieugwasr::associations(id="ukb-b-1316", variants=snplist,proxies=0),stringsAsFactors=FALSE)
 Ukb<-format_data(dat=ukb,outcome="Kidney cancer",population="European",pmid="ukb-b-1316",ncase=1114,ncontrol=461896,study="UKB",UKbiobank=TRUE,rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=145,efo = "kidney cancer")

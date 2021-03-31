@@ -367,13 +367,12 @@ The plot shows a strong positive correlation between the predicted log
 odds ratios and the reported effect size. This is expected. What’s more
 useful is the intercept and the slope, which are displayed as part of
 the figure subheading. In this example, the intercept is close to zero
-and the slope is $\>0.8, which is close to the expected values. When the
+and the slope is \>0.8, which is close to the expected values. When the
 predicted log odds ratios and reported effect sizes are identical, the
 intercept should be 0 and the slope should be 1.
 
-We can also plot the bias, i.e. the deviation of the predicted log odds
-ratio from the reported effect size, which we calculate as
-(predicted-reported)/reported$$100
+We can also plot the relative bias, i.e. the percentage deviation of the
+predicted log odds ratio from the reported effect size.
 
 ``` r
 Plot6<-make_plot_predlnor(dat=Pred,bias=TRUE)
@@ -381,10 +380,9 @@ Plot6
 ```
 
 <img src="man/figures/README-make_plot_predlnor3-1.png" width="100%" />
-Overall the bias seems small and mostly varies from -10.9% to -13.5%,
-although it does seem to get worse with stronger effect sizes. Since
-genetic effect sizes tend to be quite small, a bias of 10% is unlikely
-to make a material difference.
+Overall the relative bias seems small and mostly varies from -10.9% to
+-13.5%. Since genetic effect sizes tend to be small, a relative bias of
+10% is very small in absolute terms.
 
 In the next example we show a dataset that returns a slope and intercept
 very different from
@@ -395,10 +393,67 @@ snplist<-make_snplist(efo = "kidney cancer",snplist_user=instruments$rsid)
 ukb <- data.frame(ieugwasr::associations(id="ukb-b-1316", variants=snplist,proxies=0),stringsAsFactors=FALSE)
 Ukb<-format_data(dat=ukb,outcome="Kidney cancer",population="European",pmid="ukb-b-1316",ncase=1114,ncontrol=461896,study="UKB",UKbiobank=TRUE,rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=145,efo = "kidney cancer")
 Pred<-predict_lnor_sh(dat=Ukb)
+#> [1] "Analysing SNP 1 of 56"
+#> [1] "Analysing SNP 2 of 56"
+#> [1] "Analysing SNP 3 of 56"
+#> [1] "Analysing SNP 4 of 56"
+#> [1] "Analysing SNP 5 of 56"
+#> [1] "Analysing SNP 6 of 56"
+#> [1] "Analysing SNP 7 of 56"
+#> [1] "Analysing SNP 8 of 56"
+#> [1] "Analysing SNP 9 of 56"
+#> [1] "Analysing SNP 10 of 56"
+#> [1] "Analysing SNP 11 of 56"
+#> [1] "Analysing SNP 12 of 56"
+#> [1] "Analysing SNP 13 of 56"
+#> [1] "Analysing SNP 14 of 56"
+#> [1] "Analysing SNP 15 of 56"
+#> [1] "Analysing SNP 16 of 56"
+#> [1] "Analysing SNP 17 of 56"
+#> [1] "Analysing SNP 18 of 56"
+#> [1] "Analysing SNP 19 of 56"
+#> [1] "Analysing SNP 20 of 56"
+#> [1] "Analysing SNP 21 of 56"
+#> [1] "Analysing SNP 22 of 56"
+#> [1] "Analysing SNP 23 of 56"
+#> [1] "Analysing SNP 24 of 56"
+#> [1] "Analysing SNP 25 of 56"
+#> [1] "Analysing SNP 26 of 56"
+#> [1] "Analysing SNP 27 of 56"
+#> [1] "Analysing SNP 28 of 56"
+#> [1] "Analysing SNP 29 of 56"
+#> [1] "Analysing SNP 30 of 56"
+#> [1] "Analysing SNP 31 of 56"
+#> [1] "Analysing SNP 32 of 56"
+#> [1] "Analysing SNP 33 of 56"
+#> [1] "Analysing SNP 34 of 56"
+#> [1] "Analysing SNP 35 of 56"
+#> [1] "Analysing SNP 36 of 56"
+#> [1] "Analysing SNP 37 of 56"
+#> [1] "Analysing SNP 38 of 56"
+#> [1] "Analysing SNP 39 of 56"
+#> [1] "Analysing SNP 40 of 56"
+#> [1] "Analysing SNP 41 of 56"
+#> [1] "Analysing SNP 42 of 56"
+#> [1] "Analysing SNP 43 of 56"
+#> [1] "Analysing SNP 44 of 56"
+#> [1] "Analysing SNP 45 of 56"
+#> [1] "Analysing SNP 46 of 56"
+#> [1] "Analysing SNP 47 of 56"
+#> [1] "Analysing SNP 48 of 56"
+#> [1] "Analysing SNP 49 of 56"
+#> [1] "Analysing SNP 50 of 56"
+#> [1] "Analysing SNP 51 of 56"
+#> [1] "Analysing SNP 52 of 56"
+#> [1] "Analysing SNP 53 of 56"
+#> [1] "Analysing SNP 54 of 56"
+#> [1] "Analysing SNP 55 of 56"
+#> [1] "Analysing SNP 56 of 56"
 Plot5_2<-make_plot_predlnor(dat=Pred)
 Plot5_2
 ```
 
+<img src="man/figures/README-make_plot_predlnor2-1.png" width="100%" />
 Unsurprisingly there is a strong positive correlation. However, the
 slope is 400, when we expect a slope of 1. In fact, further
 investigation reveals that Open GWAS dataset ukb-b-1316 has been
