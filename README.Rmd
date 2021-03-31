@@ -47,21 +47,21 @@ The first step is to make a list of SNP rsids. Let's assume our outcome trait of
 
 ```{r make_snplist1, eval = TRUE}
 library(mrQC)
-snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=FALSE) #search on EFO abd reported trait 
+snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=FALSE) #search on EFO abd reported trait 
 head(snplist)
 length(snplist)
 ```
 We see that searching on the glioma EFO and glioma trait retrieves 54 unique SNP rsids. We could also have searched on the glioma efo_id, which retrieves the same SNPs as searching on the "glioma" efo.
 
 ```{r make_snplist2, eval = FALSE}
-snplist<-make_snplist(efo_id="EFO_0005543",ref1000G_superops=FALSE) 
+snplist<-make_snplist(efo_id="EFO_0005543",ref1000G_superpops=FALSE) 
 ```
 
-In the above examples we set ref1000G_superops to FALSE. We now set this to TRUE, which will result in a SNP list that includes the "MAF reference set". This is a set of 2297 SNPs that have the same minor allele across all 1000 genomes super populations and a minor allele frequency of 0.1-0.3.  
+In the above examples we set ref1000G_superpops to FALSE. We now set this to TRUE, which will result in a SNP list that includes the "MAF reference set". This is a set of 2297 SNPs that have the same minor allele across all 1000 genomes super populations and a minor allele frequency of 0.1-0.3.  
 
 
-```{r make_snplist3, eval = FALSE}
-snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=TRUE) 
+```{r make_snplist3, eval = TRUE}
+snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=TRUE) 
 head(snplist)
 length(snplist)
 ```
@@ -70,7 +70,7 @@ We can also define a set of "exposure SNPs" and include this in the rsid list. F
 
 ```{r make_snplist4, eval = FALSE}
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
-snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superops=TRUE,snplist_user=instruments$rsid)
+snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 head(snplist)
 length(snplist)
 ```
@@ -85,7 +85,7 @@ gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_s
 In the above example, the summary data for glioma was stored locally on our machine in a tab separated text file. Alternatively, we could have sourced of our outcome summary data from the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, to extract summary data for thyroid cancer we could run:
 
 ```{r extract_snps2,eval = FALSE}
-snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superops=TRUE,snplist_user=instruments$rsid)
+snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
 ```
 
@@ -208,7 +208,7 @@ The correlation between the Zp and Zb scores is less than 1, suggesting discorda
 
 
 ```{r make_zz_plot3,eval = FALSE}
-snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superops=FALSE)
+snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superpops=FALSE)
 luc <- ieugwasr::associations(id="ieu-a-966",variants=snplist,proxies=0)  
 Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",population="European",pmid=24880342,ncase=11348,ncontrol=15861,study="ILCCO",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",efo = "lung carcinoma")
 Plot7_3<-zz_plot(dat=Dat)

@@ -58,7 +58,7 @@ maximise the number of retrieved hits.
 
 ``` r
 library(mrQC)
-snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=FALSE) #search on EFO abd reported trait 
+snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=FALSE) #search on EFO abd reported trait 
 head(snplist)
 #> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
@@ -70,10 +70,10 @@ unique SNP rsids. We could also have searched on the glioma efo\_id,
 which retrieves the same SNPs as searching on the “glioma” efo.
 
 ``` r
-snplist<-make_snplist(efo_id="EFO_0005543",ref1000G_superops=FALSE) 
+snplist<-make_snplist(efo_id="EFO_0005543",ref1000G_superpops=FALSE) 
 ```
 
-In the above examples we set ref1000G\_superops to FALSE. We now set
+In the above examples we set ref1000G\_superpops to FALSE. We now set
 this to TRUE, which will result in a SNP list that includes the “MAF
 reference set”. This is a set of 2297 SNPs that have the same minor
 allele across all 1000 genomes super populations and a minor allele
@@ -81,9 +81,11 @@ frequency of
 0.1-0.3.
 
 ``` r
-snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=TRUE) 
+snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=TRUE) 
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 2351
 ```
 
 We can also define a set of “exposure SNPs” and include this in the rsid
@@ -97,7 +99,7 @@ these to the other SNPs.
 
 ``` r
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
-snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superops=TRUE,snplist_user=instruments$rsid)
+snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 head(snplist)
 length(snplist)
 ```
@@ -122,7 +124,7 @@ thyroid cancer we could
 run:
 
 ``` r
-snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superops=TRUE,snplist_user=instruments$rsid)
+snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
 ```
 
@@ -349,7 +351,7 @@ comparison to only the “exposure SNPs” and the GWAS catalog top
 hits.
 
 ``` r
-snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superops=FALSE)
+snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superpops=FALSE)
 luc <- ieugwasr::associations(id="ieu-a-966",variants=snplist,proxies=0)  
 Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",population="European",pmid=24880342,ncase=11348,ncontrol=15861,study="ILCCO",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",efo = "lung carcinoma")
 Plot7_3<-zz_plot(dat=Dat)
