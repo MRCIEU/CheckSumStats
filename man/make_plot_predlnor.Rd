@@ -6,8 +6,8 @@
 \usage{
 make_plot_predlnor(
   dat = NULL,
-  Xlab = "",
-  Ylab = "",
+  Xlab = "Reported log odds ratio",
+  Ylab = "Predicted log odds ratio",
   linear_regression = TRUE,
   subtitle = "",
   maf_filter = FALSE,
