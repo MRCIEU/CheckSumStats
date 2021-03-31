@@ -162,17 +162,27 @@ length(snplist)
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
 dim(thy)
 #> [1] 146  12
-head(thy)
-#> # A tibble: 6 x 12
-#>       se  position     n chr       p    beta id    rsid  ea    nea     eaf trait
-#>    <dbl>     <int> <int> <chr> <dbl>   <dbl> <chr> <chr> <chr> <chr> <dbl> <chr>
-#> 1 0.104   27530778  1187 12    0.826 -0.0229 ieu-… rs11… A     G     0.200 Thyr…
-#> 2 0.0934  63437858  1187 3     0.526 -0.0592 ieu-… rs68… C     T     0.271 Thyr…
-#> 3 0.0891  86437529  1187 4     0.754  0.0279 ieu-… rs46… G     A     0.676 Thyr…
-#> 4 0.0953   9204238  1187 5     0.764 -0.0286 ieu-… rs14… G     A     0.256 Thyr…
-#> 5 0.106  124904611  1187 10    0.354 -0.0977 ieu-… rs10… T     C     0.190 Thyr…
-#> 6 0.104   12564852  1187 11    0.461  0.0768 ieu-… rs10… G     A     0.803 Thyr…
+thy
+#> # A tibble: 146 x 12
+#>        se position     n chr       p    beta id    rsid  ea    nea     eaf trait
+#>     <dbl>    <int> <int> <chr> <dbl>   <dbl> <chr> <chr> <chr> <chr> <dbl> <chr>
+#>  1 0.104    2.75e7  1187 12    0.826 -0.0229 ieu-… rs11… A     G     0.200 Thyr…
+#>  2 0.0934   6.34e7  1187 3     0.526 -0.0592 ieu-… rs68… C     T     0.271 Thyr…
+#>  3 0.0891   8.64e7  1187 4     0.754  0.0279 ieu-… rs46… G     A     0.676 Thyr…
+#>  4 0.0953   9.20e6  1187 5     0.764 -0.0286 ieu-… rs14… G     A     0.256 Thyr…
+#>  5 0.106    1.25e8  1187 10    0.354 -0.0977 ieu-… rs10… T     C     0.190 Thyr…
+#>  6 0.104    1.26e7  1187 11    0.461  0.0768 ieu-… rs10… G     A     0.803 Thyr…
+#>  7 0.119    8.15e6  1187 4     0.811  0.0286 ieu-… rs12… C     T     0.144 Thyr…
+#>  8 0.0886   1.65e8  1187 4     0.717 -0.0321 ieu-… rs10… C     T     0.327 Thyr…
+#>  9 0.104    1.24e8  1187 5     0.187  0.137  ieu-… rs48… T     C     0.802 Thyr…
+#> 10 0.133    4.07e7  1187 8     0.400  0.112  ieu-… rs78… G     A     0.112 Thyr…
+#> # … with 136 more rows
 ```
+
+The make\_snplist() function returns a warning that no GWAS hits were
+found when searching for thyroid carcinoma as the reported trait.
+However the search was able to identify hits searching on the efo for
+thyroid carcinoma.
 
 Returning to the glioma example, having extracted the summary data for
 the SNP rsids of interest, we now need to format the summary
@@ -180,6 +190,42 @@ data.
 
 ``` r
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+head(Dat)
+#>        rsid effect_allele other_allele         MAF                Geno_Counts
+#> 1 rs6010620             G            A 0.229|0.175  2969|1698|287/1254|554|48
+#> 2 rs2736100             G            T 0.506|0.437 1211|2465|1273/594|900|360
+#> 3 rs2157719             A            G 0.450|0.511 1508|2428|1013/454|905|495
+#> 4 rs4977756             A            G 0.423|0.481  1669|2374|908/509|905|438
+#> 5 rs2853676             G            A 0.250|0.311  2795|1835|321/874|808|172
+#> 6 rs2297440             C            T 0.223|0.175  2668|1458|244/1039|455|42
+#>    Subjects        p     OR OR_95._CI_l OR_95._CI_u CHROMOSOME LOCATION
+#> 1 4954|1856 1.13e-10 0.7009      0.6289      0.7812         20 61780283
+#> 2 4949|1854 4.28e-09 0.7722      0.7082      0.8420          5  1339516
+#> 3 4949|1854 4.57e-09 1.2936      1.1866      1.4102          9 22023366
+#> 4 4951|1852 1.21e-08 1.2831      1.1774      1.3982          9 22058652
+#> 5 4951|1854 2.16e-08 1.3112      1.1922      1.4420          5  1341547
+#> 6 4370|1536 1.49e-07 0.7278      0.6462      0.8198         20 61782743
+#>   ncontrol ncase   eaf path_to_target_file       lnor         se     pmid
+#> 1     4954  1856 0.229 glioma_test_dat.txt -0.3553901 0.05532116 22886559
+#> 2     4949  1854 0.506 glioma_test_dat.txt -0.2585117 0.04414629 22886559
+#> 3     4949  1854 0.450 glioma_test_dat.txt  0.2574290 0.04404068 22886559
+#> 4     4951  1852 0.423 glioma_test_dat.txt  0.2492790 0.04384619 22886559
+#> 5     4951  1854 0.250 glioma_test_dat.txt  0.2709427 0.04852824 22886559
+#> 6     4370  1536 0.223 glioma_test_dat.txt -0.3177290 0.06070188 22886559
+#>   outcome population      study UKbiobank effect_allele_confirmed open_gwas
+#> 1  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 2  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 3  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 4  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 5  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 6  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#>      efo efo_id
+#> 1 glioma     NA
+#> 2 glioma     NA
+#> 3 glioma     NA
+#> 4 glioma     NA
+#> 5 glioma     NA
+#> 6 glioma     NA
 ```
 
 Now we are ready to perform some quality checks on the summary data

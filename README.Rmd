@@ -92,13 +92,16 @@ head(snplist)
 length(snplist)
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
 dim(thy)
-head(thy)
+thy
 ```
+
+The make_snplist() function returns a warning that no GWAS hits were found when searching for thyroid carcinoma as the reported trait. However the search was able to identify hits searching on the efo for thyroid carcinoma. 
 
 Returning to the glioma example, having extracted the summary data for the SNP rsids of interest, we now need to format the summary data.  
 
-```{r format_data1,eval = FALSE}
+```{r format_data1,eval = TRUE}
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+head(Dat)
 ```
 
 Now we are ready to perform some quality checks on the summary data
