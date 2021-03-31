@@ -344,55 +344,43 @@ with minor allele frequency close to
 ## Step 4. Check whether the reported effect size corresponds to log odds ratios
 
 We next compare the predicted log odds ratio to the reported effect
-size. This step is applicable to summary data that has been derived from
-a logistic regression model of case-control status. Since the function
-to derive the predicted log odds ratio can be a bit slow, we restrict
-the glioma example to just the first 20 SNPs.
+size, in order to identify other potential errors or issues. This step
+is applicable to summary data that has been derived from a case-control
+genome-wide association study. Since the function to derive the
+predicted log odds ratio can be a bit slow, we restrict the glioma
+example to just the first 20 SNPs.
 
 ``` r
-Dat1<-Dat[1:20,]
+Dat1<-Dat[1:5,]
 Pred<-predict_lnor_sh(dat=Dat1)
-#> [1] "Analysing SNP 1 of 20"
-#> [1] "Analysing SNP 2 of 20"
-#> [1] "Analysing SNP 3 of 20"
-#> [1] "Analysing SNP 4 of 20"
-#> [1] "Analysing SNP 5 of 20"
-#> [1] "Analysing SNP 6 of 20"
-#> [1] "Analysing SNP 7 of 20"
-#> [1] "Analysing SNP 8 of 20"
-#> [1] "Analysing SNP 9 of 20"
-#> [1] "Analysing SNP 10 of 20"
-#> [1] "Analysing SNP 11 of 20"
-#> [1] "Analysing SNP 12 of 20"
-#> [1] "Analysing SNP 13 of 20"
-#> [1] "Analysing SNP 14 of 20"
-#> [1] "Analysing SNP 15 of 20"
-#> [1] "Analysing SNP 16 of 20"
-#> [1] "Analysing SNP 17 of 20"
-#> [1] "Analysing SNP 18 of 20"
-#> [1] "Analysing SNP 19 of 20"
-#> [1] "Analysing SNP 20 of 20"
+#> [1] "Analysing SNP 1 of 5"
+#> [1] "Analysing SNP 2 of 5"
+#> [1] "Analysing SNP 3 of 5"
+#> [1] "Analysing SNP 4 of 5"
+#> [1] "Analysing SNP 5 of 5"
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
 
 <img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
-The plot shows a strong positive correlation between the predicted and
-reported log odds ratio. This is expected. What’s more useful is the
-intercept and the slope, which are displayed as part of the figure
-subheading. In this example, the intercept is close to zero and the
-slope is \>0.8, which is close to the expected values. When the
-predicted and reported log odds ratios are identical, the intercept
-should be 0 and the slope should be 1.
+The plot shows a strong positive correlation between the predicted log
+odds ratios and the reported effect size. This is expected. What’s more
+useful is the intercept and the slope, which are displayed as part of
+the figure subheading. In this example, the intercept is close to zero
+and the slope is $\>0.8, which is close to the expected values. When the
+predicted log odds ratios and reported effect sizes are identical, the
+intercept should be 0 and the slope should be 1.
 
 We can also plot the bias, i.e. the deviation of the predicted log odds
-ratio from the reported effect size.
+ratio from the reported effect size, which we calculate as
+(predicted-reported)/reported$$100
 
 ``` r
 Plot6<-make_plot_predlnor(dat=Pred,bias=TRUE)
 Plot6
 ```
 
+<img src="man/figures/README-make_plot_predlnor3-1.png" width="100%" />
 Overall the bias seems small and mostly varies from -10.9% to -13.5%,
 although it does seem to get worse with stronger effect sizes. Since
 genetic effect sizes tend to be quite small, a bias of 10% is unlikely
