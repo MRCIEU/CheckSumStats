@@ -353,11 +353,6 @@ example to just the first 20 SNPs.
 ``` r
 Dat1<-Dat[1:5,]
 Pred<-predict_lnor_sh(dat=Dat1)
-#> [1] "Analysing SNP 1 of 5"
-#> [1] "Analysing SNP 2 of 5"
-#> [1] "Analysing SNP 3 of 5"
-#> [1] "Analysing SNP 4 of 5"
-#> [1] "Analysing SNP 5 of 5"
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
@@ -392,99 +387,51 @@ expectation
 snplist<-make_snplist(efo = "kidney cancer",snplist_user=instruments$rsid)
 ukb <- data.frame(ieugwasr::associations(id="ukb-b-1316", variants=snplist,proxies=0),stringsAsFactors=FALSE)
 Ukb<-format_data(dat=ukb,outcome="Kidney cancer",population="European",pmid="ukb-b-1316",ncase=1114,ncontrol=461896,study="UKB",UKbiobank=TRUE,rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=145,efo = "kidney cancer")
-Pred<-predict_lnor_sh(dat=Ukb)
-#> [1] "Analysing SNP 1 of 56"
-#> [1] "Analysing SNP 2 of 56"
-#> [1] "Analysing SNP 3 of 56"
-#> [1] "Analysing SNP 4 of 56"
-#> [1] "Analysing SNP 5 of 56"
-#> [1] "Analysing SNP 6 of 56"
-#> [1] "Analysing SNP 7 of 56"
-#> [1] "Analysing SNP 8 of 56"
-#> [1] "Analysing SNP 9 of 56"
-#> [1] "Analysing SNP 10 of 56"
-#> [1] "Analysing SNP 11 of 56"
-#> [1] "Analysing SNP 12 of 56"
-#> [1] "Analysing SNP 13 of 56"
-#> [1] "Analysing SNP 14 of 56"
-#> [1] "Analysing SNP 15 of 56"
-#> [1] "Analysing SNP 16 of 56"
-#> [1] "Analysing SNP 17 of 56"
-#> [1] "Analysing SNP 18 of 56"
-#> [1] "Analysing SNP 19 of 56"
-#> [1] "Analysing SNP 20 of 56"
-#> [1] "Analysing SNP 21 of 56"
-#> [1] "Analysing SNP 22 of 56"
-#> [1] "Analysing SNP 23 of 56"
-#> [1] "Analysing SNP 24 of 56"
-#> [1] "Analysing SNP 25 of 56"
-#> [1] "Analysing SNP 26 of 56"
-#> [1] "Analysing SNP 27 of 56"
-#> [1] "Analysing SNP 28 of 56"
-#> [1] "Analysing SNP 29 of 56"
-#> [1] "Analysing SNP 30 of 56"
-#> [1] "Analysing SNP 31 of 56"
-#> [1] "Analysing SNP 32 of 56"
-#> [1] "Analysing SNP 33 of 56"
-#> [1] "Analysing SNP 34 of 56"
-#> [1] "Analysing SNP 35 of 56"
-#> [1] "Analysing SNP 36 of 56"
-#> [1] "Analysing SNP 37 of 56"
-#> [1] "Analysing SNP 38 of 56"
-#> [1] "Analysing SNP 39 of 56"
-#> [1] "Analysing SNP 40 of 56"
-#> [1] "Analysing SNP 41 of 56"
-#> [1] "Analysing SNP 42 of 56"
-#> [1] "Analysing SNP 43 of 56"
-#> [1] "Analysing SNP 44 of 56"
-#> [1] "Analysing SNP 45 of 56"
-#> [1] "Analysing SNP 46 of 56"
-#> [1] "Analysing SNP 47 of 56"
-#> [1] "Analysing SNP 48 of 56"
-#> [1] "Analysing SNP 49 of 56"
-#> [1] "Analysing SNP 50 of 56"
-#> [1] "Analysing SNP 51 of 56"
-#> [1] "Analysing SNP 52 of 56"
-#> [1] "Analysing SNP 53 of 56"
-#> [1] "Analysing SNP 54 of 56"
-#> [1] "Analysing SNP 55 of 56"
-#> [1] "Analysing SNP 56 of 56"
+Pred<-predict_lnor_sh(dat=Ukb[1:5,])
 Plot5_2<-make_plot_predlnor(dat=Pred)
 Plot5_2
 ```
 
 <img src="man/figures/README-make_plot_predlnor2-1.png" width="100%" />
+
 Unsurprisingly there is a strong positive correlation. However, the
 slope is 400, when we expect a slope of 1. In fact, further
-investigation reveals that Open GWAS dataset ukb-b-1316 has been
-generated using a linear mixed model. In other words, the results were
-derived from a model where kidney cancer case-control status (controls
-coded 1 and cases coded 2) was regressed on SNP genotype (additively
-coded). The effect size from this model can be interpreted as the
-absolute risk of kidney cancer per copy of the effect allele. We can
-transform this into a log odds ratio scale using the transform\_betas()
-function.
+investigation revealed that Open GWAS dataset ukb-b-1316 was generated
+using a linear model. In other words, the results were derived from a
+model where kidney cancer case-control status (controls coded 1 and
+cases coded 2) was regressed on SNP genotype (additively coded). The
+effect size from this model can be interpreted as the absolute risk of
+kidney cancer per copy of the effect allele. We can transform this into
+a log odds ratio scale using the transform\_betas() function.
 
 ``` r
 Ukb2<-transform_betas(dat=Ukb,effect="lnor",effect.se="se")
-Pred2<-predict_lnor_sh(dat=Ukb2)
+Pred2<-predict_lnor_sh(dat=Ukb2[1:5,])
+#> [1] "Analysing SNP 1 of 5"
+#> [1] "Analysing SNP 2 of 5"
+#> [1] "Analysing SNP 3 of 5"
+#> [1] "Analysing SNP 4 of 5"
+#> [1] "Analysing SNP 5 of 5"
 Plot5_3<-make_plot_predlnor(dat=Pred2)
 Plot5_3
 ```
 
+<img src="man/figures/README-make_plot_predlnor4-1.png" width="100%" />
+
 After transforming the reported effect size to a log odds ratio scale,
 we now see a slope close to 1 for the relationship with the predicted
-log odds ratio. We suggest that any dataset with an unsual intercept or
-with a slope very different from 1 (e.g. \<0.8 or \>1.2) should be
-investigated by the user for potential problems. In the glioma example,
-the slope and intercept look reasonably close to what we’d expect. In
-the kidney cancer example, the slope was different from 1 because the
-reported effect sizes had not been generated in a logistic regression
-model. Other factors that could cause the slope to differ from 1
-include: the impact of covariate adjustment in the original GWAS,
-deviations from Hardy Weinberg equilibrium, mismatches between reported
-and actual allele frequency or mismatches between reported and actual
-SNP-level sample size.
+log odds ratio. More generally, we suggest that any dataset with an
+unsual intercept or with a slope very different from 1 (e.g. \<0.8 or
+\>1.2) should be investigated by the user for potential problems. In the
+glioma example, the slope and intercept look reasonably close to what
+we’d expect. In the kidney cancer example, the slope was very
+different from 1 because the reported effect sizes had not been
+generated in a logistic regression model. Other factors that could cause
+the slope to differ from 1 include: the impact of covariate adjustment
+in the original GWAS, deviations from Hardy Weinberg equilibrium,
+mismatches between reported and actual allele frequency for some or all
+SNPs or mismatches between reported and effective SNP-level sample size
+for some or all SNPs.
 
 Let’s now return back to the glioma dataset. In the next example we
 generate ZZ plots, which can be used to flag SNPs with P values that
