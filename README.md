@@ -88,8 +88,8 @@ length(snplist)
 #> [1] 2351
 ```
 
-We can also define a set of “exposure SNPs” and include this in the rsid
-list. For example, let’s assume we are conducting a Mendelian
+We can also define a set of “exposure SNPs” and include this in list of
+rsids. For example, let’s assume we are conducting a Mendelian
 randomisation study to assess the effect of polyunsaturated fatty acid
 exposure on risk of glioma. Let’s define the “exposure SNPs”, or genetic
 instrument, as SNPs associated with polyunsaturated fatty acids with a P
@@ -107,10 +107,10 @@ length(snplist)
 #> [1] 2417
 ```
 
-Our SNP list now contains the rsids for the GWAS catalog top hits, the
-MAF reference set, and the “exposure SNPs”. Next, we extract the summary
-associations statistics for these SNPs from the outcome dataset of
-interest (glioma). The example below has already been restricted to the
+Our SNP list now contains the rsids for: 1) the GWAS catalog top hits,
+2) the MAF reference set and 3) the “exposure SNPs”. Next, we extract
+the summary associations statistics for these SNPs from the glioma
+outcome dataset. The example below has already been restricted to the
 SNPs of interest to save space. The extract\_snps function only works on
 MAC or linux operating systems.
 

@@ -66,7 +66,7 @@ head(snplist)
 length(snplist)
 ```
 
-We can also define a set of "exposure SNPs" and include this in the rsid list. For example, let's assume we are conducting a Mendelian randomisation study to assess the effect of polyunsaturated fatty acid exposure on risk of glioma. Let's define the "exposure SNPs", or genetic instrument, as SNPs associated with polyunsaturated fatty acids with a P value <5e-8. Let's use the ieugwasr package to extract "exposure SNPs" for polyunsaturated fatty acids from the Open GWAS project and also add these to the other SNPs. 
+We can also define a set of "exposure SNPs" and include this in list of rsids. For example, let's assume we are conducting a Mendelian randomisation study to assess the effect of polyunsaturated fatty acid exposure on risk of glioma. Let's define the "exposure SNPs", or genetic instrument, as SNPs associated with polyunsaturated fatty acids with a P value <5e-8. Let's use the ieugwasr package to extract "exposure SNPs" for polyunsaturated fatty acids from the Open GWAS project and also add these to the other SNPs. 
 
 ```{r make_snplist4, eval = TRUE}
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
@@ -75,9 +75,9 @@ head(snplist)
 length(snplist)
 ```
 
-Our SNP list now contains the rsids for the GWAS catalog top hits, the MAF reference set, and the "exposure SNPs". Next, we extract the summary associations statistics for these SNPs from the outcome dataset of interest (glioma). The example below has already been restricted to the SNPs of interest to save space. The extract_snps function only works on MAC or linux operating systems. 
+Our SNP list now contains the rsids for: 1) the GWAS catalog top hits, 2) the MAF reference set and 3) the "exposure SNPs". Next, we extract the summary associations statistics for these SNPs from the glioma outcome dataset. The example below has already been restricted to the SNPs of interest to save space. The extract_snps function only works on MAC or linux operating systems. 
 
-```{r extract_snps1, eval = FALSE}
+```{r extract_snps1, eval = TRUE}
 File<-system.file("extdata", "glioma_test_dat.txt", package = "mrQC")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 ```
