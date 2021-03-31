@@ -6,7 +6,7 @@
 #' @param trait the trait of interest
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of interest in the experimental factor ontology
-#' @param ref1000G_superops include reference SNPs from 1000 genomes super populations. Default=TRUE
+#' @param ref1000G_superpops include reference SNPs from 1000 genomes super populations. Default=TRUE
 #' @param snplist_user character vector of user specified rsids. 
 #'
 #' @return character vector
@@ -14,7 +14,7 @@
 #' @examples
 #' snplist<-make_snplist(efo_id="EFO_0006859") 
 
-make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,snplist_user=NULL){
+make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,snplist_user=NULL){
 	requireNamespace("gwasrapidd", quietly=TRUE)
 	
 	if(!is.null(efo_id)){
@@ -44,7 +44,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,sn
 	}
 		
 	# # snplist<-c(snplist,top_hits_rsids)
-	if(ref1000G_superops){
+	if(ref1000G_superpops){
 		utils::data("refdat_1000G_superpops",envir =environment())
 		snplist<-unique(c(snplist,unique(refdat_1000G_superpops$SNP)))
 	}
