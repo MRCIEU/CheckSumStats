@@ -262,32 +262,38 @@ frequency with all 1000 genomes super
 populations.
 
 ``` r
-Plot2<-make_plot_maf(ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=Dat)
+Plot2<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot2
 ```
 
 <img src="man/figures/README-make_maf_plot2-1.png" width="100%" />
 
-All SNPs across all super populations are flagged as problematic.
-However, we only see a strong inverse correlation in the comparison with
-the European 1000 genomes super population because the glioma example
-has been derived from a European ancestry population. This example
-serves to illustrate that our method can identify problematic SNPs
-regardless of the ancestry of the outcome dataset. By assessing the
-strength of the correlation in MAF between the datasets, once can also
-make inferences about the ancestral background of the outcome dataset
-(assuming one didn’t know this already).
-
-In the next example, we compare effect alleles between the glioma
-outcome dataset and the GWAS
-catalog.
+All SNPs across all super populations are flagged as problematic. This
+illustrates that the function can identify problematic SNPs regardless
+of the ancestry of the outcome dataset. We also see a strong inverse
+correlation in the comparison with the European 1000 genomes super
+population. This is not surprising, since we know that the the glioma
+GWAS results were generated in a European ancestry population. This
+illustrates that the strength of the correlation in MAF between the
+datasets can also support inferences about the ancestral background of
+the outcome dataset, although the function was not designed with this
+objective in mind. A more efficient approach would be to select SNPs
+with a much wider range of variation in minor allele frequency that
+chosen here.
 
 ## Step 3. Check that the effect allele column is correct
+
+We next compare effect alleles between the glioma outcome dataset and
+the GWAS catalog, in order identify potential mis-specification of the
+effect allele
+column.
 
 ``` r
 Plot3<-make_plot_gwas_catalog(dat=Dat,efo=unique(Dat$efo),trait="glioma")
 Plot3
 ```
+
+<img src="man/figures/README-make_gwascatalog_plot1-1.png" width="100%" />
 
 We see that there are three groups of SNPs: those flagged as showing no
 effect size conflict; those with moderate effect size conflict; and
