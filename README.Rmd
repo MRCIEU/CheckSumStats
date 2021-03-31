@@ -140,11 +140,11 @@ Plot3
 
 We see that there are three groups of SNPs: those flagged as showing no effect size conflict; those with moderate effect size conflict; and those with high effect size conflict. The distinction between moderate and high effect size conflict is arbitrary but is specified to make allowance for chance deviations between datasets. If the effect sizes are in opposite directions, the effect size conflict flag is set to moderate or high. If the two-sided P value in both datasets is ≤0.0001 then the flag is upgraded to high. In addition, if the summary association statistics in the target dataset and GWAS catalog are derived from the same publication, and effect sizes are in opposite directions, the conflict flag is set to high regardless of P value. 
 
-Overall, the plot shows that the majority of SNPs show effect size conflicts. In other words, SNPs associated with higher risk of glioma in the GWAS catalog tend to be associated with lower risk of glioma in the target dataset. This indicates that the reported effect allele column may actually correspond to the non-effect allele. Taken together with the previous allele frequency plots, showing an inverse correlation in MAF between the target dataset and 1000 genomes European superpopulation, this strongly indicates that the effect and non-effect allele columns have been incorrectly specified. The reported non-effect allele column is actually the effect allele column.
+Overall, the plot shows that the majority of SNPs show effect size conflicts. In other words, alleles associated with higher risk of glioma in the GWAS catalog tend to be associated with lower risk of glioma in the outcome dataset. This indicates that the reported effect allele column corresponds to the non-effect allele. Taken together with the previous allele frequency plots, showing an inverse correlation in MAF between the outcome dataset and 1000 genomes European superpopulation, this strongly indicates that the effect and non-effect allele columns have been incorrectly specified. The reported non-effect allele column is actually the effect allele column.
 
 We can also make a plot comparing effect allele frequency between the target dataset and the GWAS catalog, which we show in the next example.
 
-```{r make_gwascatalog_plot2,eval = FALSE}
+```{r make_gwascatalog_plot2,eval = TRUE}
 
 Plot4<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo=unique(Dat$efo),trait=unique(Dat$outcome))
 ```

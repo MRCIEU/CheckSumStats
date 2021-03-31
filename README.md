@@ -308,15 +308,15 @@ derived from the same publication, and effect sizes are in opposite
 directions, the conflict flag is set to high regardless of P value.
 
 Overall, the plot shows that the majority of SNPs show effect size
-conflicts. In other words, SNPs associated with higher risk of glioma in
-the GWAS catalog tend to be associated with lower risk of glioma in the
-target dataset. This indicates that the reported effect allele column
-may actually correspond to the non-effect allele. Taken together with
-the previous allele frequency plots, showing an inverse correlation in
-MAF between the target dataset and 1000 genomes European
-superpopulation, this strongly indicates that the effect and non-effect
-allele columns have been incorrectly specified. The reported non-effect
-allele column is actually the effect allele column.
+conflicts. In other words, alleles associated with higher risk of glioma
+in the GWAS catalog tend to be associated with lower risk of glioma in
+the outcome dataset. This indicates that the reported effect allele
+column corresponds to the non-effect allele. Taken together with the
+previous allele frequency plots, showing an inverse correlation in MAF
+between the outcome dataset and 1000 genomes European superpopulation,
+this strongly indicates that the effect and non-effect allele columns
+have been incorrectly specified. The reported non-effect allele column
+is actually the effect allele column.
 
 We can also make a plot comparing effect allele frequency between the
 target dataset and the GWAS catalog, which we show in the next example.
