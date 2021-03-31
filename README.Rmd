@@ -111,7 +111,7 @@ Now we are ready to perform some quality checks on the summary data
 Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the outcome glioma dataset to the 1000 genomes super populations. Let's restrict the comparison to the European super population, since we know that the glioma dataset was derived from a European ancestry population. 
 
 ```{r make_maf_plot1,eval = TRUE}
-Plot1<-make_plot_maf(snp_target="rsid",ref_1000G="EUR",target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
+Plot1<-make_plot_maf(ref_1000G="EUR",target_dat=Dat)
 Plot1
 ```
 
@@ -119,8 +119,8 @@ SNPs with a red colour are SNPs with incompatible minor allele frequencies, i.e.
 
 Next we construct a similar plot but this time comparing allele frequency with all 1000 genomes super populations.
 
-```{r make_maf_plot2,eval = FALSE}
-Plot2<-make_plot_maf(snp_target="rsid",ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
+```{r make_maf_plot2,eval = TRUE}
+Plot2<-make_plot_maf(ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=Dat)
 Plot2
 ```
 

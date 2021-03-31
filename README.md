@@ -241,7 +241,7 @@ we know that the glioma dataset was derived from a European ancestry
 population.
 
 ``` r
-Plot1<-make_plot_maf(snp_target="rsid",ref_1000G="EUR",target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
+Plot1<-make_plot_maf(ref_1000G="EUR",target_dat=Dat)
 Plot1
 ```
 
@@ -262,9 +262,11 @@ frequency with all 1000 genomes super
 populations.
 
 ``` r
-Plot2<-make_plot_maf(snp_target="rsid",ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
+Plot2<-make_plot_maf(ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=Dat)
 Plot2
 ```
+
+<img src="man/figures/README-make_maf_plot2-1.png" width="100%" />
 
 All SNPs across all super populations are flagged as problematic.
 However, we only see a strong inverse correlation in the comparison with
