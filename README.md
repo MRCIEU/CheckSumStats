@@ -47,7 +47,7 @@ The package performs 4 types of checks:
     log odds ratios or identify potential summary data errors. This step
     can use any of the SNP sets.
 
-## Example. Extract and format the target data
+## Step 1. Extract and format the target data
 
 The first step is to make a list of SNP rsids. Let’s assume our outcome
 trait of interest is glioma. Let’s identify the top GWAS hits for glioma
@@ -133,12 +133,16 @@ data.
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 ```
 
-Now we are ready to perform some quality checks on the summary
-data
+Now we are ready to perform some quality checks on the summary data
 
-## Example. Check that the effect allele frequency column is correct
+## Step 2. Check that the effect allele frequency column is correct
 
-# Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the outcome dataset to the 1000 genomes super populations. We’ll restrict the comparison to the European super population, since we know that the glioma dataset was derived from a European ancestry population.
+Next we create some plots to visualise potential problems with the
+effect allele frequency column. We do this by comparing allele frequency
+in the outcome dataset to the 1000 genomes super populations. We’ll
+restrict the comparison to the European super population, since we know
+that the glioma dataset was derived from a European ancestry
+population.
 
 ``` r
 Plot1<-make_plot_maf(snp_target="rsid",ref_1000G="EUR",target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
@@ -178,7 +182,7 @@ In the next example, we compare effect alleles between the glioma
 outcome dataset and the GWAS
 catalog.
 
-## Example. Check that the effect allele column is correct
+## Step 3. Check that the effect allele column is correct
 
 ``` r
 Plot3<-make_plot_gwas_catalog(dat=Dat,efo=unique(Dat$efo),trait="glioma")
@@ -234,7 +238,7 @@ Since the function to derive the predicted log odds ratio can be a bit
 slow, we restrict the glioma example to just the first 20
 SNPs.
 
-## Example. Check whether the reported effect size corresponds to log odds ratios
+## Step 4. Check whether the reported effect size corresponds to log odds ratios
 
 ``` r
 Dat1<-Dat[1:20,]
@@ -243,7 +247,13 @@ Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
 
-# The plot shows a strong positive correlation between the predicted and reported log odds ratio. This is expected. What’s more useful is the intercept and the slope, which are displayed as part of the figure subheading. In this example, the intercept is close to zero and the slope is \>0.8, which is close to the expected values. When the predicted and reported log odds ratios are identical, the intercept should be 0 and the slope should be 1.
+The plot shows a strong positive correlation between the predicted and
+reported log odds ratio. This is expected. What’s more useful is the
+intercept and the slope, which are displayed as part of the figure
+subheading. In this example, the intercept is close to zero and the
+slope is \>0.8, which is close to the expected values. When the
+predicted and reported log odds ratios are identical, the intercept
+should be 0 and the slope should be 1.
 
 We can also plot the bias, i.e. the deviation of the predicted log odds
 ratio from the reported effect size.
@@ -309,7 +319,7 @@ don’t coincide with their reported effect sizes. The zz\_plot()
 function compares Zp scores (inferred from the reported P values) to Zb
 scores (inferred from the reported effect size and standard error).
 
-## Example. Check whether the P values correspond to the effect sizes
+## Step 5. Check whether the P values correspond to the effect sizes
 
 ``` r
 Plot7<-zz_plot(dat=Dat)
@@ -330,7 +340,12 @@ Plot7_2<-zz_plot(dat=Dat)
 Plot7_2
 ```
 
-# The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes. In the example, we included all three sets of SNP (the GWAS catalog hits, the MAF reference set and the “exposure SNPs”. Let’s restrict the comparison to only the “exposure SNPs” and the GWAS catalog top hits.
+The correlation between the Zp and Zb scores is less than 1, suggesting
+discordance between the reported P values and reported effect sizes. In
+the example, we included all three sets of SNP (the GWAS catalog hits,
+the MAF reference set and the “exposure SNPs”. Let’s restrict the
+comparison to only the “exposure SNPs” and the GWAS catalog top
+hits.
 
 ``` r
 snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superops=FALSE)
@@ -346,7 +361,7 @@ effect sizes. For example, 1 SNP has a Z score close to 15 when
 estimated from the P value but a Z score close to 5 when estimated from
 the reported effect size and standard error
 
-## Example. Combine all plots into a single report
+## Step 6. Combine all plots into a single report
 
 Next we combine all the plots into a single report that we can save for
 later.

@@ -28,6 +28,7 @@ To install the latest version of mrQC, perform as normal:
 install.packages("devtools")
 devtools::install_github("MRCIEU/mrQC")
 library(mrQC)
+
 ```
 ## General overview 
 
@@ -40,7 +41,7 @@ The package performs 4 types of checks:
 3) assess the ancestral origins of a study. This step relies on comparison of the MAF reference set.  
 4) for case-control studies, confirm that the provided effect sizes are log odds ratios or identify potential summary data errors. This step can use any of the SNP sets. 
 
-## Example. Extract and format the target data
+## Step 1. Extract and format the target data
 
 The first step is to make a list of SNP rsids. Let's assume our outcome trait of interest is glioma. Let's identify the top GWAS hits for glioma in the GWAS catalog. We will search on both the reported trait name as well as the trait experimental factor ontology (EFO). Note that not all studies in the GWAS catalog have up-to date EFO annotations. It is therefore advisable to search on both efo and reported trait, to maximise the number of retrieved hits. 
 
@@ -96,9 +97,9 @@ Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,st
 
 Now we are ready to perform some quality checks on the summary data
 
-## Example. Check that the effect allele frequency column is correct
+## Step 2. Check that the effect allele frequency column is correct
 
-# Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the outcome dataset to the 1000 genomes super populations. We'll restrict the comparison to the European super population, since we know that the glioma dataset was derived from a European ancestry population. 
+Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the outcome dataset to the 1000 genomes super populations. We'll restrict the comparison to the European super population, since we know that the glioma dataset was derived from a European ancestry population. 
 
 ```{r make_maf_plot1,eval = FALSE}
 Plot1<-make_plot_maf(snp_target="rsid",ref_1000G="EUR",target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
@@ -119,7 +120,7 @@ All SNPs across all super populations are flagged as problematic. However, we on
 
 In the next example, we compare effect alleles between the glioma outcome dataset and the GWAS catalog. 
 
-## Example. Check that the effect allele column is correct
+## Step 3. Check that the effect allele column is correct
 
 
 ```{r make_gwascatalog_plot1,eval = FALSE}
@@ -143,7 +144,7 @@ We see an inverse correlation in effect allele frequency (EAF) between the targe
 In the next example, we compare the predicted log odds ratio to the reported effect size. This step is applicable to summary data that has been derived from a logistic regression model of case-control status. Since the function to derive the predicted log odds ratio can be a bit slow, we restrict the glioma example to just the first 20 SNPs. 
 
 
-## Example. Check whether the reported effect size corresponds to log odds ratios 
+## Step 4. Check whether the reported effect size corresponds to log odds ratios 
 
 ```{r make_plot_predlnor1,eval = FALSE}
 Dat1<-Dat[1:20,]
@@ -151,7 +152,7 @@ Pred<-predict_lnor_sh(dat=Dat1)
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
-# The plot shows a strong positive correlation between the predicted and reported log odds ratio. This is expected. What's more useful is the intercept and the slope, which are displayed as part of the figure subheading. In this example, the intercept is close to zero and the slope is >0.8, which is close to the expected values. When the predicted and reported log odds ratios are identical, the intercept should be 0 and the slope should be 1. 
+The plot shows a strong positive correlation between the predicted and reported log odds ratio. This is expected. What's more useful is the intercept and the slope, which are displayed as part of the figure subheading. In this example, the intercept is close to zero and the slope is >0.8, which is close to the expected values. When the predicted and reported log odds ratios are identical, the intercept should be 0 and the slope should be 1. 
 
 
 We can also plot the bias, i.e. the deviation of the predicted log odds ratio from the reported effect size. 
@@ -185,7 +186,7 @@ After transforming the reported effect size to a log odds ratio scale, we now se
 
 Let's now return back to the glioma dataset. In the next example we generate ZZ plots, which can be used to flag SNPs with P values that don't coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error).
 
-## Example. Check whether the P values correspond to the effect sizes  
+## Step 5. Check whether the P values correspond to the effect sizes  
 
 ```{r make_zz_plot1,eval = FALSE}
 Plot7<-zz_plot(dat=Dat)
@@ -203,7 +204,7 @@ Plot7_2<-zz_plot(dat=Dat)
 Plot7_2
 ```
 
-# The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes. In the example, we included all three sets of SNP (the GWAS catalog hits, the MAF reference set and the "exposure SNPs". Let's restrict the comparison to only the "exposure SNPs" and the GWAS catalog top hits. 
+The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes. In the example, we included all three sets of SNP (the GWAS catalog hits, the MAF reference set and the "exposure SNPs". Let's restrict the comparison to only the "exposure SNPs" and the GWAS catalog top hits. 
 
 
 ```{r make_zz_plot3,eval = FALSE}
@@ -217,7 +218,7 @@ Plot7_3
 The correlation between the Zp and Zb scores is still less than 1, suggesting some discordance between the reported P values and reported effect sizes. For example, 1 SNP has a Z score close to 15 when estimated from the P value but a Z score close to 5 when estimated from the reported effect size and standard error 
 
 
-## Example. Combine all plots into a single report 
+## Step 6. Combine all plots into a single report 
 
 Next we combine all the plots into a single report that we can save for later. 
 
