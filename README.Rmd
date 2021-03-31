@@ -186,7 +186,7 @@ Plot5_2
 
 Unsurprisingly there is a strong positive correlation. However, the slope is 400, when we expect a slope of 1. In fact, further investigation revealed that Open GWAS dataset ukb-b-1316 was generated using a linear model. In other words, the results were derived from a model where kidney cancer case-control status (controls coded 1 and cases coded 2) was regressed on SNP genotype (additively coded). The effect size from this model can be interpreted as the absolute risk of kidney cancer per copy of the  effect allele. We can transform this into a log odds ratio scale using the transform_betas() function.   
 
-```{r make_plot_predlnor4,eval = TRUE}
+```{r make_plot_predlnor4,eval = TRUE,results='hide'}
 Ukb2<-transform_betas(dat=Ukb,effect="lnor",effect.se="se")
 Pred2<-predict_lnor_sh(dat=Ukb2[1:5,])
 Plot5_3<-make_plot_predlnor(dat=Pred2)
@@ -195,18 +195,19 @@ Plot5_3
 
 After transforming the reported effect size to a log odds ratio scale, we now see a slope close to 1 for the relationship with the predicted log odds ratio. More generally, we suggest that any dataset with an unsual intercept or with a slope very different from 1 (e.g. <0.8 or >1.2) should be investigated by the user for potential problems. In the glioma example, the slope and intercept look reasonably close to what we'd expect. In the kidney cancer example, the slope was very different from 1 because the reported effect sizes had not been generated in a logistic regression model. Other factors that could cause the slope to differ from 1 include: the impact of covariate adjustment in the original GWAS, deviations from Hardy Weinberg equilibrium, mismatches between reported and actual allele frequency for some or all SNPs or mismatches between reported and effective SNP-level sample size for some or all SNPs.    
 
-Let's now return back to the glioma dataset. In the next example we generate ZZ plots, which can be used to flag SNPs with P values that don't coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error).
+## Step 5. Check whether the reported P values correspond to the reported effect sizes  
 
-## Step 5. Check whether the P values correspond to the effect sizes  
+Let's now return back to the glioma dataset. Let's generate some ZZ plots, in order to flag SNPs with P values that don't coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error).
 
-```{r make_zz_plot1,eval = FALSE}
+
+```{r make_zz_plot1,eval = TRUE}
 Plot7<-zz_plot(dat=Dat)
 Plot7
 ```
 
-The correlation between the Zp and Zb scores is 1, indicating very strong concordance between the reported P values and reported effect sizes in the glioma dataset for the selected SNPs. In the next example, we highlight a dataset where the correlation is less than 1. 
+The correlation between the Zp and Zb scores is 1, indicating very strong concordance between the reported P values and reported effect sizes in the glioma dataset for the selected SNPs. In the next example, we highlight a dataset where there is discordance between the reported P value and effect sizes. 
 
-```{r make_zz_plot2,eval = FALSE}
+```{r make_zz_plot2,eval = TRUE}
 instruments<-ieugwasr::tophits(id="met-d-PUFA")
 snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid)
 luc <- ieugwasr::associations(id="ieu-a-966", variants=snplist,proxies=0)  
@@ -218,7 +219,7 @@ Plot7_2
 The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes. In the example, we included all three sets of SNP (the GWAS catalog hits, the MAF reference set and the "exposure SNPs". Let's restrict the comparison to only the "exposure SNPs" and the GWAS catalog top hits. 
 
 
-```{r make_zz_plot3,eval = FALSE}
+```{r make_zz_plot3,eval = TRUE}
 snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superpops=FALSE)
 luc <- ieugwasr::associations(id="ieu-a-966",variants=snplist,proxies=0)  
 Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",population="European",pmid=24880342,ncase=11348,ncontrol=15861,study="ILCCO",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",efo = "lung carcinoma")

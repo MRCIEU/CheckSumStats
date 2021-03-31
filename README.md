@@ -407,11 +407,6 @@ a log odds ratio scale using the transform\_betas() function.
 ``` r
 Ukb2<-transform_betas(dat=Ukb,effect="lnor",effect.se="se")
 Pred2<-predict_lnor_sh(dat=Ukb2[1:5,])
-#> [1] "Analysing SNP 1 of 5"
-#> [1] "Analysing SNP 2 of 5"
-#> [1] "Analysing SNP 3 of 5"
-#> [1] "Analysing SNP 4 of 5"
-#> [1] "Analysing SNP 5 of 5"
 Plot5_3<-make_plot_predlnor(dat=Pred2)
 Plot5_3
 ```
@@ -431,25 +426,29 @@ the slope to differ from 1 include: the impact of covariate adjustment
 in the original GWAS, deviations from Hardy Weinberg equilibrium,
 mismatches between reported and actual allele frequency for some or all
 SNPs or mismatches between reported and effective SNP-level sample size
-for some or all SNPs.
+for some or all
+SNPs.
 
-Let’s now return back to the glioma dataset. In the next example we
-generate ZZ plots, which can be used to flag SNPs with P values that
-don’t coincide with their reported effect sizes. The zz\_plot()
-function compares Zp scores (inferred from the reported P values) to Zb
-scores (inferred from the reported effect size and standard error).
+## Step 5. Check whether the reported P values correspond to the reported effect sizes
 
-## Step 5. Check whether the P values correspond to the effect sizes
+Let’s now return back to the glioma dataset. Let’s generate some ZZ
+plots, in order to flag SNPs with P values that don’t coincide with
+their reported effect sizes. The zz\_plot() function compares Zp scores
+(inferred from the reported P values) to Zb scores (inferred from the
+reported effect size and standard error).
 
 ``` r
 Plot7<-zz_plot(dat=Dat)
 Plot7
 ```
 
+<img src="man/figures/README-make_zz_plot1-1.png" width="100%" />
+
 The correlation between the Zp and Zb scores is 1, indicating very
 strong concordance between the reported P values and reported effect
 sizes in the glioma dataset for the selected SNPs. In the next example,
-we highlight a dataset where the correlation is less than 1.
+we highlight a dataset where there is discordance between the reported P
+value and effect sizes.
 
 ``` r
 instruments<-ieugwasr::tophits(id="met-d-PUFA")
@@ -459,6 +458,8 @@ Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",po
 Plot7_2<-zz_plot(dat=Dat)
 Plot7_2
 ```
+
+<img src="man/figures/README-make_zz_plot2-1.png" width="100%" />
 
 The correlation between the Zp and Zb scores is less than 1, suggesting
 discordance between the reported P values and reported effect sizes. In
@@ -474,6 +475,8 @@ Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",po
 Plot7_3<-zz_plot(dat=Dat)
 Plot7_3
 ```
+
+<img src="man/figures/README-make_zz_plot3-1.png" width="100%" />
 
 The correlation between the Zp and Zb scores is still less than 1,
 suggesting some discordance between the reported P values and reported
