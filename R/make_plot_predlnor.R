@@ -1,7 +1,7 @@
 
-#' Predicted log odds ratio
+#' Compare predicted log odds ratio to reported effect size
 #'
-#' make a plot comparing reported and predicted log odds ratios
+#' Make a plot comparing the predicted log odds ratios to reported effect sizes
 #'
 #' @param dat the target dataset of interest
 #' @param linear_regression logical argument. If TRUE the predicted log odds ratio is regressed on the reported log odds ratio. The slope and intercept are extracted from this model and shown alongside the plot
@@ -221,6 +221,16 @@ format_data_predlnor_sh<-function(dat=NULL){
 	dat<-dat[dat$lnor_pred <= 1.999 & dat$lnor_pred>= -1.999,] #lnor_sh ==1.999 is an artifiact. 
 	return(dat)
 }
+
+
+#' Predicted log odds ratio
+#'
+#' Predict the log odds ratio using information on the number of cases and controls, Z scores and minor allele frequency
+#'
+#' @param dat the outcome dataset of interest
+#'
+#' @return data frame
+#' @export
 	
 predict_lnor_sh<-function(dat=NULL){
 	# load("~/harmonised_data.Rdata")

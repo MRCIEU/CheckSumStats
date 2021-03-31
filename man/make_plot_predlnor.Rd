@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_plot_predlnor.R
 \name{make_plot_predlnor}
 \alias{make_plot_predlnor}
-\title{Predicted log odds ratio}
+\title{Compare predicted log odds ratio to reported effect size}
 \usage{
 make_plot_predlnor(
   dat = NULL,
@@ -48,5 +48,5 @@ make_plot_predlnor(
 plot
 }
 \description{
-make a plot comparing reported and predicted log odds ratios
+Make a plot comparing the predicted log odds ratios to reported effect sizes
 }

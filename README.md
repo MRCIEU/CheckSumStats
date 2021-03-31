@@ -316,43 +316,67 @@ previous allele frequency plots, showing an inverse correlation in MAF
 between the outcome dataset and 1000 genomes European superpopulation,
 this strongly indicates that the effect and non-effect allele columns
 have been incorrectly specified. The reported non-effect allele column
-is actually the effect allele column.
+is very likely the effect allele column.
 
 We can also make a plot comparing effect allele frequency between the
-target dataset and the GWAS catalog, which we show in the next example.
+outcome dataset and the GWAS catalog, which we show in the next example.
 
 ``` r
 
 Plot4<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo=unique(Dat$efo),trait=unique(Dat$outcome))
+Plot4
 ```
 
-We see an inverse correlation in effect allele frequency (EAF) between
-the target dataset and the GWAS catalog in European ancestry studies.
-This is the expected pattern when the effect allele column has been
-incorrectly specified and reflects the non-effect allele. The EAF
-conflict flag is set to moderate or high if EAF is not consistently
-greater or less than 0.5 in the target dataset and the GWAS catalog
-(e.g. is \<0.5 in the target dataset but is \>0.5 in the GWAS catalog).
-For conflicting SNPs, the flag is upgraded to high if effect allele
-frequency is \>0.6 or \<0.4. This makes allowance for chance deviations
-in allele frequency for SNPs with MAF close to 0.5.
+<img src="man/figures/README-make_gwascatalog_plot2-1.png" width="100%" />
 
-In the next example, we compare the predicted log odds ratio to the
-reported effect size. This step is applicable to summary data that has
-been derived from a logistic regression model of case-control status.
-Since the function to derive the predicted log odds ratio can be a bit
-slow, we restrict the glioma example to just the first 20
-SNPs.
+We see an inverse correlation in effect allele frequency (EAF) between
+the outcome glioma dataset and the GWAS catalog in European ancestry
+studies. This is the expected pattern when the effect allele column has
+been incorrectly specified. In general, the EAF conflict flag is set to
+moderate or high if EAF is not consistent between the outcome dataset
+and the GWAS catalog (e.g. is \<0.5 in the outcome dataset but is \>0.5
+in the GWAS catalog or vice versa). For conflicting SNPs, the flag is
+further upgraded to high if effect allele frequency is \>0.6 or \<0.4.
+This makes allowance for chance deviations in allele frequency for SNPs
+with minor allele frequency close to
+0.5.
 
 ## Step 4. Check whether the reported effect size corresponds to log odds ratios
+
+We next compare the predicted log odds ratio to the reported effect
+size. This step is applicable to summary data that has been derived from
+a logistic regression model of case-control status. Since the function
+to derive the predicted log odds ratio can be a bit slow, we restrict
+the glioma example to just the first 20 SNPs.
 
 ``` r
 Dat1<-Dat[1:20,]
 Pred<-predict_lnor_sh(dat=Dat1)
+#> [1] "Analysing SNP 1 of 20"
+#> [1] "Analysing SNP 2 of 20"
+#> [1] "Analysing SNP 3 of 20"
+#> [1] "Analysing SNP 4 of 20"
+#> [1] "Analysing SNP 5 of 20"
+#> [1] "Analysing SNP 6 of 20"
+#> [1] "Analysing SNP 7 of 20"
+#> [1] "Analysing SNP 8 of 20"
+#> [1] "Analysing SNP 9 of 20"
+#> [1] "Analysing SNP 10 of 20"
+#> [1] "Analysing SNP 11 of 20"
+#> [1] "Analysing SNP 12 of 20"
+#> [1] "Analysing SNP 13 of 20"
+#> [1] "Analysing SNP 14 of 20"
+#> [1] "Analysing SNP 15 of 20"
+#> [1] "Analysing SNP 16 of 20"
+#> [1] "Analysing SNP 17 of 20"
+#> [1] "Analysing SNP 18 of 20"
+#> [1] "Analysing SNP 19 of 20"
+#> [1] "Analysing SNP 20 of 20"
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
 
+<img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
 The plot shows a strong positive correlation between the predicted and
 reported log odds ratio. This is expected. What’s more useful is the
 intercept and the slope, which are displayed as part of the figure
