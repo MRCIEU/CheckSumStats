@@ -78,8 +78,11 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 		# which(gwas_studies@studies$study_id=="GCST001633")
 		 # gwasrapidd::get_studies(study_id = "GCST001633")
 		# unique(gwas_studies@studies$reported_trait)
-		if(nrow(gwas_studies@studies)==0){
-			warning(paste("search for efo -",efo,"- returned 0 studies from the GWAS catalog"))
+		if(class(unlist(gwas_studies)) == "character"){
+			# if(nrow(gwas_studies@studies)==0){
+			if(nrow(gwas_studies)==0){
+				warning(paste("search for efo -",efo,"- returned 0 studies from the GWAS catalog"))
+			}
 		}
 	}
 
@@ -87,61 +90,69 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 		efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
 		gwas_studies<-gwasrapidd::get_studies(efo_id = efo_id)		
 		# unique(gwas_studies@studies$reported_trait)
-		if(nrow(gwas_studies@studies)==0){
-			warning(paste("search for efo -",efo_id,"- returned 0 studies from the GWAS catalog"))
+		if(class(unlist(gwas_studies)) == "character"){
+			# if(nrow(gwas_studies@studies)==0){
+			if(nrow(gwas_studies)==0){
+				warning(paste("search for efo -",efo_id,"- returned 0 studies from the GWAS catalog"))
+			}
 		}
 	}
 	
 	if(!is.null(trait)){
 		gwas_studies<-gwasrapidd::get_studies(reported_trait = trait)
-		if(nrow(gwas_studies@studies)==0){
-			warning(paste("search for trait -",trait,"- returned 0 studies from the GWAS catalog"))
+		if(class(unlist(gwas_studies)) == "character"){
+			# if(nrow(gwas_studies@studies)==0){
+			if(nrow(gwas_studies)==0){
+				warning(paste("search for trait -",trait,"- returned 0 studies from the GWAS catalog"))
+			}
 		}
 	}
 	
-	if(nrow(gwas_studies@studies)!=0){
-		ancestry_tab<-make_ancestry_table(gwas_studies=gwas_studies)		
-		study_ids<-gwas_studies@studies$study_id	
-		Dat<-NULL	
-		i<-1
+	if(class(unlist(gwas_studies)) != "character"){
+		if(nrow(gwas_studies@studies)!=0){
+			ancestry_tab<-make_ancestry_table(gwas_studies=gwas_studies)	
+			study_ids<-gwas_studies@studies$study_id	
+			Dat<-NULL	
+			i<-1
 
-		for(i in 1:length(study_ids)){		
-		# print(i)			
-			gwas_associations<-gwasrapidd::get_associations(study_id = study_ids[i])
-			if(nrow(gwas_associations@associations)!=0){
-				associations<-data.frame(gwas_associations@associations,stringsAsFactors=F)
-				risk_alleles<-data.frame(gwas_associations@risk_alleles)
-				gwas_results<-merge(associations,risk_alleles,by="association_id")
-				# p_values<-gwas_associations@associations$pvalue			
-				# odds_ratios<-gwas_associations@associations$or_per_copy_number
-				# risk_alleles<-gwas_associations@risk_alleles$risk_allele
-				# rsids<-gwas_associations@risk_alleles$variant_id
-				# eaf<-gwas_associations@risk_alleles$risk_frequency
-			
-				gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
-				gwas_results$log_odds_ratios<-log(gwas_results$or_per_copy_number)
-				if(all(is.na(gwas_results$log_odds_ratios))){
-					gwas_results$log_odds_ratios<-gwas_results$beta_number
-				}
-				gwas_results$standard_errors<-gwas_results$log_odds_ratios/gwas_results$z_scores
-				gwas_results$study_id<-study_ids[i]								
-				Dat[[i]]<-gwas_results	
-			}			
-		}
-		if(!is.null(trait)) trait_efo<-trait
-		if(!is.null(efo)) trait_efo<-efo
+			for(i in 1:length(study_ids)){		
+			# print(i)			
+				gwas_associations<-gwasrapidd::get_associations(study_id = study_ids[i])
+				if(nrow(gwas_associations@associations)!=0){
+					associations<-data.frame(gwas_associations@associations,stringsAsFactors=F)
+					risk_alleles<-data.frame(gwas_associations@risk_alleles)
+					gwas_results<-merge(associations,risk_alleles,by="association_id")
+					# p_values<-gwas_associations@associations$pvalue			
+					# odds_ratios<-gwas_associations@associations$or_per_copy_number
+					# risk_alleles<-gwas_associations@risk_alleles$risk_allele
+					# rsids<-gwas_associations@risk_alleles$variant_id
+					# eaf<-gwas_associations@risk_alleles$risk_frequency
+				
+					gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
+					gwas_results$log_odds_ratios<-log(gwas_results$or_per_copy_number)
+					if(all(is.na(gwas_results$log_odds_ratios))){
+						gwas_results$log_odds_ratios<-gwas_results$beta_number
+					}
+					gwas_results$standard_errors<-gwas_results$log_odds_ratios/gwas_results$z_scores
+					gwas_results$study_id<-study_ids[i]								
+					Dat[[i]]<-gwas_results	
+				}			
+			}
+			if(!is.null(trait)) trait_efo<-trait
+			if(!is.null(efo)) trait_efo<-efo
 
-		if(is.null(Dat)){
-			warning(paste0("no results found in GWAS catalog for ",trait_efo))
-		}
-		if(!is.null(Dat)){
-			Dat<-do.call(rbind,Dat)
-			Dat<-Dat[,c("variant_id","risk_allele","log_odds_ratios","standard_errors","risk_frequency","pvalue","z_scores","study_id")]
-			names(Dat)<-c("rsid","effect_allele","lnor","se","eaf","p","test_statistic","study_id")		
-			Dat<-merge(Dat,ancestry_tab,by="study_id")				
-			return(Dat)
-		}
-	}			
+			if(is.null(Dat)){
+				warning(paste0("no results found in GWAS catalog for ",trait_efo))
+			}
+			if(!is.null(Dat)){
+				Dat<-do.call(rbind,Dat)
+				Dat<-Dat[,c("variant_id","risk_allele","log_odds_ratios","standard_errors","risk_frequency","pvalue","z_scores","study_id")]
+				names(Dat)<-c("rsid","effect_allele","lnor","se","eaf","p","test_statistic","study_id")		
+				Dat<-merge(Dat,ancestry_tab,by="study_id")				
+				return(Dat)
+			}
+		}			
+	}
 }
 
 

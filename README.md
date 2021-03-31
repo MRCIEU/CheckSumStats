@@ -117,18 +117,61 @@ MAC or linux operating systems.
 ``` r
 File<-system.file("extdata", "glioma_test_dat.txt", package = "mrQC")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
+dim(gli)
+#> [1] 115  16
+head(gli)
+#>       Locus Allele1 Allele2         MAF                Geno_Counts  Subjects
+#> 1 rs6010620       G       A 0.229|0.175  2969|1698|287/1254|554|48 4954|1856
+#> 2 rs2736100       G       T 0.506|0.437 1211|2465|1273/594|900|360 4949|1854
+#> 3 rs2157719       A       G 0.450|0.511 1508|2428|1013/454|905|495 4949|1854
+#> 4 rs4977756       A       G 0.423|0.481  1669|2374|908/509|905|438 4951|1852
+#> 5 rs2853676       G       A 0.250|0.311  2795|1835|321/874|808|172 4951|1854
+#> 6 rs2297440       C       T 0.223|0.175  2668|1458|244/1039|455|42 4370|1536
+#>          p     OR OR_95._CI_l OR_95._CI_u CHROMOSOME LOCATION controls cases
+#> 1 1.13e-10 0.7009      0.6289      0.7812         20 61780283     4954  1856
+#> 2 4.28e-09 0.7722      0.7082      0.8420          5  1339516     4949  1854
+#> 3 4.57e-09 1.2936      1.1866      1.4102          9 22023366     4949  1854
+#> 4 1.21e-08 1.2831      1.1774      1.3982          9 22058652     4951  1852
+#> 5 2.16e-08 1.3112      1.1922      1.4420          5  1341547     4951  1854
+#> 6 1.49e-07 0.7278      0.6462      0.8198         20 61782743     4370  1536
+#>   eaf.controls path_to_target_file
+#> 1        0.229 glioma_test_dat.txt
+#> 2        0.506 glioma_test_dat.txt
+#> 3        0.450 glioma_test_dat.txt
+#> 4        0.423 glioma_test_dat.txt
+#> 5        0.250 glioma_test_dat.txt
+#> 6        0.223 glioma_test_dat.txt
 ```
 
 In the above example, the summary data for glioma was stored locally on
 our machine in a tab separated text file. Alternatively, we could have
-sourced of our outcome summary data from the Open GWAS project
+sourced the outcome summary data from the Open GWAS project
 (<https://gwas.mrcieu.ac.uk/>). For example, to extract summary data for
 thyroid cancer we could
 run:
 
 ``` r
 snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
+#> Warning in gwas_catalog_hits(trait = trait): search for trait - thyroid
+#> carcinoma - returned 0 studies from the GWAS catalog
+head(snplist)
+#> [1] "rs965513"    "rs944289"    "rs966423"    "rs2439302"   "rs116909374"
+#> [6] "rs6759952"
+length(snplist)
+#> [1] 2397
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
+dim(thy)
+#> [1] 146  12
+head(thy)
+#> # A tibble: 6 x 12
+#>       se  position     n chr       p    beta id    rsid  ea    nea     eaf trait
+#>    <dbl>     <int> <int> <chr> <dbl>   <dbl> <chr> <chr> <chr> <chr> <dbl> <chr>
+#> 1 0.104   27530778  1187 12    0.826 -0.0229 ieu-… rs11… A     G     0.200 Thyr…
+#> 2 0.0934  63437858  1187 3     0.526 -0.0592 ieu-… rs68… C     T     0.271 Thyr…
+#> 3 0.0891  86437529  1187 4     0.754  0.0279 ieu-… rs46… G     A     0.676 Thyr…
+#> 4 0.0953   9204238  1187 5     0.764 -0.0286 ieu-… rs14… G     A     0.256 Thyr…
+#> 5 0.106  124904611  1187 10    0.354 -0.0977 ieu-… rs10… T     C     0.190 Thyr…
+#> 6 0.104   12564852  1187 11    0.461  0.0768 ieu-… rs10… G     A     0.803 Thyr…
 ```
 
 Returning to the glioma example, having extracted the summary data for

@@ -80,13 +80,19 @@ Our SNP list now contains the rsids for: 1) the GWAS catalog top hits, 2) the MA
 ```{r extract_snps1, eval = TRUE}
 File<-system.file("extdata", "glioma_test_dat.txt", package = "mrQC")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
+dim(gli)
+head(gli)
 ```
 
-In the above example, the summary data for glioma was stored locally on our machine in a tab separated text file. Alternatively, we could have sourced of our outcome summary data from the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, to extract summary data for thyroid cancer we could run:
+In the above example, the summary data for glioma was stored locally on our machine in a tab separated text file. Alternatively, we could have sourced the outcome summary data from the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, to extract summary data for thyroid cancer we could run:
 
-```{r extract_snps2,eval = FALSE}
+```{r extract_snps2,eval = TRUE}
 snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
+head(snplist)
+length(snplist)
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
+dim(thy)
+head(thy)
 ```
 
 Returning to the glioma example, having extracted the summary data for the SNP rsids of interest, we now need to format the summary data.  
