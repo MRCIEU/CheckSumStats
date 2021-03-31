@@ -25,26 +25,28 @@ devtools::install_github("MRCIEU/mrQC")
 
 ## General overview
 
-This package exploits three groups of SNPs: 1) **the MAF 1KG reference
-set**. This a set of 2297 SNPs that have the same minor allele across
+This package exploits three groups of SNPs: 1) **A MAF 1KG reference
+set**. This is a set of 2297 SNPs that have the same minor allele across
 the 1000 genomes super populations and that have a minor allele
 frequency between 0.1 and 0.3. These SNPs are used to check for allele
-frequency errors; 2) **the GWAS catalog top hits**. These are SNPs in
-the GWAS catalog that are strongly associated with the outcome trait of
-interest; and 3) the **exposure SNPs** or the genetic instruments for
-the exposure of interest.
+frequency errors; 2) **GWAS catalog top hits**. These are SNPs in the
+GWAS catalog that are strongly associated with the outcome trait of
+interest; and 3) the **exposure SNPs** or genetic instruments for the
+exposure of interest.
 
 The package performs 4 types of checks:
 
-1)  confirm the identity of the effect allele column. This step relies
-    on comparison of GWAS catalog top hits.  
-2)  confirm the identity of the effect allele frequency column. This
-    step relies on comparison of the MAF reference set.  
-3)  assess the ancestral origins of a study. This step relies on
-    comparison of the MAF reference set.  
-4)  for case-control studies, confirm that the provided effect sizes are
-    log odds ratios or identify potential summary data errors. This step
-    can use any of the SNP sets.
+1)  confirm the identity of the effect allele frequency column. This
+    step relies on comparison of the MAF reference set between the
+    outcome study and 1000 genomes reference dataset.
+2)  confirm the identity of the effect allele column. This step relies
+    on comparison of GWAS hits between the outcome study and the GWAS
+    catalog.  
+3)  assess the ancestral origins of the study. This step relies on
+    comparison of the MAF reference set between the outcome study and
+    1000 genomes reference dataset.  
+4)  for case-control studies, identify potential errors or issues in the
+    effect sizes. This step can use any of the SNP sets.
 
 ## Step 1. Extract and format the target data
 
@@ -359,12 +361,10 @@ Plot5
 
 <img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
 The plot shows a strong positive correlation between the predicted log
-odds ratios and the reported effect size. This is expected. What’s more
-useful is the intercept and the slope, which are displayed as part of
-the figure subheading. In this example, the intercept is close to zero
-and the slope is \>0.8, which is close to the expected values. When the
-predicted log odds ratios and reported effect sizes are identical, the
-intercept should be 0 and the slope should be 1.
+odds ratios and the reported effect size, an intercept close to zero and
+a slope that is \>0.8. When the predicted log odds ratios and reported
+effect sizes are identical, the intercept should be 0 and the slope
+should be 1.
 
 We can also plot the relative bias, i.e. the percentage deviation of the
 predicted log odds ratio from the reported effect size.
@@ -394,15 +394,15 @@ Plot5_2
 
 <img src="man/figures/README-make_plot_predlnor2-1.png" width="100%" />
 
-Unsurprisingly there is a strong positive correlation. However, the
-slope is 400, when we expect a slope of 1. In fact, further
-investigation revealed that Open GWAS dataset ukb-b-1316 was generated
-using a linear model. In other words, the results were derived from a
-model where kidney cancer case-control status (controls coded 1 and
-cases coded 2) was regressed on SNP genotype (additively coded). The
-effect size from this model can be interpreted as the absolute risk of
-kidney cancer per copy of the effect allele. We can transform this into
-a log odds ratio scale using the transform\_betas() function.
+Although there is a strong positive correlation, the slope is 400, when
+we expect a slope of 1. In fact, further investigation revealed that
+Open GWAS dataset ukb-b-1316 was generated using a linear model. In
+other words, the results were derived from a model where kidney cancer
+case-control status (controls coded 1 and cases coded 2) was regressed
+on SNP genotype (additively coded). The effect size from this model can
+be interpreted as the absolute risk of kidney cancer per copy of the
+effect allele. We can transform this into a log odds ratio scale using
+the transform\_betas() function.
 
 ``` r
 Ukb2<-transform_betas(dat=Ukb,effect="lnor",effect.se="se")
@@ -422,11 +422,11 @@ glioma example, the slope and intercept look reasonably close to what
 we’d expect. In the kidney cancer example, the slope was very
 different from 1 because the reported effect sizes had not been
 generated in a logistic regression model. Other factors that could cause
-the slope to differ from 1 include: the impact of covariate adjustment
-in the original GWAS, deviations from Hardy Weinberg equilibrium,
-mismatches between reported and actual allele frequency for some or all
-SNPs or mismatches between reported and effective SNP-level sample size
-for some or all
+the slope to differ from 1 include: 1) the impact of covariate
+adjustment in the original GWAS, 2) deviations from Hardy Weinberg
+equilibrium, 3) mismatches between reported and actual allele frequency
+for some or all SNPs or 4) mismatches between the reported and effective
+SNP-level sample sizes for some or all
 SNPs.
 
 ## Step 5. Check whether the reported P values correspond to the reported effect sizes
@@ -448,7 +448,7 @@ The correlation between the Zp and Zb scores is 1, indicating very
 strong concordance between the reported P values and reported effect
 sizes in the glioma dataset for the selected SNPs. In the next example,
 we highlight a dataset where there is discordance between the reported P
-value and effect sizes.
+values and effect sizes.
 
 ``` r
 instruments<-ieugwasr::tophits(id="met-d-PUFA")
@@ -462,10 +462,11 @@ Plot7_2
 <img src="man/figures/README-make_zz_plot2-1.png" width="100%" />
 
 The correlation between the Zp and Zb scores is less than 1, suggesting
-discordance between the reported P values and reported effect sizes. In
-the example, we included all three sets of SNP (the GWAS catalog hits,
-the MAF reference set and the “exposure SNPs”. Let’s restrict the
-comparison to only the “exposure SNPs” and the GWAS catalog top
+discordance between the reported P values and reported effect sizes,
+which is also clear from visual inspection of the plot. In this example,
+we have included three SNP sets (the GWAS catalog hits, the MAF
+reference set and the “exposure SNPs”. Let’s restrict the comparison to
+only the “exposure SNPs” and the GWAS catalog top
 hits.
 
 ``` r
@@ -480,21 +481,18 @@ Plot7_3
 
 The correlation between the Zp and Zb scores is still less than 1,
 suggesting some discordance between the reported P values and reported
-effect sizes. For example, 1 SNP has a Z score close to 15 when
-estimated from the P value but a Z score close to 5 when estimated from
-the reported effect size and standard error
+effect sizes, which is also clear from visual inspection of the plot.
+For example, 1 SNP has a Z score close to 15 when estimated from the
+reported P value but a Z score close to 5 when estimated from the
+reported effect size and standard error.
 
 ## Step 6. Combine all plots into a single report
 
-Next we combine all the plots into a single report that we can save for
-later.
+Next we combine all the plots into a single report.
 
 ``` r
 Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
+
 combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/qc_report.png"
 ```
