@@ -99,9 +99,12 @@ these to the other SNPs.
 
 ``` r
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
+#> API: public: http://gwas-api.mrcieu.ac.uk/
 snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 2417
 ```
 
 Our SNP list now contains the rsids for the GWAS catalog top hits, the

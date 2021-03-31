@@ -68,7 +68,7 @@ length(snplist)
 
 We can also define a set of "exposure SNPs" and include this in the rsid list. For example, let's assume we are conducting a Mendelian randomisation study to assess the effect of polyunsaturated fatty acid exposure on risk of glioma. Let's define the "exposure SNPs", or genetic instrument, as SNPs associated with polyunsaturated fatty acids with a P value <5e-8. Let's use the ieugwasr package to extract "exposure SNPs" for polyunsaturated fatty acids from the Open GWAS project and also add these to the other SNPs. 
 
-```{r make_snplist4, eval = FALSE}
+```{r make_snplist4, eval = TRUE}
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
 snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 head(snplist)
