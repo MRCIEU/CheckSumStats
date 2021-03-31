@@ -12,7 +12,7 @@
 #' @return plot 
 #' @export
 
-zz_plot<-function(dat=NULL,Title_size=0,Title="",Ylab="",Xlab="",Title_xaxis_size=0){
+zz_plot<-function(dat=NULL,Title_size=12,Title="ZZ plot",Ylab="Z score inferred from p value",Xlab="Z score inferred from log odds ratio and standard error",Title_xaxis_size=12){
 	dat<-dat[abs(dat$p)<=1,]
 	dat$z.p<-stats::qnorm(dat$p/2,lower.tail=F)
 	# dat[dat$z.p == "NaN", ]

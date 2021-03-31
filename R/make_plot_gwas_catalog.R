@@ -19,9 +19,7 @@
 #' @return plot 
 #' @export
 
-
-
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=NULL,legend=TRUE,Title=Title,Title_size_subplot=Title_size_subplot,Ylab=Ylab,Xlab=Xlab,Title_xaxis_size=0){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=NULL,legend=TRUE,Title="Comparison of Z scores between target study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in target study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12){
 	# if(!is.null(trait)){
 		# gwas_catalog<-gwas_catalog_hits(trait=trait)
 	# }
@@ -122,6 +120,9 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Dat.m$plot_y<-Dat.m$eaf.y
 		Dat.m$colour<-EAF 
 		Name<-"EAF conflict"
+		Ylab="EAF in target study"
+		Xlab="EAF in GWAS catalog"
+		Title="Comparison of EAF between target study and GWAS catalog"
 	}
 
 	if(plot_type=="plot_zscores"){

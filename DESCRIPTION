@@ -24,4 +24,5 @@ Imports:
     grid,
     gridExtra,
     cowplot,
-    grDevices
+    grDevices,
+    ieugwasr

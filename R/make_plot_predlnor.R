@@ -19,8 +19,7 @@
 #' @return plot 
 #' @export
 
-
-make_plot_predlnor<-function(dat=NULL,Xlab="",Ylab="",linear_regression=TRUE,subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=0,Title=NULL,Title_xaxis_size=10,legend=TRUE,standard_errors=FALSE){
+make_plot_predlnor<-function(dat=NULL,Xlab="",Ylab="",linear_regression=TRUE,subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported log odds ratios",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE){
 
 	dat<-format_data_predlnor_sh(dat=dat)
 	outcome_name<-unique(paste0(dat$outcome," | " ,dat$study," | ",dat$ID))

@@ -19,17 +19,30 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superops=TRUE,sn
 	
 	if(!is.null(efo_id)){
 		top_hits<-gwas_catalog_hits(efo_id=efo_id)	
+		snplist<-top_hits$rsid	
 	}
 
 	if(!is.null(trait)){
 		top_hits<-gwas_catalog_hits(trait=trait)	
+		if(!is.null(efo_id)){
+			snplist1<-top_hits$rsid	
+			snplist<-c(snplist,snplist1)
+		}else{
+			snplist<-top_hits$rsid	
+		}
 	}
+
 	if(!is.null(efo)){
 		top_hits<-gwas_catalog_hits(efo=efo)
+		if(!is.null(efo_id) | !is.null(trait)){
+			snplist1<-top_hits$rsid	
+			snplist<-c(snplist,snplist1)
+		}else{		
+			snplist<-top_hits$rsid	
+		}
+		
 	}
-	
-	snplist<-top_hits$rsid	
-	
+		
 	# # snplist<-c(snplist,top_hits_rsids)
 	if(ref1000G_superops){
 		utils::data("refdat_1000G_superpops",envir =environment())

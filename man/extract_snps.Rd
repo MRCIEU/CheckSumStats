@@ -9,7 +9,6 @@ extract_snps(
   path_to_target_file = NULL,
   exact_match = TRUE,
   path_to_target_file_sep = "\\t",
-  out_dir = "~/",
   Test.gz = FALSE,
   fill = FALSE,
   Comment = "#",
@@ -25,8 +24,6 @@ rsids}
 \item{exact_match}{search for exact matches. Default TRUE}
 
 \item{path_to_target_file_sep}{column/field separator. Default assumes that data is tab separated}
-
-\item{out_dir}{location to save temporary files. Default is home directory.}
 
 \item{Test.gz}{is the target data a gz file? Default set to FALSE}
 

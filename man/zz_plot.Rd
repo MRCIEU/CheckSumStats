@@ -6,11 +6,11 @@
 \usage{
 zz_plot(
   dat = NULL,
-  Title_size = 0,
-  Title = "",
-  Ylab = "",
-  Xlab = "",
-  Title_xaxis_size = 0
+  Title_size = 12,
+  Title = "ZZ plot",
+  Ylab = "Z score inferred from p value",
+  Xlab = "Z score inferred from log odds ratio and standard error",
+  Title_xaxis_size = 12
 )
 }
 \arguments{

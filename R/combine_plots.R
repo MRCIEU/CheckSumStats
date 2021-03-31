@@ -7,25 +7,25 @@
 #' @param return_plot logical argument. If TRUE, plot is returned and is not save to out_file 
 #' @param width width of plot
 #' @param height height of plot 
-#' @param bycols logical argument. If true, plots by column
+#' @param by2cols logical argument. If true, forces plot to have 2 columns
 #' @param Title plot title
 #' @param Xlab label for X axis
 #' @param Ylab label for Y axis
 #' @param Title_size size of title
 #' @param Title_axis_size size of x axis title
-#' @param ncol number of columns
-#' @param nrow number of rows
+#' @param Ncol number of columns
 #'
 #' @return plot 
 #' @export
 
-make_cow_plot2<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=1000,height=1000,Title="",Xlab="",Ylab="",Title_size=0,Title_axis_size=10,bycols=TRUE,ncol=2,nrow=4){
+combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=1000,height=1000,Title="",Xlab="",Ylab="",Title_size=0,Title_axis_size=10,by2cols=TRUE,Ncol=2){
 
 	# Plot<-cowplot::plot_grid(plotlist=Plot_list[[1]])
-	if(bycols){
-		Plot<-cowplot::plot_grid(plotlist=Plot_list,nrow=nrow,ncol=ncol)
+	if(by2cols){
+		Nrow<-round(length(Plot_list)/2)
+		Plot<-cowplot::plot_grid(plotlist=Plot_list,nrow=Nrow,ncol=Ncol)
 	}
-	if(!bycols){
+	if(!by2cols){
 		Plot<-cowplot::plot_grid(plotlist=Plot_list)
 	}
 	if(Title!="") { 
