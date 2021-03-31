@@ -27,7 +27,6 @@ To install the latest version of mrQC, perform as normal:
 ``` r
 install.packages("devtools")
 devtools::install_github("MRCIEU/mrQC")
-library(mrQC)
 
 ```
 ## General overview 
@@ -46,7 +45,8 @@ The package performs 4 types of checks:
 The first step is to make a list of SNP rsids. Let's assume our outcome trait of interest is glioma. Let's identify the top GWAS hits for glioma in the GWAS catalog. We will search on both the reported trait name as well as the trait experimental factor ontology (EFO). Note that not all studies in the GWAS catalog have up-to date EFO annotations. It is therefore advisable to search on both efo and reported trait, to maximise the number of retrieved hits. 
 
 
-```{r make_snplist1, eval = FALSE}
+```{r make_snplist1, eval = TRUE}
+library(mrQC)
 snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=FALSE) #search on EFO abd reported trait 
 head(snplist)
 length(snplist)

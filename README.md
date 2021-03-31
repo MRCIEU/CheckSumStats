@@ -21,7 +21,6 @@ To install the latest version of mrQC, perform as normal:
 ``` r
 install.packages("devtools")
 devtools::install_github("MRCIEU/mrQC")
-library(mrQC)
 ```
 
 ## General overview
@@ -55,13 +54,15 @@ in the GWAS catalog. We will search on both the reported trait name as
 well as the trait experimental factor ontology (EFO). Note that not all
 studies in the GWAS catalog have up-to date EFO annotations. It is
 therefore advisable to search on both efo and reported trait, to
-maximise the number of retrieved
-hits.
+maximise the number of retrieved hits.
 
 ``` r
+library(mrQC)
 snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superops=FALSE) #search on EFO abd reported trait 
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 54
 ```
 
 We see that searching on the glioma EFO and glioma trait retrieves 54
