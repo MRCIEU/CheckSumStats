@@ -185,8 +185,9 @@ However the search was able to identify hits searching on the efo for
 thyroid carcinoma.
 
 Returning to the glioma example, having extracted the summary data for
-the SNP rsids of interest, we now need to format the summary
-data.
+the SNP rsids of interest, we now need to format the summary data. This
+is to get the data into the expected format for the QC
+functions.
 
 ``` r
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
@@ -234,15 +235,17 @@ Now we are ready to perform some quality checks on the summary data
 
 Next we create some plots to visualise potential problems with the
 effect allele frequency column. We do this by comparing allele frequency
-in the outcome dataset to the 1000 genomes super populations. We’ll
-restrict the comparison to the European super population, since we know
-that the glioma dataset was derived from a European ancestry
+in the outcome glioma dataset to the 1000 genomes super populations.
+Let’s restrict the comparison to the European super population, since
+we know that the glioma dataset was derived from a European ancestry
 population.
 
 ``` r
 Plot1<-make_plot_maf(snp_target="rsid",ref_1000G="EUR",target_dat=Dat,target_dat_population="population",target_study="study",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele")
 Plot1
 ```
+
+<img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
 
 SNPs with a red colour are SNPs with incompatible minor allele
 frequencies, i.e. the allele frequencies are above 0.5 in the target
