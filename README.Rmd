@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-mrQC is an R package for checking the accuracy of meta- and summary-data for outcome traits prior to their use in Mendelian randomisation analyses. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the summary data that might introduce bias into downstream Mendelian randomisation analyses.   
+mrQC is an R package for checking the accuracy of meta- and summary-data for outcome traits prior to their use in two-sample Mendelian randomisation analyses. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the summary data that might introduce bias into downstream Mendelian randomisation analyses.   
 
 ## Installation
 
@@ -31,7 +31,7 @@ devtools::install_github("MRCIEU/mrQC")
 ```
 ## General overview 
 
-This package exploits three groups of SNPs: 1) **A MAF 1KG reference set**. This is a set of 2297 SNPs that have the same minor allele across the 1000 genomes super populations and that have a minor allele frequency between 0.1 and 0.3; 2) **GWAS catalog top hits**. These are SNPs in the GWAS catalog that are strongly associated with the outcome trait of interest; and 3) the **exposure SNPs** or genetic instruments for the exposure of interest. 
+This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues: 1) **A MAF 1KG reference set**. This is a set of 2297 SNPs that have the same minor allele across the 1000 genomes super populations and that have a minor allele frequency between 0.1 and 0.3; 2) **GWAS catalog top hits**. These are SNPs in the GWAS catalog that are strongly associated with the outcome trait of interest; and 3) the **exposure SNPs** or genetic instruments for the exposure of interest. 
 
 The package performs 4 types of checks: 
 
@@ -75,7 +75,7 @@ head(snplist)
 length(snplist)
 ```
 
-Our SNP list now contains the rsids for: 1) the GWAS catalog top hits, 2) the MAF reference set and 3) the "exposure SNPs". Next, we extract the summary associations statistics for these SNPs from the glioma outcome dataset. The example below has already been restricted to the SNPs of interest to save space. The extract_snps function only works on MAC or linux operating systems. 
+Our SNP list now contains the rsids for: 1) the GWAS catalog top hits, 2) the MAF reference set and 3) the "exposure SNPs". Next, we extract the summary associations statistics for these SNPs from the glioma outcome dataset. The example below has already been restricted to the three sets of SNPs to save space and time. Note: the extract_snps function only works on MAC or linux operating systems. 
 
 ```{r extract_snps1, eval = TRUE}
 File<-system.file("extdata", "glioma_test_dat.txt", package = "mrQC")
@@ -84,7 +84,7 @@ dim(gli)
 head(gli)
 ```
 
-In the above example, the summary data for glioma was stored locally on our machine in a tab separated text file. Alternatively, we could have sourced the outcome summary data from the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, to extract summary data for thyroid cancer we could run:
+In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice, this might correspond to a file of GWAS results obtained via correspondence with a GWAS consortium. Alternatively, we could have sourced the outcome summary data from the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, to extract summary data for thyroid cancer from Open GWAS we could run:
 
 ```{r extract_snps2,eval = TRUE}
 snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
@@ -95,14 +95,16 @@ dim(thy)
 thy
 ```
 
-The make_snplist() function returns a warning that no GWAS hits were found when searching for thyroid carcinoma as the reported trait. However the search was able to identify hits searching on the efo for thyroid carcinoma. 
+The make_snplist() function returns a warning that no GWAS hits were found when searching for thyroid carcinoma in the GWAS catalog's "reported trait" field. The search was, however, able to identify hits when searching for "thyroid carcinoma" in the efo field.   
 
-Returning to the glioma example, having extracted the summary data for the SNP rsids of interest, we now need to format the summary data. This is to get the data into the expected format for the QC functions. 
+Returning to the glioma example, having extracted the summary data for the three sets of SNPs, we now need to format the summary data. This is to get the data into the expected format for the QC functions. 
 
 ```{r format_data1,eval = TRUE}
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 head(Dat)
 ```
+
+In this example, the glioma results file contained columns for the odds ratio and 95% confidence intervals. In practice, the format of the effect size columns is highly variable across studies. For example, some studies may report the log odds ratio and its standard error or the odds ratio and P value without confidence intervals or a standard error. The format_data() function accepts these and other effect size reporting formats. See ?format_data() for more info.    
 
 Now we are ready to perform some quality checks on the summary data
 
@@ -153,7 +155,7 @@ We see an inverse correlation in effect allele frequency (EAF) between the outco
 
 ## Step 4. Check whether the reported effect size corresponds to log odds ratios and has the expected distribution
 
-We next compare the predicted log odds ratio to the reported effect size, in order to identify other potential errors or issues. This step is applicable to summary data that has been derived from a case-control genome-wide association study. Since the function to derive the predicted log odds ratio can be a bit slow, we restrict the glioma example to just the first 20 SNPs. 
+We next compare the predicted log odds ratio to the reported effect size, in order to identify other potential errors or issues. This step is applicable to summary data that has been derived from a case-control genome-wide association study. 
 
 
 ```{r make_plot_predlnor1,eval = TRUE,results='hide'}
@@ -161,7 +163,7 @@ Pred<-predict_lnor_sh(dat=Dat)
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
-The plot shows a strong positive correlation between the predicted log odds ratios and the reported effect size, an intercept close to zero and a slope that is >0.8. When the predicted log odds ratios and reported effect sizes are identical, the intercept should be 0 and the slope should be 1.         
+The plot shows a strong positive correlation between the predicted log odds ratios and the reported effect size, an intercept close to zero and a slope that is >0.8. When the predicted log odds ratios and reported effect sizes are identical, the intercept should be 0 and the slope should be 1.  
 
 We can also plot the relative bias, i.e. the percentage deviation of the predicted log odds ratio from the reported effect size. 
 
@@ -169,7 +171,7 @@ We can also plot the relative bias, i.e. the percentage deviation of the predict
 Plot6<-make_plot_predlnor(dat=Pred,bias=TRUE)
 Plot6
 ```
-Overall the relative bias seems small and mostly varies from -10.9% to -13.5%. Since genetic effect sizes tend to be small, a relative bias of 10% is very small in absolute terms.   
+Overall the relative bias seems small and mostly varies from -10.9% to -13.5%. Since genetic effect sizes tend to be small, a relative bias of 10% is very small in absolute terms.  
 
 In the next example we show a dataset that returns a slope and intercept very different from expectation
 
@@ -191,7 +193,7 @@ Plot5_3<-make_plot_predlnor(dat=Pred2)
 Plot5_3
 ```
 
-After transforming the reported effect size to a log odds ratio scale, we now see a slope close to 1 for the relationship with the predicted log odds ratio. More generally, we suggest that any dataset with an unsual intercept or with a slope very different from 1 (e.g. <0.8 or >1.2) should be investigated by the user for potential problems. In the glioma example, the slope and intercept look reasonably close to what we'd expect. In the kidney cancer example, the slope was very different from 1 because the reported effect sizes had not been generated in a logistic regression model. Other factors that could cause the slope to differ from 1 include: 1) the impact of covariate adjustment in the original GWAS, 2) deviations from Hardy Weinberg equilibrium, 3) mismatches between reported and actual allele frequency for some or all SNPs or 4) mismatches between the reported and effective SNP-level sample sizes for some or all SNPs.    
+After transforming the reported effect size to a log odds ratio scale, we now see a slope close to 1 for the relationship with the predicted log odds ratio. More generally, we suggest that any dataset with an unusual intercept or with a slope very different from 1 (e.g. <0.8 or >1.2) should be investigated by the user for potential problems. In the glioma example, the slope and intercept look reasonably close to what we'd expect. In the kidney cancer example, the slope was very different from 1 because the reported effect sizes had not been generated in a logistic regression model. Other factors that could cause the slope to differ from 1 include: 1) the impact of covariate adjustment in the original GWAS, 2) deviations from Hardy Weinberg equilibrium, 3) mismatches between reported and actual allele frequency for some or all SNPs or 4) mismatches between the reported and effective SNP-level sample sizes for some or all SNPs.    
 
 ## Step 5. Check whether the reported P values correspond to the reported effect sizes  
 
@@ -214,18 +216,17 @@ Plot7_2<-zz_plot(dat=Dat)
 Plot7_2
 ```
 
-The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes, which is also clear from visual inspection of the plot. In this example, we have included three SNP sets (the GWAS catalog hits, the MAF reference set and the "exposure SNPs". Let's restrict the comparison to only the "exposure SNPs" and the GWAS catalog top hits. 
+The correlation between the Zp and Zb scores is less than 1, suggesting discordance between the reported P values and reported effect sizes, which is also clear from visual inspection of the plot. For example, 1 SNP has a Z score close to 15 when estimated from the reported P value but a Z score close to 5 when estimated from the reported effect size and standard error. In this example, we have included three sets of SNPs (the GWAS catalog hits, the MAF reference set and the "exposure SNPs". Let's restrict the comparison to only the "exposure SNPs".
 
 
 ```{r make_zz_plot3,eval = TRUE}
-snplist<-make_snplist(efo = "lung carcinoma",snplist_user=instruments$rsid,ref1000G_superpops=FALSE)
-luc <- ieugwasr::associations(id="ieu-a-966",variants=snplist,proxies=0)  
+luc <- ieugwasr::associations(id="ieu-a-966",variants=instruments$rsid,proxies=0)  
 Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",population="European",pmid=24880342,ncase=11348,ncontrol=15861,study="ILCCO",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",efo = "lung carcinoma")
 Plot7_3<-zz_plot(dat=Dat)
 Plot7_3
 ```
 
-The correlation between the Zp and Zb scores is still less than 1, suggesting some discordance between the reported P values and reported effect sizes, which is also clear from visual inspection of the plot. For example, 1 SNP has a Z score close to 15 when estimated from the reported P value but a Z score close to 5 when estimated from the reported effect size and standard error. 
+The correlation between the Zp and Zb scores is slightly less than 1, suggesting a small degree of discordance between the reported P values and reported effect sizes, which is also clear from visual inspection of the plot. For example one SNP has a Zp score >2 and Zb score <2. Some SNPs have P values a bit more extreme than you'd expect given the magnitude of the reported effect sizes and standard errors. 
 
 
 ## Step 6. Combine all plots into a single report 
@@ -239,3 +240,5 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 ```
 
 !["qc_report.png"](/man/figures/README-qc_report.png)
+
+Overall, we can conclude that the reported effect allele column in the glioma summary dataset actually corresponds to the non-effect allele. Therefore, in order to avoid effect allele coding errors in downstream Mendelian randomisation analyses, we need to set the effect allele to the reported non-effect allele. 
