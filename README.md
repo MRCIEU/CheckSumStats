@@ -28,11 +28,10 @@ devtools::install_github("MRCIEU/mrQC")
 This package exploits three groups of SNPs: 1) **A MAF 1KG reference
 set**. This is a set of 2297 SNPs that have the same minor allele across
 the 1000 genomes super populations and that have a minor allele
-frequency between 0.1 and 0.3. These SNPs are used to check for allele
-frequency errors; 2) **GWAS catalog top hits**. These are SNPs in the
-GWAS catalog that are strongly associated with the outcome trait of
-interest; and 3) the **exposure SNPs** or genetic instruments for the
-exposure of interest.
+frequency between 0.1 and 0.3; 2) **GWAS catalog top hits**. These are
+SNPs in the GWAS catalog that are strongly associated with the outcome
+trait of interest; and 3) the **exposure SNPs** or genetic instruments
+for the exposure of interest.
 
 The package performs 4 types of checks:
 
@@ -60,14 +59,17 @@ number of retrieved hits.
 
 ``` r
 library(mrQC)
-snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=FALSE) #search on EFO abd reported trait 
+snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=FALSE)
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 54
 ```
 
 We see that searching on the glioma EFO and glioma trait retrieves 54
-unique SNP rsids. We could also have searched on the glioma efo\_id,
-which retrieves the same SNPs as searching on the “glioma” efo.
+unique SNP rsids. We could also have searched on the glioma efo\_id
+(EFO\_0005543), which would have retrieved the same SNPs as searching on
+the “glioma” efo.
 
 ``` r
 snplist<-make_snplist(efo_id="EFO_0005543",ref1000G_superpops=FALSE) 
@@ -83,23 +85,28 @@ frequency of
 ``` r
 snplist<-make_snplist(efo="glioma",trait="glioma",ref1000G_superpops=TRUE) 
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 2351
 ```
 
-We can also define a set of “exposure SNPs” and include this in list of
-rsids. For example, let’s assume we are conducting a Mendelian
+We can also define a set of “exposure SNPs” and include this in the list
+of rsids. For example, let’s assume we are conducting a Mendelian
 randomisation study to assess the effect of polyunsaturated fatty acid
 exposure on risk of glioma. Let’s define the “exposure SNPs”, or genetic
 instrument, as SNPs associated with polyunsaturated fatty acids with a P
 value \<5e-8. Let’s use the ieugwasr package to extract “exposure SNPs”
 for polyunsaturated fatty acids from the Open GWAS project and also add
-these to the other SNPs.
+these to the SNP list.
 
 ``` r
 instruments<-ieugwasr::tophits(id="met-d-PUFA",pval = 5e-08)
+#> API: public: http://gwas-api.mrcieu.ac.uk/
 snplist<-make_snplist(efo = "glioma",trait="glioma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
 head(snplist)
+#> [1] "rs2736100" "rs2853676" "rs891835"  "rs4295627" "rs4977756" "rs498872"
 length(snplist)
+#> [1] 2417
 ```
 
 Our SNP list now contains the rsids for: 1) the GWAS catalog top hits,
@@ -113,7 +120,29 @@ MAC or linux operating systems.
 File<-system.file("extdata", "glioma_test_dat.txt", package = "mrQC")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 dim(gli)
+#> [1] 115  16
 head(gli)
+#>       Locus Allele1 Allele2         MAF                Geno_Counts  Subjects
+#> 1 rs6010620       G       A 0.229|0.175  2969|1698|287/1254|554|48 4954|1856
+#> 2 rs2736100       G       T 0.506|0.437 1211|2465|1273/594|900|360 4949|1854
+#> 3 rs2157719       A       G 0.450|0.511 1508|2428|1013/454|905|495 4949|1854
+#> 4 rs4977756       A       G 0.423|0.481  1669|2374|908/509|905|438 4951|1852
+#> 5 rs2853676       G       A 0.250|0.311  2795|1835|321/874|808|172 4951|1854
+#> 6 rs2297440       C       T 0.223|0.175  2668|1458|244/1039|455|42 4370|1536
+#>          p     OR OR_95._CI_l OR_95._CI_u CHROMOSOME LOCATION controls cases
+#> 1 1.13e-10 0.7009      0.6289      0.7812         20 61780283     4954  1856
+#> 2 4.28e-09 0.7722      0.7082      0.8420          5  1339516     4949  1854
+#> 3 4.57e-09 1.2936      1.1866      1.4102          9 22023366     4949  1854
+#> 4 1.21e-08 1.2831      1.1774      1.3982          9 22058652     4951  1852
+#> 5 2.16e-08 1.3112      1.1922      1.4420          5  1341547     4951  1854
+#> 6 1.49e-07 0.7278      0.6462      0.8198         20 61782743     4370  1536
+#>   eaf.controls path_to_target_file
+#> 1        0.229 glioma_test_dat.txt
+#> 2        0.506 glioma_test_dat.txt
+#> 3        0.450 glioma_test_dat.txt
+#> 4        0.423 glioma_test_dat.txt
+#> 5        0.250 glioma_test_dat.txt
+#> 6        0.223 glioma_test_dat.txt
 ```
 
 In the above example, the summary data for glioma was stored locally on
@@ -125,11 +154,31 @@ run:
 
 ``` r
 snplist<-make_snplist(efo = "thyroid carcinoma",trait="thyroid carcinoma",ref1000G_superpops=TRUE,snplist_user=instruments$rsid)
+#> Warning in gwas_catalog_hits(trait = trait): search for trait - thyroid
+#> carcinoma - returned 0 studies from the GWAS catalog
 head(snplist)
+#> [1] "rs965513"    "rs944289"    "rs966423"    "rs2439302"   "rs116909374"
+#> [6] "rs6759952"
 length(snplist)
+#> [1] 2397
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
 dim(thy)
+#> [1] 146  12
 thy
+#> # A tibble: 146 x 12
+#>        se position     n chr       p    beta id    rsid  ea    nea     eaf trait
+#>     <dbl>    <int> <int> <chr> <dbl>   <dbl> <chr> <chr> <chr> <chr> <dbl> <chr>
+#>  1 0.104    2.75e7  1187 12    0.826 -0.0229 ieu-… rs11… A     G     0.200 Thyr…
+#>  2 0.0934   6.34e7  1187 3     0.526 -0.0592 ieu-… rs68… C     T     0.271 Thyr…
+#>  3 0.0891   8.64e7  1187 4     0.754  0.0279 ieu-… rs46… G     A     0.676 Thyr…
+#>  4 0.0953   9.20e6  1187 5     0.764 -0.0286 ieu-… rs14… G     A     0.256 Thyr…
+#>  5 0.106    1.25e8  1187 10    0.354 -0.0977 ieu-… rs10… T     C     0.190 Thyr…
+#>  6 0.104    1.26e7  1187 11    0.461  0.0768 ieu-… rs10… G     A     0.803 Thyr…
+#>  7 0.119    8.15e6  1187 4     0.811  0.0286 ieu-… rs12… C     T     0.144 Thyr…
+#>  8 0.0886   1.65e8  1187 4     0.717 -0.0321 ieu-… rs10… C     T     0.327 Thyr…
+#>  9 0.104    1.24e8  1187 5     0.187  0.137  ieu-… rs48… T     C     0.802 Thyr…
+#> 10 0.133    4.07e7  1187 8     0.400  0.112  ieu-… rs78… G     A     0.112 Thyr…
+#> # … with 136 more rows
 ```
 
 The make\_snplist() function returns a warning that no GWAS hits were
@@ -145,6 +194,41 @@ functions.
 ``` r
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",UKbiobank=FALSE,rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",lci="OR_95._CI_l",uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 head(Dat)
+#>        rsid effect_allele other_allele         MAF                Geno_Counts
+#> 1 rs6010620             G            A 0.229|0.175  2969|1698|287/1254|554|48
+#> 2 rs2736100             G            T 0.506|0.437 1211|2465|1273/594|900|360
+#> 3 rs2157719             A            G 0.450|0.511 1508|2428|1013/454|905|495
+#> 4 rs4977756             A            G 0.423|0.481  1669|2374|908/509|905|438
+#> 5 rs2853676             G            A 0.250|0.311  2795|1835|321/874|808|172
+#> 6 rs2297440             C            T 0.223|0.175  2668|1458|244/1039|455|42
+#>    Subjects        p     OR OR_95._CI_l OR_95._CI_u CHROMOSOME LOCATION
+#> 1 4954|1856 1.13e-10 0.7009      0.6289      0.7812         20 61780283
+#> 2 4949|1854 4.28e-09 0.7722      0.7082      0.8420          5  1339516
+#> 3 4949|1854 4.57e-09 1.2936      1.1866      1.4102          9 22023366
+#> 4 4951|1852 1.21e-08 1.2831      1.1774      1.3982          9 22058652
+#> 5 4951|1854 2.16e-08 1.3112      1.1922      1.4420          5  1341547
+#> 6 4370|1536 1.49e-07 0.7278      0.6462      0.8198         20 61782743
+#>   ncontrol ncase   eaf path_to_target_file       lnor         se     pmid
+#> 1     4954  1856 0.229 glioma_test_dat.txt -0.3553901 0.05532116 22886559
+#> 2     4949  1854 0.506 glioma_test_dat.txt -0.2585117 0.04414629 22886559
+#> 3     4949  1854 0.450 glioma_test_dat.txt  0.2574290 0.04404068 22886559
+#> 4     4951  1852 0.423 glioma_test_dat.txt  0.2492790 0.04384619 22886559
+#> 5     4951  1854 0.250 glioma_test_dat.txt  0.2709427 0.04852824 22886559
+#> 6     4370  1536 0.223 glioma_test_dat.txt -0.3177290 0.06070188 22886559
+#>   outcome population      study UKbiobank effect_allele_confirmed open_gwas
+#> 1  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 2  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 3  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 4  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 5  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#> 6  Glioma   European GliomaScan     FALSE                   FALSE     FALSE
+#>      efo efo_id
+#> 1 glioma     NA
+#> 2 glioma     NA
+#> 3 glioma     NA
+#> 4 glioma     NA
+#> 5 glioma     NA
+#> 6 glioma     NA
 ```
 
 Now we are ready to perform some quality checks on the summary data
@@ -162,6 +246,8 @@ population.
 Plot1<-make_plot_maf(ref_1000G="EUR",target_dat=Dat)
 Plot1
 ```
+
+<img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
 
 SNPs with a red colour are SNPs with incompatible minor allele
 frequencies, i.e. the allele frequencies are above 0.5 in the target
@@ -181,6 +267,8 @@ populations.
 Plot2<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot2
 ```
+
+<img src="man/figures/README-make_maf_plot2-1.png" width="100%" />
 
 All SNPs across all super populations are flagged as problematic. This
 illustrates that the function can identify problematic SNPs regardless
@@ -207,6 +295,8 @@ Plot3<-make_plot_gwas_catalog(dat=Dat,efo=unique(Dat$efo),trait="glioma")
 Plot3
 ```
 
+<img src="man/figures/README-make_gwascatalog_plot1-1.png" width="100%" />
+
 We see that there are three groups of SNPs: those flagged as showing no
 effect size conflict; those with moderate effect size conflict; and
 those with high effect size conflict. The distinction between moderate
@@ -231,13 +321,15 @@ have been incorrectly specified. The reported non-effect allele column
 is very likely the effect allele column.
 
 We can also make a plot comparing effect allele frequency between the
-outcome dataset and the GWAS catalog, which we show in the next example.
+outcome dataset and the GWAS catalog, which we show in the next
+example.
 
 ``` r
-
 Plot4<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo=unique(Dat$efo),trait=unique(Dat$outcome))
 Plot4
 ```
+
+<img src="man/figures/README-make_gwascatalog_plot2-1.png" width="100%" />
 
 We see an inverse correlation in effect allele frequency (EAF) between
 the outcome glioma dataset and the GWAS catalog in European ancestry
@@ -251,7 +343,7 @@ This makes allowance for chance deviations in allele frequency for SNPs
 with minor allele frequency close to
 0.5.
 
-## Step 4. Check whether the reported effect size corresponds to log odds ratios
+## Step 4. Check whether the reported effect size corresponds to log odds ratios and has the expected distribution
 
 We next compare the predicted log odds ratio to the reported effect
 size, in order to identify other potential errors or issues. This step
@@ -261,12 +353,12 @@ predicted log odds ratio can be a bit slow, we restrict the glioma
 example to just the first 20 SNPs.
 
 ``` r
-Dat1<-Dat[1:5,]
-Pred<-predict_lnor_sh(dat=Dat1)
+Pred<-predict_lnor_sh(dat=Dat)
 Plot5<-make_plot_predlnor(dat=Pred)
 Plot5
 ```
 
+<img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
 The plot shows a strong positive correlation between the predicted log
 odds ratios and the reported effect size, an intercept close to zero and
 a slope that is \>0.8. When the predicted log odds ratios and reported
@@ -281,6 +373,7 @@ Plot6<-make_plot_predlnor(dat=Pred,bias=TRUE)
 Plot6
 ```
 
+<img src="man/figures/README-make_plot_predlnor3-1.png" width="100%" />
 Overall the relative bias seems small and mostly varies from -10.9% to
 -13.5%. Since genetic effect sizes tend to be small, a relative bias of
 10% is very small in absolute terms.
@@ -293,10 +386,12 @@ expectation
 snplist<-make_snplist(efo = "kidney cancer",snplist_user=instruments$rsid)
 ukb <- data.frame(ieugwasr::associations(id="ukb-b-1316", variants=snplist,proxies=0),stringsAsFactors=FALSE)
 Ukb<-format_data(dat=ukb,outcome="Kidney cancer",population="European",pmid="ukb-b-1316",ncase=1114,ncontrol=461896,study="UKB",UKbiobank=TRUE,rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",se="se",eaf="eaf",p="p",effect_allele_confirmed=TRUE,all_summary_stats=TRUE,ID=145,efo = "kidney cancer")
-Pred<-predict_lnor_sh(dat=Ukb[1:5,])
+Pred<-predict_lnor_sh(dat=Ukb)
 Plot5_2<-make_plot_predlnor(dat=Pred)
 Plot5_2
 ```
+
+<img src="man/figures/README-make_plot_predlnor2-1.png" width="100%" />
 
 Although there is a strong positive correlation, the slope is 400, when
 we expect a slope of 1. In fact, further investigation revealed that
@@ -310,10 +405,12 @@ the transform\_betas() function.
 
 ``` r
 Ukb2<-transform_betas(dat=Ukb,effect="lnor",effect.se="se")
-Pred2<-predict_lnor_sh(dat=Ukb2[1:5,])
+Pred2<-predict_lnor_sh(dat=Ukb2)
 Plot5_3<-make_plot_predlnor(dat=Pred2)
 Plot5_3
 ```
+
+<img src="man/figures/README-make_plot_predlnor4-1.png" width="100%" />
 
 After transforming the reported effect size to a log odds ratio scale,
 we now see a slope close to 1 for the relationship with the predicted
@@ -344,6 +441,8 @@ Plot7<-zz_plot(dat=Dat)
 Plot7
 ```
 
+<img src="man/figures/README-make_zz_plot1-1.png" width="100%" />
+
 The correlation between the Zp and Zb scores is 1, indicating very
 strong concordance between the reported P values and reported effect
 sizes in the glioma dataset for the selected SNPs. In the next example,
@@ -358,6 +457,8 @@ Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",po
 Plot7_2<-zz_plot(dat=Dat)
 Plot7_2
 ```
+
+<img src="man/figures/README-make_zz_plot2-1.png" width="100%" />
 
 The correlation between the Zp and Zb scores is less than 1, suggesting
 discordance between the reported P values and reported effect sizes,
@@ -374,6 +475,8 @@ Dat<-format_data(dat=data.frame(luc,stringsAsFactors=F),outcome="Lung cancer",po
 Plot7_3<-zz_plot(dat=Dat)
 Plot7_3
 ```
+
+<img src="man/figures/README-make_zz_plot3-1.png" width="100%" />
 
 The correlation between the Zp and Zb scores is still less than 1,
 suggesting some discordance between the reported P values and reported
