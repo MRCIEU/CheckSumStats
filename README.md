@@ -394,8 +394,6 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 
 ``` r
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "",
   fig.path = "man/figures/qc_report.png"
  )
 ```
