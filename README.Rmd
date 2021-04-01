@@ -240,10 +240,12 @@ Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list
 combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 ```
 
-```{r combine_plots2,include=FALSE}
+```{r combine_plots2, echo = TRUE}
 knitr::opts_chunk$set(
-  fig.path = 'man/figures/qc_report.png'
-  )
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-qc_report.png"
+)
 ```
 
  
