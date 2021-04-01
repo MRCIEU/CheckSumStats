@@ -3,7 +3,7 @@
 #'
 #' Make a plot comparing signed Z scores, or effect allele frequency, between the target dataset and the GWAS catalog 
 #'
-#' @param dat the target dataset of interest
+#' @param dat the outcome dataset of interest
 #' @param plot_type compare Z scores or effect allele frequency? For comparison of Z scores set plot_type to "plot_zscores". For comparison of effect allele frequency set to "plot_eaf". Default is set to "plot_zscores"
 #' @param trait the trait of interest
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
@@ -19,7 +19,7 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=NULL,legend=TRUE,Title="Comparison of Z scores between target study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in target study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=NULL,legend=TRUE,Title="Comparison of Z scores between outcome study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in outcome study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12){
 	# if(!is.null(trait)){
 		# gwas_catalog<-gwas_catalog_hits(trait=trait)
 	# }
@@ -120,9 +120,9 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Dat.m$plot_y<-Dat.m$eaf.y
 		Dat.m$colour<-EAF 
 		Name<-"EAF conflict"
-		Ylab="EAF in target study"
+		Ylab="EAF in outcome study"
 		Xlab="EAF in GWAS catalog"
-		Title="Comparison of EAF between target study and GWAS catalog"
+		Title="Comparison of EAF between outcome study and GWAS catalog"
 	}
 
 	if(plot_type=="plot_zscores"){
