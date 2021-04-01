@@ -392,8 +392,4 @@ Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list
 combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 ```
 
-``` r
-knitr::opts_chunk$set(
-  fig.path = "man/figures/qc_report.png"
- )
-```
+knitr::opts\_chunk$set( fig.path = “man/figures/qc\_report.png” )
