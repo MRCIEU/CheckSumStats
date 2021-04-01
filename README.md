@@ -262,7 +262,7 @@ Plot1
 <img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
 
 SNPs with a red colour are SNPs with incompatible minor allele
-frequencies, i.e. the allele frequencies are above 0.5 in the target
+frequencies, i.e. the allele frequencies are above 0.5 in the outcome
 dataset but less than 0.5 in the 1000 genomes dataset. In this example,
 all SNPs are flagged as problematic and there is a strong inverse
 correlation in minor allele frequency between the datasets. This
@@ -317,7 +317,7 @@ allowance for chance deviations between datasets. If the effect sizes
 are in opposite directions, the effect size conflict flag is set to
 moderate or high. If the two-sided P value in both datasets is ≤0.0001
 then the flag is upgraded to high. In addition, if the summary
-association statistics in the target dataset and GWAS catalog are
+association statistics in the outcome dataset and GWAS catalog are
 derived from the same publication, and effect sizes are in opposite
 directions, the conflict flag is set to high regardless of P value.
 
