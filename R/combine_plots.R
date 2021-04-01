@@ -2,7 +2,7 @@
 #'
 #' Combine all plots into a single plot using the cowplot package
 #'
-#' @param Plot_list plots to combine. Can either be vector of character strings giving the names of plot objects or a list of plot objects. If not specified, the function looks for Plot objects in ls()
+#' @param Plot_list plots to combine. Can either be vector of character strings giving the names of plot objects or a list of plot objects. 
 #' @param out_file filepath to save the plot
 #' @param return_plot logical argument. If TRUE, plot is returned and is not save to out_file 
 #' @param width width of plot
@@ -70,4 +70,10 @@ combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=800
 		return(Plot)
 	}
 
+}
+
+make_plot_list<-function(){
+	Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
+	Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))	
+	return(Plot_list)
 }

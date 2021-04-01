@@ -20,7 +20,7 @@ combine_plots(
 )
 }
 \arguments{
-\item{Plot_list}{plots to combine. Can either be vector of character strings giving the names of plot objects or a list of plot objects. If not specified, the function looks for Plot objects in ls()}
+\item{Plot_list}{plots to combine. Can either be vector of character strings giving the names of plot objects or a list of plot objects.}
 
 \item{out_file}{filepath to save the plot}
 
