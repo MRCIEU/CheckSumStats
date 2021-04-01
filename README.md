@@ -392,4 +392,4 @@ Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list
 combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 ```
 
-![title of image](/man/figures/README-qc_report.png)
+![“qc\_report.png”](/man/figures/README-qc_report.png)
