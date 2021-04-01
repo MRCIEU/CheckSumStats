@@ -12,15 +12,15 @@ make_plot_gwas_catalog(
   trait = NULL,
   gwas_catalog_ancestral_group = NULL,
   legend = TRUE,
-  Title = "Comparison of Z scores between target study and GWAS catalog",
+  Title = "Comparison of Z scores between outcome study and GWAS catalog",
   Title_size_subplot = 12,
-  Ylab = "Z score in target study",
+  Ylab = "Z score in outcome study",
   Xlab = "Z score in GWAS catalog",
   Title_xaxis_size = 12
 )
 }
 \arguments{
-\item{dat}{the target dataset of interest}
+\item{dat}{the outcome dataset of interest}
 
 \item{plot_type}{compare Z scores or effect allele frequency? For comparison of Z scores set plot_type to "plot_zscores". For comparison of effect allele frequency set to "plot_eaf". Default is set to "plot_zscores"}
 
