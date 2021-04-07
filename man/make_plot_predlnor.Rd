@@ -16,7 +16,9 @@ make_plot_predlnor(
   Title = "Predicted versus reported log odds ratios",
   Title_xaxis_size = 12,
   legend = TRUE,
-  standard_errors = FALSE
+  standard_errors = FALSE,
+  pred_beta = "lnor_pred",
+  beta = "lnor"
 )
 }
 \arguments{
@@ -43,6 +45,10 @@ make_plot_predlnor(
 \item{legend}{logical argument. If true, includes figure legend in plot}
 
 \item{standard_errors}{logical argument. If TRUE, plots the predicted and  reported standard errors of the log odds ratio}
+
+\item{pred_beta}{name of column containing the predicted beta}
+
+\item{beta}{name of column containing the reported beta}
 }
 \value{
 plot

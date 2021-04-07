@@ -4,6 +4,8 @@
 #' Make a plot comparing the predicted log odds ratios to reported effect sizes
 #'
 #' @param dat the target dataset of interest
+#' @param pred_beta name of column containing the predicted beta
+#' @param beta name of column containing the reported beta
 #' @param linear_regression logical argument. If TRUE the predicted log odds ratio is regressed on the reported log odds ratio. The slope and intercept are extracted from this model and shown alongside the plot
 #' @param bias logical argument. If TRUE, plots the % deviation of the predicted from the reported log odds ratio on the Y axis against the reported log odds ratio on the X axis.  
 #' @param subtitle subtitle
@@ -20,11 +22,13 @@
 #' @export
 
 
-make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predicted log odds ratio",linear_regression=TRUE,subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported log odds ratios",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE){
+make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predicted log odds ratio",linear_regression=TRUE,subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported log odds ratios",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",beta="lnor"){
 
-	dat<-format_data_predlnor_sh(dat=dat)
+	if("ncase" %in% names(dat)){
+		dat<-format_data_predlnor_sh(dat=dat)
+	}
 	outcome_name<-unique(paste0(dat$outcome," | " ,dat$study," | ",dat$ID))
-	dat$bias<-(dat$lnor_pred-dat$lnor )/dat$lnor*100	
+
 	# summary(dat$bias)
 
 	# for(i in 1:ncol(dat)){
@@ -54,8 +58,13 @@ make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predi
 	MAF[MAF>0.40 & MAF<=0.50]<-"0.41-0.50"
 	Shape<-rep(19,nrow(dat))
 
-	dat$plot_y<-dat$lnor_pred
+	dat$plot_y<-dat[,pred_beta]
 	dat$plot_x<-dat$lnor
+	if("sd_est" %in% names(dat)){
+		dat$plot_x<-dat$lnor/dat$sd_est		
+	}
+	dat$bias<-(dat$plot_y-dat$plot_x )/dat$plot_x*100	
+
 	Xlab<-"Reported log odds ratio"
 	Ylab<-"Predicted log odds ratio"
 	if(standard_errors){
@@ -64,7 +73,6 @@ make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predi
 		Xlab<-"Reported standard error"
 		Ylab<-"Predicted standard error"
 	}
-
 
 	if(bias){
 		dat$plot_y<-dat$bias
@@ -377,3 +385,56 @@ predict_lnor_sh<-function(dat=NULL){
 	dat$lnor_se_pred <- as.numeric(unlist(log_or_se))
 	return(dat)
 }
+
+
+#' Predicted standardised beta
+#'
+#' Predict the standardised beta using sample sise, Z score and minor allele frequency. Returns the predicted standardised beta, proportion of phenotypic variance explained by the SNP (r2) and F statistic for each SNP
+#'
+#' @param dat the outcome dataset of interest
+#' @param beta the effect size column
+#' @param se the standard error column
+#' @param eaf the effect allele frequency column
+#' @param sample_size the sample size column
+#' @param pval name of the p value column
+#' @param var the variance of the sample mean of the trait of interest. Default assumed to be 1. 
+#'
+#' @return data frame with predicted standardised beta, r2 and F stat statistics and estimated standard deviation 
+#' @export
+
+
+predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="effect_allele_freq",sample_size="n",var=1,pval="p"){
+	z <- dat[,beta]/dat[,se]
+	Pos<-which(z==0)
+	# if z is zero when calculate from beta and se, infer from the P value
+	if("p" %in% names(dat) & sum(Pos) !=0) {		
+		z2<-stats::qnorm(dat$p[Pos]/2,lower.tail=FALSE)	
+		z[Pos]<-z2
+	}	
+	
+	# Pos<-which(Z1!="Inf")
+	# plot(abs(z[Pos]),Z1[Pos])
+	if(!"maf" %in% names(dat)){
+		maf<-dat[,eaf]
+		Pos<-which(maf>0.5)
+		maf[Pos]<-1-maf[Pos]
+		dat$maf<-maf
+	}	
+	maf<-dat$maf
+	n<-dat[,sample_size]
+	dat$beta_sd = z/sqrt(2*maf*(1-maf)*(n+z^2))
+ 	dat$se_sd<-abs(dat$beta_sd/z)
+ 	Pos<-which(dat$se_sd=="NaN")
+ 	if(sum(Pos) != 0 ) warning("se_sd is NaN for some SNPs")
+ 	k<-1
+	var<-1
+	dat$r2<-2*dat$beta_sd^2*maf*(1-maf)/var
+	dat$F_stat<-dat$r2*(n-1-k)/((1-dat$r2)*k )
+
+	estimated_sd <- dat[,beta] / dat$beta_sd
+  	estimated_sd <- estimated_sd[!is.na(estimated_sd)]
+  # estimate variance for Y from summary data using method 2
+  	dat$sd_est <- stats::median(estimated_sd)
+	return(dat)
+}
+
