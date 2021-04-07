@@ -78,8 +78,8 @@ extract_snps<-function(snplist=NULL,path_to_target_file=NULL,exact_match=TRUE,pa
     if(nrow(Res)!=0) Res$path_to_target_file<-path_to_target_file_name[length(path_to_target_file_name)]
 
     if(ncol(Res)==2){
-    	warning("Could not extract SNPs, possibly because in plink format. Will try to read path_to_target_file using read_plink function")
-    	print(names(Res))
+    	warning("Had trouble extracting SNPs, possibly because the column separator was correctly specified. Gonna try again using alternative method.")
+    	# print(names(Res))
     	Res<-read_plink(path_to_target_file=path_to_outfile_plus_filehead)
     }
     return(Res)

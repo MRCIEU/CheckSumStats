@@ -10,17 +10,19 @@ make_plot_gwas_catalog(
   efo_id = NULL,
   efo = NULL,
   trait = NULL,
-  gwas_catalog_ancestral_group = NULL,
+  gwas_catalog_ancestral_group = c("European", "East Asian"),
   legend = TRUE,
-  Title = "Comparison of Z scores between target study and GWAS catalog",
+  Title = "Comparison of Z scores between outcome study and GWAS catalog",
   Title_size_subplot = 12,
-  Ylab = "Z score in target study",
+  Ylab = "Z score in outcome study",
   Xlab = "Z score in GWAS catalog",
-  Title_xaxis_size = 12
+  Title_xaxis_size = 12,
+  force_all_trait_study_hits = FALSE,
+  exclude_palindromic_snps = TRUE
 )
 }
 \arguments{
-\item{dat}{the target dataset of interest}
+\item{dat}{the outcome dataset of interest}
 
 \item{plot_type}{compare Z scores or effect allele frequency? For comparison of Z scores set plot_type to "plot_zscores". For comparison of effect allele frequency set to "plot_eaf". Default is set to "plot_zscores"}
 
@@ -30,7 +32,7 @@ make_plot_gwas_catalog(
 
 \item{trait}{the trait of interest}
 
-\item{gwas_catalog_ancestral_group}{restrict the comparison to these ancestral groups in the GWAS catalog. Default is null and comparisons are made to any study in the GWAS catalog regardless of ancestral background. If set to (c("European","East Asian") comparisons will be restricted to GWAS catalog studies of European or East Asian ancestry}
+\item{gwas_catalog_ancestral_group}{restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian")}
 
 \item{legend}{include legend in plot. Default TRUE}
 
@@ -43,6 +45,10 @@ make_plot_gwas_catalog(
 \item{Xlab}{label for X axis}
 
 \item{Title_xaxis_size}{size of x axis title}
+
+\item{force_all_trait_study_hits}{force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.}
+
+\item{exclude_palindromic_snps}{should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands.}
 }
 \value{
 plot

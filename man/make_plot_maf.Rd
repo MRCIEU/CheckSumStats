@@ -24,10 +24,10 @@ make_plot_maf(
   ref_study = "study",
   Title_xaxis_size = 12,
   Title_size = 12,
-  Title = "Comparison of MAF between target study and reference study",
-  Ylab = "MAF in target study",
+  Title = "Comparison of MAF between outcome study and reference study",
+  Ylab = "MAF in outcome study",
   Xlab = "MAF in reference study",
-  cowplot_title = "Comparison of MAF between target study and 1000 genomes project",
+  cowplot_title = "Comparison of MAF between outcome study and 1000 genomes project",
   Dir = "~/"
 )
 }

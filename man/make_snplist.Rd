@@ -8,7 +8,7 @@ make_snplist(
   trait = NULL,
   efo_id = NULL,
   efo = NULL,
-  ref1000G_superops = TRUE,
+  ref1000G_superpops = TRUE,
   snplist_user = NULL
 )
 }
@@ -19,7 +19,7 @@ make_snplist(
 
 \item{efo}{trait of interest in the experimental factor ontology}
 
-\item{ref1000G_superops}{include reference SNPs from 1000 genomes super populations. Default=TRUE}
+\item{ref1000G_superpops}{include reference SNPs from 1000 genomes super populations. Default=TRUE}
 
 \item{snplist_user}{character vector of user specified rsids.}
 }

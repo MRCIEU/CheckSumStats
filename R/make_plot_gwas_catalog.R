@@ -3,12 +3,14 @@
 #'
 #' Make a plot comparing signed Z scores, or effect allele frequency, between the target dataset and the GWAS catalog 
 #'
-#' @param dat the target dataset of interest
+#' @param dat the outcome dataset of interest
 #' @param plot_type compare Z scores or effect allele frequency? For comparison of Z scores set plot_type to "plot_zscores". For comparison of effect allele frequency set to "plot_eaf". Default is set to "plot_zscores"
 #' @param trait the trait of interest
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of interest in the experimental factor ontology
-#' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is null and comparisons are made to any study in the GWAS catalog regardless of ancestral background. If set to (c("European","East Asian") comparisons will be restricted to GWAS catalog studies of European or East Asian ancestry 
+#' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian") 
+#' @param force_all_trait_study_hits force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.
+#' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
 #' @param legend include legend in plot. Default TRUE
 #' @param Title plot title
 #' @param Title_size_subplot size of title 
@@ -19,7 +21,7 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=NULL,legend=TRUE,Title="Comparison of Z scores between target study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in target study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between outcome study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in outcome study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE){
 	# if(!is.null(trait)){
 		# gwas_catalog<-gwas_catalog_hits(trait=trait)
 	# }
@@ -42,6 +44,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 			gwas_catalog<-gwas_catalog[which(!duplicated(gwas_catalog[,c("study_id","rsid","test_statistic")])),]
 		}
 	}
+	
 	if(is.null(efo) & is.null(efo_id)){
 		if(!is.null(trait)){
 			gwas_catalog<-gwas_catalog_hits(trait=trait)
@@ -53,13 +56,16 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	# gwas_catalog[gwas_catalog$study_id == "GCST001633",]
 	# gwas_catalog[which(gwas_catalog$rsid == "rs2736100"),]
 
+
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")
 	
 	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
 	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
 	Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
 	Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
-	Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
+	if(exclude_palindromic_snps){
+		Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
+	}
 	if(!is.null(gwas_catalog_ancestral_group)){
 		# c("European","East Asian")
 		Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
@@ -120,16 +126,33 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Dat.m$plot_y<-Dat.m$eaf.y
 		Dat.m$colour<-EAF 
 		Name<-"EAF conflict"
-		Ylab="EAF in target study"
+		Ylab="EAF in outcome study"
 		Xlab="EAF in GWAS catalog"
-		Title="Comparison of EAF between target study and GWAS catalog"
+		Title="Comparison of EAF between outcome study and GWAS catalog"
 	}
 
 	if(plot_type=="plot_zscores"){
+		if(force_all_trait_study_hits){
+			dat2<-dat[!dat$rsid %in% gwas_catalog$rsid,]
+			Dat.m2<-merge(gwas_catalog,dat2,by="rsid",all.y=TRUE)
+			Dat.m2$z.y<-Dat.m2$lnor.y/Dat.m2$se.y
+			Dat.m2$z.x<-0
+			# Dat.m$plot_x
+			Dat.m2$ancestral_group<-unique(dat$population)
+			Names<-names(Dat.m)[!names(Dat.m) %in% names(Dat.m2)]
+			for(i in 1:length(Names)){
+				Dat.m2[,Names[i]]<-NA
+			}
+			# Dat.m3<-Dat.m
+			Dat.m<-rbind(Dat.m,Dat.m2)
+		}
+
 		Z_scores<-rep("black",nrow(Dat.m))
 		Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"blue"
 		Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >= 3.890592 & abs(Dat.m$z.x) >= 3.890592 )]<-"red" # Z score of 3.890592 = 2 sided p value of 0.0001	
 		Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"red" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability
+
+		Z_scores[Dat.m$z.x==0]<-"red" #this SNPs are not in the GWAS catalog
 
 		# Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >=  4.891638  & abs(Dat.m$z.x) >=  4.891638 )]<-"red"
 		labels_colour<-unique(Z_scores)
@@ -138,6 +161,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Dat.m$plot_y<-Dat.m$z.y
 		Dat.m$colour<-Z_scores
 		Name<-"Effect size conflict"
+		if(force_all_trait_study_hits) Name<-"Effect size conflict or not present in GWAS catalog"
 	}
 
 	labels_colour[labels_colour == "red"]<-"high"
@@ -148,14 +172,20 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	values_colour<-values_colour[Pos]
 	labels_colour<-labels_colour[Pos]
 
+	# dim(unique(Dat.m[,c("rsid","pmid")]))
+	# Dat.m2<Dat.m
+	# length(unique(Dat.m$rsid))
+	# unique(Dat.m$pmid)
+	# Dat.m<-Dat.m[grep(";",Dat.m$ancestral_group,invert=T),]
+	# Dat.m<-Dat.m[Dat.n$ancestral_group == "European"]
 	ancestry1<-Dat.m$ancestral_group
-
+	
 	labels_shape<-unique(ancestry1)[order(unique(ancestry1))]
 	values_shape<-labels_shape
 	values_shape[values_shape == "European"]<-15
 	values_shape[values_shape == "East Asian"]<-16
 	values_shape<-as.numeric(values_shape)
-
+	# values_shape<-c(16,15,17,18)
 	
 	if(is.null(Title)){
 		Title<-paste0(unique(dat$study)," | " ,unique(dat$ID) , " | EFO: ", efo)

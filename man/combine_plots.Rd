@@ -8,19 +8,19 @@ combine_plots(
   Plot_list = NULL,
   out_file = NULL,
   return_plot = FALSE,
-  width = 1000,
+  width = 800,
   height = 1000,
   Title = "",
   Xlab = "",
   Ylab = "",
   Title_size = 0,
-  Title_axis_size = 10,
+  Title_axis_size = 0,
   by2cols = TRUE,
   Ncol = 2
 )
 }
 \arguments{
-\item{Plot_list}{list of plots to combine}
+\item{Plot_list}{plots to combine. Can either be vector of character strings giving the names of plot objects or a list of plot objects.}
 
 \item{out_file}{filepath to save the plot}
 
