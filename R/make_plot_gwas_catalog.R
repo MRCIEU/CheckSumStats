@@ -83,7 +83,9 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	if(!is.null(gwas_catalog_ancestral_group)){
 		# c("European","East Asian")
 		Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
-	}	
+	}
+	# Dat.m1<-Dat.m
+	# Dat.m<-Dat.m1
 	Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
 	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y	
 	if(any(Pos)) {
@@ -97,7 +99,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	}
 	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
 	if(any(Pos)){
-		Dat.m<-harmonise_effect_allele(dat=Dat.m)
+		Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
 	}	
 	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
 
@@ -272,8 +274,6 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
   	
 	return(Plot)
 }
-# c("European","East Asian")
-
 
 harmonise_effect_allele<-function(dat=NULL,beta=beta){
 	Pos<-which(dat$effect_allele.x!=dat$effect_allele.y)
