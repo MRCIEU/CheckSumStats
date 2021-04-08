@@ -9,8 +9,10 @@ zz_plot(
   Title_size = 12,
   Title = "ZZ plot",
   Ylab = "Z score inferred from p value",
-  Xlab = "Z score inferred from log odds ratio and standard error",
-  Title_xaxis_size = 12
+  Xlab = "Z score inferred from effect size and standard error",
+  Title_xaxis_size = 12,
+  beta = "lnor",
+  se = "lnor_se"
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ zz_plot(
 \item{Xlab}{label for X axis}
 
 \item{Title_xaxis_size}{size of x axis title}
+
+\item{beta}{the name of the column containing the SNP effect size}
+
+\item{se}{the name of the column containing the standard error for the SNP effect size}
 }
 \value{
 plot

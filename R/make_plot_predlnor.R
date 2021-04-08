@@ -1,13 +1,15 @@
 
-#' Compare predicted log odds ratio to reported effect size
+#' Predicted versus reported effect sizes
 #'
-#' Make a plot comparing the predicted log odds ratios to reported effect sizes
+#' Make a plot comparing the predicted effect sizes to the reported effect sizes. 
 #'
 #' @param dat the target dataset of interest
-#' @param pred_beta name of column containing the predicted beta
-#' @param beta name of column containing the reported beta
-#' @param linear_regression logical argument. If TRUE the predicted log odds ratio is regressed on the reported log odds ratio. The slope and intercept are extracted from this model and shown alongside the plot
-#' @param bias logical argument. If TRUE, plots the % deviation of the predicted from the reported log odds ratio on the Y axis against the reported log odds ratio on the X axis.  
+#' @param pred_beta name of column containing the predicted effect size
+#' @param pred_beta_se name of column containing the standard error for the predicted effect size
+#' @param beta name of column containing the reported effect size
+#' @param se name of column containing the standard error for the reported effect size
+#' @param sd_est the standard deviation of the phenotypic mean. Can either be a numeric vector of length 1 or name of the column in dat containing the standard deviation value (in which case should be constant across SNPs). Only applicable for continuous traits. If not supplied by the user, the standard deviation is approximated using sd_est, estimated by the predict_beta_sd() function. 
+#' @param bias logical argument. If TRUE, plots the % deviation of the predicted from the reported effect size on the Y axis against the reported effect size on the X axis.  
 #' @param subtitle subtitle
 #' @param maf_filter minor allele frequency threshold. If not NULL, genetic variants with a minor allele frequency below this threshold are excluded
 #' @param legend logical argument. If true, includes figure legend in plot
@@ -16,18 +18,21 @@
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
-#' @param standard_errors logical argument. If TRUE, plots the predicted and  reported standard errors of the log odds ratio
+#' @param standard_errors logical argument. If TRUE, plots the predicted versus the reported standard errors for the effect sizes
 #'
 #' @return plot 
 #' @export
 
-
-make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predicted log odds ratio",linear_regression=TRUE,subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported log odds ratios",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",beta="lnor"){
+make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predicted effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported effect size",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est"){
 
 	if("ncase" %in% names(dat)){
 		dat<-format_data_predlnor_sh(dat=dat)
 	}
 	outcome_name<-unique(paste0(dat$outcome," | " ,dat$study," | ",dat$ID))
+
+	utils::data("refdat_1000G_superpops",envir =environment())
+	snps_exclude<-unique(refdat_1000G_superpops$SNP)
+	dat<-dat[!dat$rsid %in% snps_exclude,]
 
 	# summary(dat$bias)
 
@@ -59,17 +64,31 @@ make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predi
 	Shape<-rep(19,nrow(dat))
 
 	dat$plot_y<-dat[,pred_beta]
-	dat$plot_x<-dat$lnor
-	if("sd_est" %in% names(dat)){
-		dat$plot_x<-dat$lnor/dat$sd_est		
+	dat$plot_x<-dat[,beta]
+	
+	if(sd_est %in% names(dat)){
+		dat$plot_x<-dat[,beta]/dat[,sd_est]
 	}
+
+	if(pred_beta!="lnor_pred"){
+		if(!sd_est %in% names(dat) ){
+			if(is.na(as.numeric(sd_est))){
+				warning("no SD value supplied")
+			}
+			if(!is.na(as.numeric(sd_est))){
+				if(length(unique(sd_est))!=1) warning("more than one SD value has been supplied when only one is expected")
+				dat$plot_x<-dat[,beta]/sd_est
+			}
+		}
+	}
+	
 	dat$bias<-(dat$plot_y-dat$plot_x )/dat$plot_x*100	
 
-	Xlab<-"Reported log odds ratio"
-	Ylab<-"Predicted log odds ratio"
+	# Xlab<-"Reported log odds ratio"
+	# Ylab<-"Predicted log odds ratio"
 	if(standard_errors){
-		dat$plot_y<-dat$lnor_se_pred
-		dat$plot_x<-dat$se
+		dat$plot_y<-dat[,pred_beta_se]
+		dat$plot_x<-dat[,se]
 		Xlab<-"Reported standard error"
 		Ylab<-"Predicted standard error"
 	}
@@ -82,19 +101,19 @@ make_plot_predlnor<-function(dat=NULL,Xlab="Reported log odds ratio",Ylab="Predi
 		Min<-round(summary(dat$bias)[1],1)
 		Max<-round(summary(dat$bias)[6],1)
 		subtitle<-paste0("Median bias=",Med,"% (IQR:",p25,"%, ",p75,"% | min=",Min,"%, max=",Max,"%)")
-		Ylab<-"% deviation of predicted from reported log odds ratio"
+		Ylab<-"% deviation of predicted from reported effect size"
 	}
 
 	# dat$X<-dat[,1]
 	# dat$Y<-dat[,2]
-	if(bias){	
-		linear_regression<-FALSE
-	}
+	# if(bias){	
+	# 	linear_regression<-FALSE
+	# }
 
 	Values<-c("red","orange","purple","blue","black")
 	Labels<-c("0.01-0.10","0.11-0.20","0.21-0.30","0.31-0.40","0.41-0.50")
 
-	if(linear_regression){	
+	if(!bias){	
 		Model<-summary(stats::lm(plot_y~plot_x,dat))
 		int<-Model$coefficients[1,1]
 		slope<-Model$coefficients[2,1]
@@ -233,7 +252,7 @@ format_data_predlnor_sh<-function(dat=NULL){
 
 #' Predicted log odds ratio
 #'
-#' Predict the log odds ratio using information on the number of cases and controls, Z scores and minor allele frequency
+#' Predict the log odds ratio, using the Harrison approach. https://seanharrisonblog.com/2020/. The log odds ratio is inferred from the reported number of cases and controls, Z scores and minor allele frequency 
 #'
 #' @param dat the outcome dataset of interest
 #'
@@ -249,7 +268,7 @@ predict_lnor_sh<-function(dat=NULL){
 	# Pos<-Pos+1
 	# dat<-dat[Pos:nrow(dat),]
 	if(!any(names(dat) == "z")){
-		dat$z<-dat$lnor/dat$se
+		dat$z<-dat$lnor/dat$lnor_se
 	}
 	
 	log_or<-NULL
@@ -403,7 +422,7 @@ predict_lnor_sh<-function(dat=NULL){
 #' @export
 
 
-predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="effect_allele_freq",sample_size="n",var=1,pval="p"){
+predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="ncontrol",var=1,pval="p"){
 	z <- dat[,beta]/dat[,se]
 	Pos<-which(z==0)
 	# if z is zero when calculate from beta and se, infer from the P value

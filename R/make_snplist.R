@@ -17,6 +17,7 @@
 make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,snplist_user=NULL){
 	requireNamespace("gwasrapidd", quietly=TRUE)
 	
+	snplist<-""
 	if(!is.null(efo_id)){
 		top_hits<-gwas_catalog_hits(efo_id=efo_id)	
 		snplist<-top_hits$rsid	
@@ -53,7 +54,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 		snplist<-c(snplist,snplist_user)
 	}
 	# snplist<-unique(snplist)		
-	
+	snplist<-snplist[snplist!=""]	
 	return(unique(snplist))
 }
 
@@ -113,8 +114,7 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 			ancestry_tab<-make_ancestry_table(gwas_studies=gwas_studies)	
 			study_ids<-gwas_studies@studies$study_id	
 			Dat<-NULL	
-			i<-1
-
+			# i<-4
 			for(i in 1:length(study_ids)){		
 			# print(i)			
 				gwas_associations<-gwasrapidd::get_associations(study_id = study_ids[i])
@@ -129,25 +129,62 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){
 					# eaf<-gwas_associations@risk_alleles$risk_frequency
 				
 					gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
-					gwas_results$log_odds_ratios<-log(gwas_results$or_per_copy_number)
-					if(all(is.na(gwas_results$log_odds_ratios))){
-						gwas_results$log_odds_ratios<-gwas_results$beta_number
+					gwas_results$beta_gc<-log(gwas_results$or_per_copy_number)
+
+					Test<-FALSE 
+					if(all(is.na(gwas_results$beta_gc))){
+						if(!all(is.na(gwas_results$beta_number))){
+							gwas_results$beta_gc<-gwas_results$beta_number		
+							Test<-any(is.na(gwas_results$beta_gc))
+							if(Test){
+								gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
+								gwas_results2$se_gc<-NA
+							}
+							gwas_results<-gwas_results[!is.na(gwas_results$beta_gc),]
+							Pos1<-which(gwas_results$beta_direction == "increase")
+							Pos2<-which(gwas_results$beta_direction == "decrease")
+							if(!all(gwas_results$beta_gc>0)) stop("direction of beta_gc not always positive")
+							gwas_results$beta_gc[Pos2]<-gwas_results$beta_gc[Pos2]*-1
+							if(!all(unique(gwas_results$beta_direction) %in% c("increase","decrease"))) stop("beta_direction in gwas catalog not always increase or decrease")
+						}
 					}
-					gwas_results$standard_errors<-gwas_results$log_odds_ratios/gwas_results$z_scores
-					gwas_results$study_id<-study_ids[i]								
+					Pos<-which(!is.na(gwas_results$standard_error))			
+					gwas_results$se_gc<-NA
+					gwas_results$se_gc[Pos]<-gwas_results$standard_error[Pos]
+					Pos<-which(is.na(gwas_results$se_gc))
+					gwas_results$se_gc[Pos]<-abs(gwas_results$beta_gc[Pos]/gwas_results$z_scores[Pos])
+					if(Test){
+						gwas_results<-rbind(gwas_results,gwas_results2) 
+					}
+
+					# beta_gc still missing. This happens when there is at least one odds ratio amongst the rows. Sometimes the odds ratio colmn is missing beta_number corresponds to signed Z scores. 
+					gwas_results$z.x<-gwas_results$beta_gc / gwas_results$se_gc 
+					gwas_results1<-gwas_results[!is.na(gwas_results$beta_gc),]
+					gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
+					# update to make allowance for presence of any z scores amongst the beta_units? 
+					if(all(!is.na(gwas_results2$beta_unit) & gwas_results2$beta_unit == "z score")){
+						gwas_results2$z.x<-gwas_results2$beta_number
+						Pos<-which(gwas_results2$beta_direction=="decrease")
+						gwas_results2$z.x[Pos]<-gwas_results2$z.x[Pos]*-1
+						gwas_results<-rbind(gwas_results1,gwas_results2)
+					}
+					
+					gwas_results$study_id<-study_ids[i]						
 					Dat[[i]]<-gwas_results	
 				}			
 			}
-			if(!is.null(trait)) trait_efo<-trait
-			if(!is.null(efo)) trait_efo<-efo
 
+			if(!is.null(efo_id)) trait_efo<-efo_id
+			if(!is.null(efo)) trait_efo<-efo
+			if(!is.null(trait)) trait_efo<-trait
+			
 			if(is.null(Dat)){
 				warning(paste0("no results found in GWAS catalog for ",trait_efo))
 			}
 			if(!is.null(Dat)){
 				Dat<-do.call(rbind,Dat)
-				Dat<-Dat[,c("variant_id","risk_allele","log_odds_ratios","standard_errors","risk_frequency","pvalue","z_scores","study_id")]
-				names(Dat)<-c("rsid","effect_allele","lnor","se","eaf","p","test_statistic","study_id")		
+				Dat<-Dat[,c("variant_id","risk_allele","beta_gc","se_gc","risk_frequency","pvalue","z_scores","study_id","z.x")]
+				names(Dat)<-c("rsid","effect_allele","beta_gc","se_gc","eaf","p","test_statistic","study_id","z.x")		
 				Dat<-merge(Dat,ancestry_tab,by="study_id")				
 				return(Dat)
 			}

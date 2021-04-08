@@ -18,7 +18,9 @@ make_plot_gwas_catalog(
   Xlab = "Z score in GWAS catalog",
   Title_xaxis_size = 12,
   force_all_trait_study_hits = FALSE,
-  exclude_palindromic_snps = TRUE
+  exclude_palindromic_snps = TRUE,
+  beta = "lnor",
+  se = "lnor_se"
 )
 }
 \arguments{
@@ -49,6 +51,10 @@ make_plot_gwas_catalog(
 \item{force_all_trait_study_hits}{force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.}
 
 \item{exclude_palindromic_snps}{should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands.}
+
+\item{beta}{name of the column containing the SNP effect size}
+
+\item{se}{name of the column containing the standard error for the SNP effect size.}
 }
 \value{
 plot

@@ -25,10 +25,9 @@ make_plot_maf(
   Title_xaxis_size = 12,
   Title_size = 12,
   Title = "Comparison of MAF between outcome study and reference study",
-  Ylab = "MAF in outcome study",
+  Ylab = "Allele frequency in outcome study",
   Xlab = "MAF in reference study",
-  cowplot_title = "Comparison of MAF between outcome study and 1000 genomes project",
-  Dir = "~/"
+  cowplot_title = "Comparison of MAF between outcome study and 1000 genomes project"
 )
 }
 \arguments{
@@ -77,8 +76,6 @@ make_plot_maf(
 \item{Xlab}{X label}
 
 \item{cowplot_title}{title of overall plot}
-
-\item{Dir}{filepath to save plots}
 }
 \value{
 plot

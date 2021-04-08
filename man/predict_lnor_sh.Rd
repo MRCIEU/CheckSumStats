@@ -13,5 +13,5 @@ predict_lnor_sh(dat = NULL)
 data frame
 }
 \description{
-Predict the log odds ratio using information on the number of cases and controls, Z scores and minor allele frequency
+Predict the log odds ratio, using the Harrison approach. https://seanharrisonblog.com/2020/. The log odds ratio is inferred from the reported number of cases and controls, Z scores and minor allele frequency
 }

@@ -8,8 +8,8 @@ predict_beta_sd(
   dat = NULL,
   beta = "beta",
   se = "se",
-  eaf = "effect_allele_freq",
-  sample_size = "n",
+  eaf = "eaf",
+  sample_size = "ncontrol",
   var = 1,
   pval = "p"
 )

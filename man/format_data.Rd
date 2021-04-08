@@ -16,8 +16,10 @@ format_data(
   rsid = NA,
   effect_allele = NA,
   other_allele = NA,
-  lnor = NA,
+  beta = NA,
   se = NA,
+  lnor = NA,
+  lnor_se = NA,
   eaf = NA,
   p = NA,
   info1 = NA,
@@ -31,8 +33,8 @@ format_data(
   Direction = NA,
   effect_allele_confirmed = FALSE,
   or = NA,
-  lci = NA,
-  uci = NA,
+  or_lci = NA,
+  or_uci = NA,
   chr = NA,
   pos = NA,
   ID = NULL,
@@ -40,7 +42,8 @@ format_data(
   all_summary_stats = FALSE,
   open_gwas = FALSE,
   efo = NA,
-  efo_id = NA
+  efo_id = NA,
+  drop_duplicate_rsids = TRUE
 )
 }
 \arguments{
@@ -66,9 +69,13 @@ format_data(
 
 \item{other_allele}{name of the non-effect allele column}
 
+\item{beta}{name of the column containing the SNP effect sizes.}
+
+\item{se}{standard error for the beta}
+
 \item{lnor}{name of the column containing the log odds ratio. If missing, tries to infer it from the odds ratio}
 
-\item{se}{name of the column containing the standard error for the log odds ratio. If missing, tries to infer it from 95\% confidence intervals or pvalues}
+\item{lnor_se}{name of the column containing the standard error for the log odds ratio. If missing, tries to infer it from 95\% confidence intervals or pvalues}
 
 \item{eaf}{name of the effect allele frequency column}
 
@@ -96,9 +103,9 @@ format_data(
 
 \item{or}{name of column containing the odds ratio}
 
-\item{lci}{name of column containing the lower 95\% confidence interval for the odds ratio}
+\item{or_lci}{name of column containing the lower 95\% confidence interval for the odds ratio}
 
-\item{uci}{name of column containing the upper 95\% confidence interval for the odds ratio}
+\item{or_uci}{name of column containing the upper 95\% confidence interval for the odds ratio}
 
 \item{chr}{name of the column containing the chromosome number for each genetic variant}
 
@@ -115,6 +122,8 @@ format_data(
 \item{efo}{outcome trait of interest in the experimental factor ontology.}
 
 \item{efo_id}{ID for outcome trait of interest in the experimental factor ontology.}
+
+\item{drop_duplicate_rsids}{drop duplicate rsids? logical. default TRUE. duplicate rsids may for example correspond to triallelic SNPs.}
 }
 \value{
 data frame
