@@ -12,7 +12,7 @@ To install the latest version of mrQC, perform as normal:
 
 ``` r
 install.packages("devtools")
-devtools::install_github("MRCIEU/mrQC")
+devtools::install_github("MRCIEU/CheckSumStats")
 ```
 
 ## General overview
