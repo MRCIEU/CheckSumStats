@@ -8,7 +8,7 @@ CheckSumStats is an R package for checking the accuracy of meta- and summary-dat
 
 ## Installation
 
-To install the latest version of mrQC, perform as normal:
+To install the latest version of CheckSumStats, perform as normal:
 
 ``` r
 install.packages("devtools")
