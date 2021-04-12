@@ -1,5 +1,5 @@
-Package: mrQC
-Title: Quality Control of Outcome Summary Genetic Data for Mendelian Randomisation analyses
+Package: CheckSumStats
+Title: CheckSumStats
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Philip",
@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "philip.haycock@bristol.ac.uk",
            comment = c(ORCID = "0000-0001-5001-3350"))
-Description: mrQC is an R package for checking the accuracy of meta- and summary-data prior to their use in Mendelian randomisation analyses. The package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the summary data that might introduce bias into downstream Mendelian randomisation analyses.  
+Description: CheckSumStats is an R package for checking the accuracy of meta- and summary-data from genome-wide association studies (GWAS) prior to their use in post-GWAS applications. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible issues in the reported effect sizes that might introduce bias into downstream analyses.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
