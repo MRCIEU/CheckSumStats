@@ -125,3 +125,27 @@ read_plink<-function(path_to_target_file=NULL){
     return(Dat2)
 }
 
+
+#' Extract SNPs with P value below a specified threshold (e.g. significant SNPs)
+#'
+#' Exract the rows of the summary dataset of interest with P values below the specified threshold. This only works on linux/mac operating systems. 
+#'
+#' @param path_to_target_file path to the target file. This contains the summary data for the trait of interest
+#' @param p_val_col_number the column number corresponding to the P values for the SNP-trait associations
+#' @param p_threshold Extract SNP-trait associtions with P values less than this value. Default set to 5e-8
+#'
+#' @return data frame
+#' @export
+
+
+extract_sig_snps<-function(path_to_target_file=NULL,p_val_col_number=NULL,p_threshold=5e-8){
+    path_to_outfile<-file.path(tempdir(), "output.txt")
+    path_to_filehead<-file.path(tempdir(), "filehead.txt")
+    path_to_outfile_plus_filehead<-file.path(tempdir(), "output_head.txt")
+
+    system(paste0("head -1  ",path_to_target_file," > ",path_to_filehead))
+    system(paste0("awk '{if ($",p_val_col_number,"<",p_threshold,") print }' ",path_to_target_file," > ",path_to_outfile))
+    system(paste0("cat ",path_to_filehead," ",path_to_outfile," > ",path_to_outfile_plus_filehead))
+    sig_dat<-utils::read.table(path_to_outfile_plus_filehead,head=TRUE,stringsAsFactors=FALSE,quote="") 
+    return(sig_dat)
+}

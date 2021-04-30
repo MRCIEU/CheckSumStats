@@ -8,7 +8,7 @@
 #' @param pred_beta_se name of column containing the standard error for the predicted effect size
 #' @param beta name of column containing the reported effect size
 #' @param se name of column containing the standard error for the reported effect size
-#' @param sd_est the standard deviation of the phenotypic mean. Can either be a numeric vector of length 1 or name of the column in dat containing the standard deviation value (in which case should be constant across SNPs). Only applicable for continuous traits. If not supplied by the user, the standard deviation is approximated using sd_est, estimated by the predict_beta_sd() function. 
+#' @param sd_est the standard deviation of the phenotypic mean. Can either be a numeric vector of length 1 or name of the column in dat containing the standard deviation value (in which case should be constant across SNPs). Only applicable for continuous traits. If not supplied by the user, the standard deviation is approximated using sd_est, estimated by the predict_beta_sd() function. The sd_est is then used to standardise the reported effect size. If the reported effect size is already standardised (ie is in SD units) then sd_est should be set to NULL 
 #' @param bias logical argument. If TRUE, plots the % deviation of the predicted from the reported effect size on the Y axis against the reported effect size on the X axis.  
 #' @param subtitle subtitle
 #' @param maf_filter minor allele frequency threshold. If not NULL, genetic variants with a minor allele frequency below this threshold are excluded
@@ -26,8 +26,11 @@
 make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predicted effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported effect size",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est"){
 
 	if("ncase" %in% names(dat)){
-		dat<-format_data_predlnor_sh(dat=dat)
+		if(all(!is.na(dat$ncase))){
+			dat<-format_data_predlnor_sh(dat=dat)
+		}
 	}
+	
 	outcome_name<-unique(paste0(dat$outcome," | " ,dat$study," | ",dat$ID))
 
 	utils::data("refdat_1000G_superpops",envir =environment())
@@ -66,18 +69,25 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 	dat$plot_y<-dat[,pred_beta]
 	dat$plot_x<-dat[,beta]
 	
-	if(sd_est %in% names(dat)){
-		dat$plot_x<-dat[,beta]/dat[,sd_est]
+	if(!is.null(sd_est)){
+		if(sd_est %in% names(dat)){
+			if(pred_beta=="lnor_pred") {
+				stop("trying to standardise lnor_pred with sd_est")
+			}
+			dat$plot_x<-dat[,beta]/dat[,sd_est]
+		}
 	}
 
 	if(pred_beta!="lnor_pred"){
-		if(!sd_est %in% names(dat) ){
-			if(is.na(as.numeric(sd_est))){
-				warning("no SD value supplied")
-			}
-			if(!is.na(as.numeric(sd_est))){
-				if(length(unique(sd_est))!=1) warning("more than one SD value has been supplied when only one is expected")
-				dat$plot_x<-dat[,beta]/sd_est
+		if(!is.null(sd_est)){
+			if(!sd_est %in% names(dat) ){
+				if(is.na(as.numeric(sd_est))){
+					warning("no SD value supplied")
+				}
+				if(!is.na(as.numeric(sd_est))){
+					if(length(unique(sd_est))!=1) warning("more than one SD value has been supplied when only one is expected")
+					dat$plot_x<-dat[,beta]/sd_est
+				}
 			}
 		}
 	}

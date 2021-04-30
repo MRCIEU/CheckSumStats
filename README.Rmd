@@ -367,20 +367,6 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 ```
 !["qc_report.png"](/man/figures/README-qc_report2.png)
 
-Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="~/mrQC/man/figures/README-qc_report2.png")
-
-
-
-data("charge_top_hits_cleaned") 
-snplist<-make_snplist(trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",ref1000G_superpops=TRUE,snplist_user=charge_top_hits_cleaned)
-File<-system.file("extdata", "ara_test_cleaned_dat.txt", package = "mrQC")
-puf<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
-Dat<-format_data(dat=puf,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p",efo_id="EFO_0005680")
-Plot3_2<-make_plot_gwas_catalog(dat=Dat,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se")
-Plot3_2
-```
-
 
 #Summary
 

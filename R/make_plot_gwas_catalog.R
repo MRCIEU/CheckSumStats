@@ -153,6 +153,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	if(plot_type=="plot_zscores"){
 		if(force_all_trait_study_hits){
 			if(any(!dat$rsid %in% gwas_catalog$rsid)){
+				dat$rsid[!dat$rsid %in% gwas_catalog$rsid]
 				dat2<-dat[!dat$rsid %in% gwas_catalog$rsid,]
 				Dat.m2<-merge(gwas_catalog,dat2,by="rsid",all.y=TRUE)
 				Dat.m2$z.y<-Dat.m2[,beta]/Dat.m2[,se]
@@ -231,7 +232,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	
 
 	Subtitle<-paste0(Dat.m$outcome," | ",Dat.m$population)
-	
+
 	# ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=z.x, y=z.y,colour=Z_scores,shape=ancestry1))
 	if(legend){
 			Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
