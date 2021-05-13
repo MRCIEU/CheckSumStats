@@ -10,11 +10,19 @@
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
+#' @param exclude_1000G_MAF_refdat exclude rsids from the 1000 genome MAF reference dataset. 
 #'
 #' @return plot 
 #' @export
 
-zz_plot<-function(dat=NULL,Title_size=12,Title="ZZ plot",Ylab="Z score inferred from p value",Xlab="Z score inferred from effect size and standard error",Title_xaxis_size=12,beta="lnor",se="lnor_se"){
+zz_plot<-function(dat=NULL,Title_size=12,Title="ZZ plot",Ylab="Z score inferred from p value",Xlab="Z score inferred from effect size and standard error",Title_xaxis_size=12,beta="lnor",se="lnor_se",exclude_1000G_MAF_refdat=TRUE){
+
+	if(exclude_1000G_MAF_refdat){
+		utils::data("refdat_1000G_superpops",envir =environment())
+		snps_exclude<-unique(refdat_1000G_superpops$SNP)
+		dat<-dat[!dat$rsid %in% snps_exclude,]
+	}
+
 	dat<-dat[abs(dat$p)<=1,]
 	dat$z.p<-stats::qnorm(dat$p/2,lower.tail=F)
 	dat<-dat[dat$z.p!="Inf" ,]

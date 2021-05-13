@@ -19,11 +19,12 @@
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
 #' @param standard_errors logical argument. If TRUE, plots the predicted versus the reported standard errors for the effect sizes
+#' @param exclude_1000G_MAF_refdat exclude rsids from the 1000 genome MAF reference dataset. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predicted effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported effect size",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est"){
+make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predicted effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported effect size",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE){
 
 	if("ncase" %in% names(dat)){
 		if(all(!is.na(dat$ncase))){
@@ -33,9 +34,11 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 	
 	outcome_name<-unique(paste0(dat$outcome," | " ,dat$study," | ",dat$ID))
 
-	utils::data("refdat_1000G_superpops",envir =environment())
-	snps_exclude<-unique(refdat_1000G_superpops$SNP)
-	dat<-dat[!dat$rsid %in% snps_exclude,]
+	if(exclude_1000G_MAF_refdat){
+		utils::data("refdat_1000G_superpops",envir =environment())
+		snps_exclude<-unique(refdat_1000G_superpops$SNP)
+		dat<-dat[!dat$rsid %in% snps_exclude,]
+	}
 
 	# summary(dat$bias)
 
@@ -462,7 +465,7 @@ predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="nc
 
 	estimated_sd <- dat[,beta] / dat$beta_sd
   	estimated_sd <- estimated_sd[!is.na(estimated_sd)]
-  # estimate variance for Y from summary data using method 2
+  # estimate variance for Y from summary data
   	dat$sd_est <- stats::median(estimated_sd)
 	return(dat)
 }

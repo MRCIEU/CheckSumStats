@@ -13,11 +13,11 @@ make_snplist(
 )
 }
 \arguments{
-\item{trait}{the trait of interest}
+\item{trait}{the name of the trait in the NHGRI-EBI GWAS catalog}
 
-\item{efo_id}{ID for trait of interest in the experimental factor ontology}
+\item{efo_id}{experimental factor ontology ID for trait of interest}
 
-\item{efo}{trait of interest in the experimental factor ontology}
+\item{efo}{experimental factor ontology for the trait of interest}
 
 \item{ref1000G_superpops}{include reference SNPs from 1000 genomes super populations. Default=TRUE}
 

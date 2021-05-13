@@ -3,9 +3,9 @@
 #'
 #' Create a list of rsids corresponding to "top hits" in the GWAS catalog, the 1000 genomes super popualtions and SNPs of specific interest to the user (e.g. genetic instruments/proxies for the exposure of interest).
 #'
-#' @param trait the trait of interest
-#' @param efo_id ID for trait of interest in the experimental factor ontology 
-#' @param efo trait of interest in the experimental factor ontology
+#' @param trait the name of the trait in the NHGRI-EBI GWAS catalog
+#' @param efo_id experimental factor ontology ID for trait of interest 
+#' @param efo experimental factor ontology for the trait of interest
 #' @param ref1000G_superpops include reference SNPs from 1000 genomes super populations. Default=TRUE
 #' @param snplist_user character vector of user specified rsids. 
 #'

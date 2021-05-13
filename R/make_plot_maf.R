@@ -123,7 +123,8 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m.test<-dat.m.test[order(dat.m.test$ref_dat_population),]
 	Pops<-unique(dat.m.test$ref_dat_population)
 	# if(length(Pops)>1){
-		# i<-1
+		Ylab<-""
+	# }
 	for(i in 1:length(Pops)){
 		# print(pop)
 		# dat1<-dat[dat$ref_dat_population==pop,]			
