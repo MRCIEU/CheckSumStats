@@ -26,4 +26,5 @@ Imports:
     cowplot,
     grDevices,
     ieugwasr,
-    knitr
+    knitr,
+    biomaRt
