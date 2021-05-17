@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_plot_gwas_catalog.R
 \name{make_plot_gwas_catalog}
 \alias{make_plot_gwas_catalog}
-\title{Compare the target study to the GWAS catalog}
+\title{Plot comparing the test study to the GWAS catalog}
 \usage{
 make_plot_gwas_catalog(
   dat = NULL,
@@ -24,7 +24,7 @@ make_plot_gwas_catalog(
 )
 }
 \arguments{
-\item{dat}{the outcome dataset of interest}
+\item{dat}{the test dataset of interest}
 
 \item{plot_type}{compare Z scores or effect allele frequency? For comparison of Z scores set plot_type to "plot_zscores". For comparison of effect allele frequency set to "plot_eaf". Default is set to "plot_zscores"}
 
@@ -60,5 +60,5 @@ make_plot_gwas_catalog(
 plot
 }
 \description{
-Make a plot comparing signed Z scores, or effect allele frequency, between the target dataset and the GWAS catalog
+Make a plot comparing signed Z scores, or effect allele frequency, between the test dataset and the GWAS catalog, in order to identify effect allele meta data errors
 }
