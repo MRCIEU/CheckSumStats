@@ -299,7 +299,7 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 	# if(plot_type=="plot_zscores"){
 	if(force_all_trait_study_hits)
 	{
-		gc_list<-gwas_hit_in_gwas_catalog(gwas_hits=dat$rsid,trait=trait,efo=efo,efo_id=efo_id)
+		gc_list<-find_hits_in_gwas_catalog(gwas_hits=dat$rsid,trait=trait,efo=efo,efo_id=efo_id)
 
 		if(length(gc_list$not_in_gc)>0)
 		{
@@ -359,7 +359,7 @@ harmonise_effect_allele<-function(dat=NULL,beta=beta){
 #' @return list 
 #' @export
 
-gwas_hit_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NULL){
+find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NULL){
 
 	utils::data("refdat_1000G_superpops",envir =environment())
 	snps_exclude<-unique(refdat_1000G_superpops$SNP)
