@@ -23,13 +23,13 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between outcome study and GWAS catalog",Title_size_subplot=12,Ylab="Z score in outcome study",Xlab="Z score in GWAS catalog",Title_xaxis_size=12,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se"){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset and GWAS catalog",Title_size_subplot=12,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=12,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se"){
 
 	# exclude the MAF 1k ref set. Causes problems if you force inclusion of SNPs missing from the GWAS catalog 
 	utils::data("refdat_1000G_superpops",envir =environment())
 	snps_exclude<-unique(refdat_1000G_superpops$SNP)
 	dat<-dat[!dat$rsid %in% snps_exclude,]
-	
+
 	if(beta=="lnor"){
 		if(!"lnor" %in% names(dat)) stop("name of beta column set to lnor but there is no column with that name")
 	}
@@ -152,9 +152,12 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 
 	if(plot_type=="plot_zscores"){
 		if(force_all_trait_study_hits){
-			if(any(!dat$rsid %in% gwas_catalog$rsid)){
-				dat$rsid[!dat$rsid %in% gwas_catalog$rsid]
-				dat2<-dat[!dat$rsid %in% gwas_catalog$rsid,]
+			gc_list<-gwas_hit_in_gwas_catalog(gwas_hits=dat$rsid,trait=trait,efo=efo,efo_id=efo_id)
+
+			if(length(gc_list$not_in_gc)>0){
+			# if(any(!dat$rsid %in% gwas_catalog$rsid)){
+				# dat$rsid[!dat$rsid %in% gwas_catalog$rsid]
+				dat2<-dat[dat$rsid %in% gc_list$not_in_gc,] #the snps not in the GWAS catalog. Genomic coordinates for SNPs associated with trait/efo in the GWAS catalog did not overlap with these SNPs (including +/- 250 kb) 
 				Dat.m2<-merge(gwas_catalog,dat2,by="rsid",all.y=TRUE)
 				Dat.m2$z.y<-Dat.m2[,beta]/Dat.m2[,se]
 				Dat.m2$z.x<-0
@@ -288,3 +291,119 @@ harmonise_effect_allele<-function(dat=NULL,beta=beta){
 	dat$eaf.y[Pos]<-eaf		
 	return(dat)
 }
+
+
+#' Are hits in the GWAS catalog? 
+#'
+#' Identify GWAS hits in the test dataset and see if they overlap (+/- 250kb) with GWAS hits in the GWAS catalog. 
+#'
+#' @param gwas_hits the "GWAS hits" in the test dataset (e.g. SNP-trait associations with P<5e-8)
+#' @param trait the trait of interest
+#' @param efo_id ID for trait of interest in the experimental factor ontology 
+#' @param efo trait of interest in the experimental factor ontology
+#'
+#' @return list 
+#' @export
+
+gwas_hit_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NULL){
+
+	utils::data("refdat_1000G_superpops",envir =environment())
+	snps_exclude<-unique(refdat_1000G_superpops$SNP)
+	gwas_hits<-gwas_hits[!gwas_hits %in% snps_exclude]
+
+
+	ensembl<-get_positions_biomart(gwas_hits=gwas_hits)
+	if(!is.null(efo))
+	{
+		efo<-trimws(unlist(strsplit(efo,split=";")))	
+		gwas_variants<-gwasrapidd::get_variants(efo_trait = efo)		
+		
+		if(class(unlist(gwas_variants)) == "character")
+		{
+			if(nrow(gwas_variants)==0)
+			{
+				warning(paste("search for efo -",efo,"- returned 0 variants from the GWAS catalog"))
+			}
+		}
+	}
+
+	if(!is.null(efo_id))
+	{
+		efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
+		gwas_variants<-gwasrapidd::get_variants(efo_id = efo_id)		
+		# unique(gwas_studies@studies$reported_trait)
+		if(class(unlist(gwas_variants)) == "character")
+		{
+			# if(nrow(gwas_studies@studies)==0){
+			if(nrow(gwas_variants)==0)
+			{
+				warning(paste("search for efo -",efo_id,"- returned 0 variants from the GWAS catalog"))
+			}
+		}
+	}
+	
+	if(!is.null(trait))
+	{
+		gwas_variants<-gwasrapidd::get_variants(reported_trait = trait)
+		if(class(unlist(gwas_variants)) == "character")
+		{
+			# if(nrow(gwas_studies@studies)==0){
+			if(nrow(gwas_variants)==0)
+			{
+				warning(paste("search for trait -",trait,"- returned 0 variants from the GWAS catalog"))
+			}
+		}
+	}
+
+	gwas_variants<-data.frame(gwas_variants@variants)
+	
+	# for now use ensembl/biomart to determine positions for GWAS catalog and test variants. Both are in GRCh38 so could also use GWAS catalog positions for GWAS catalog variats (maybe this would be faster too) but there is the risk that the reference build could diverge over time between biomart/ensembl and GWAS catalog. might update this so that chromosome positions could be based on GWAS catalog instead	
+	# if(positions_biomart)
+	# {
+	ensembl2<-get_positions_biomart(gwas_hits=unique(gwas_variants$variant_id))
+	ensembl2$bp_minus250k<-ensembl2$chrom_start - 250000
+	ensembl2$bp_plus250k<-ensembl2$chrom_start + 250000
+	# }
+	
+	if(any(ensembl$chr_name %in% ensembl2$chr_name))
+	{
+		gwashit_notin_gc<-ensembl$refsnp_id[!ensembl$chr_name %in% ensembl2$chr_name]
+		ens.m<-merge(ensembl,ensembl2,by="chr_name")	
+		
+		Test<-any(ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k )
+		if(Test)
+		{
+			Pos<-ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k
+			gwashit_in_gc<-unique(ens.m$refsnp_id.x[Pos])
+			ens.m<-ens.m[!ens.m$refsnp_id.x %in% gwashit_in_gc,]
+			Pos<-ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k		
+			# unique(ens.m[!Pos,c("refsnp_id.x","chr_name","chrom_start.x","bp_minus250k","bp_plus250k","chrom_start.y")])
+			gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x[!Pos]))
+		}
+		if(!Test)
+		{
+			gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x))
+		}
+	}else{
+		gwashit_notin_gc<-unique(ensembl$refsnp_id)
+		gwashit_in_gc<-NA
+	}
+	return(list("not_in_gc"=gwashit_notin_gc,"in_gc"=gwashit_in_gc))
+}
+
+get_positions_biomart<-function(gwas_hits=NULL){
+	# library(biomaRt)
+
+	# Get chromosomal positions and genes names from ENSEMBL. Should be build 38. Version object contains version ID for genome build used
+	Mart <- biomaRt::useMart(host="www.ensembl.org", biomart="ENSEMBL_MART_SNP",dataset="hsapiens_snp")
+	Version<-biomaRt::listDatasets(Mart)[ biomaRt::listDatasets(Mart)$dataset=="hsapiens_snp","version"]
+	message(paste0("Using ",Version," of human genome from ensembl for genomic coordinates"))
+	Attr<-biomaRt::listAttributes(Mart)
+
+	ensembl<-biomaRt::getBM(attributes=c("refsnp_id","chr_name","chrom_start"),filters="snp_filter",values=gwas_hits,mart=Mart)
+	ensembl<-ensembl[order(ensembl$refsnp_id),]
+	ensembl<-ensembl[nchar(ensembl$chr_name)<3,]
+	ensembl$chr_name<-as.numeric(ensembl$chr_name)
+	return(ensembl)
+}
+
