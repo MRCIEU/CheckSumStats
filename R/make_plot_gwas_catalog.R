@@ -365,13 +365,11 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	snps_exclude<-unique(refdat_1000G_superpops$SNP)
 	gwas_hits<-gwas_hits[!gwas_hits %in% snps_exclude]
 
-
 	ensembl<-get_positions_biomart(gwas_hits=gwas_hits)
 	if(!is.null(efo))
 	{
 		efo<-trimws(unlist(strsplit(efo,split=";")))	
 		gwas_variants<-gwasrapidd::get_variants(efo_trait = efo)		
-		
 		if(class(unlist(gwas_variants)) == "character")
 		{
 			if(nrow(gwas_variants)==0)
@@ -398,6 +396,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	
 	if(!is.null(trait))
 	{
+		# unique(gwas_variants@ensembl_ids$variant_id)
 		gwas_variants<-gwasrapidd::get_variants(reported_trait = trait)
 		if(class(unlist(gwas_variants)) == "character")
 		{
@@ -409,43 +408,65 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 		}
 	}
 
-	gwas_variants<-data.frame(gwas_variants@variants)
-	
-	# for now use ensembl/biomart to determine positions for GWAS catalog and test variants. Both are in GRCh38 so could also use GWAS catalog positions for GWAS catalog variats (maybe this would be faster too) but there is the risk that the reference build could diverge over time between biomart/ensembl and GWAS catalog. might update this so that chromosome positions could be based on GWAS catalog instead	
-	# if(positions_biomart)
-	# {
-	ensembl2<-get_positions_biomart(gwas_hits=unique(gwas_variants$variant_id))
-	ensembl2$bp_minus250k<-ensembl2$chrom_start - 250000
-	ensembl2$bp_plus250k<-ensembl2$chrom_start + 250000
-	# }
-	
-	if(any(ensembl$chr_name %in% ensembl2$chr_name))
+# gwas_hits<-"rs17077488"
+# gwas_hits<-"rs472031"
+	if(is.null(trait) & is.null(efo) & is.null(efo_id))
 	{
-		gwashit_notin_gc<-ensembl$refsnp_id[!ensembl$chr_name %in% ensembl2$chr_name]
-		ens.m<-merge(ensembl,ensembl2,by="chr_name")	
-		
-		Test<-any(ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k )
-		if(Test)
-		{
-			Pos<-ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k
-			gwashit_in_gc<-unique(ens.m$refsnp_id.x[Pos])
-			ens.m<-ens.m[!ens.m$refsnp_id.x %in% gwashit_in_gc,]
-			Pos<-ens.m$chrom_start.x>ens.m$bp_minus250k & ens.m$chrom_start.x<ens.m$bp_plus250k		
-			# unique(ens.m[!Pos,c("refsnp_id.x","chr_name","chrom_start.x","bp_minus250k","bp_plus250k","chrom_start.y")])
-			gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x[!Pos]))
-		}
-		if(!Test)
-		{
-			gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x))
-		}
-	}else{
-		gwashit_notin_gc<-unique(ensembl$refsnp_id)
-		gwashit_in_gc<-NA
+		genomic_range<-list(chromosome=as.character(ensembl$chr_name),start=ensembl$bp_minus,end=ensembl$bp_plus)
+		gwas_variants<-gwasrapidd::get_variants(genomic_range=genomic_range)
+		# Res<-gwasrapidd::get_variants(variant_id="rs2581624")
+
+
+		gwas_variants<-data.frame(gwas_variants@variants)
+		ens.m<-merge(ensembl,gwas_variants,by.x="chr_name",by.y="chromosome_name",all.x=TRUE)
+		# doesn't matter whether comparing gwas catalog to test dataset or vice versa
+		# bp_minus<-ens.m$chromosome_position-25000
+		# bp_plus<-ens.m$chromosome_position+25000
+		# Pos<-which(ens.m$chrom_start>bp_minus & ens.m$chrom_start<bp_plus)
+		Pos<-which(ens.m$chromosome_position>ens.m$bp_minus & ens.m$chromosome_position<ens.m$bp_plus) 
+		gwashit_in_gc<-unique(ens.m$refsnp_id[Pos])
+		gwashit_notin_gc<-unique(ens.m$refsnp_id[!ens.m$refsnp_id %in% gwashit_in_gc])
+		return(list("not_in_gc"=gwashit_notin_gc,"in_gc"=gwashit_in_gc))
 	}
-	return(list("not_in_gc"=gwashit_notin_gc,"in_gc"=gwashit_in_gc))
+	
+	if(!(is.null(trait) & is.null(efo) & is.null(efo_id))){
+	
+		# for now use ensembl/biomart to determine positions for GWAS catalog and test variants. Both are in GRCh38 so could also use GWAS catalog positions for GWAS catalog variats (maybe this would be faster too) but there is the risk that the reference build could diverge over time between biomart/ensembl and GWAS catalog. might update this so that chromosome positions could be based on GWAS catalog instead	
+		# if(positions_biomart)
+		# {
+		gwas_variants<-data.frame(gwas_variants@variants)
+		 gwas_hits %in% gwas_variants@variants$variant_id 
+		ensembl2<-get_positions_biomart(gwas_hits=unique(gwas_variants$variant_id))
+
+			# }
+		
+		if(any(ensembl$chr_name %in% ensembl2$chr_name))
+		{
+			gwashit_notin_gc<-ensembl$refsnp_id[!ensembl$chr_name %in% ensembl2$chr_name]
+			ens.m<-merge(ensembl,ensembl2,by="chr_name")	
+			
+			Test<-any(ens.m$chrom_start.x>ens.m$bp_minus.y & ens.m$chrom_start.x<ens.m$bp_plus.y )
+			if(Test)
+			{
+				Pos<-ens.m$chrom_start.x>ens.m$bp_minus.y & ens.m$chrom_start.x<ens.m$bp_plus.y
+				gwashit_in_gc<-unique(ens.m$refsnp_id.x[Pos])
+				ens.m<-ens.m[!ens.m$refsnp_id.x %in% gwashit_in_gc,]
+				Pos<-ens.m$chrom_start.x>ens.m$bp_minus.y & ens.m$chrom_start.x<ens.m$bp_plus.y		
+				gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x[!Pos]))
+			}
+			if(!Test)
+			{
+				gwashit_notin_gc<-c(gwashit_notin_gc,unique(ens.m$refsnp_id.x))
+			}
+		}else{
+			gwashit_notin_gc<-unique(ensembl$refsnp_id)
+			gwashit_in_gc<-NA
+		}
+		return(list("not_in_gc"=gwashit_notin_gc,"in_gc"=gwashit_in_gc))
+	}
 }
 
-get_positions_biomart<-function(gwas_hits=NULL){
+get_positions_biomart<-function(gwas_hits=NULL,bp_down=25000,bp_up=25000){
 	# library(biomaRt)
 
 	# Get chromosomal positions and genes names from ENSEMBL. Should be build 38. Version object contains version ID for genome build used
@@ -458,6 +479,8 @@ get_positions_biomart<-function(gwas_hits=NULL){
 	ensembl<-ensembl[order(ensembl$refsnp_id),]
 	ensembl<-ensembl[nchar(ensembl$chr_name)<3,]
 	ensembl$chr_name<-as.numeric(ensembl$chr_name)
+	ensembl$bp_minus<-ensembl$chrom_start - bp_down
+	ensembl$bp_plus<-ensembl$chrom_start + bp_up
 	return(ensembl)
 }
 
