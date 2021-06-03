@@ -27,4 +27,5 @@ Imports:
     grDevices,
     ieugwasr,
     knitr,
-    biomaRt
+    biomaRt,
+    purrr

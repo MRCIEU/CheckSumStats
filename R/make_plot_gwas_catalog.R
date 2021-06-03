@@ -28,6 +28,9 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	
 	Dat.m<-compare_effect_to_gwascatalog(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps)
 
+	# head(Dat.m)
+	# Dat.m[Dat.m$Z_scores=="high conflict",c("z.y","z.x")]
+
 
 	Dat.m$Z_scores[Dat.m$Z_scores=="high conflict"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="moderate conflict"]<-"blue"
@@ -182,42 +185,43 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 
 	if(!se %in% names(dat)) stop(paste0("se column set to '",se,"' but there is no column with that name"))
 
+	if(is.null(efo) & is.null(efo_id) & is.null(trait)) stop("you must specify either efo, efo_id or trait")
 	# if(!is.null(trait)){
-		# gwas_catalog<-gwas_catalog_hits(trait=trait)
+		# gwas_catalog<-gwas_catalog_hits2(trait=trait)
 	# }
 # gwas_catalog_ancestral_group="East Asian"
-	if(!is.null(efo))
-	{
-		gwas_catalog<-gwas_catalog_hits(efo=efo)
+	# if(!is.null(efo))
+	# {
+	gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait)
 		# gwas_catalog$ancestral_group
-	}
+	# }
 	
-	if(!is.null(efo_id))
-	{
-		gwas_catalog<-gwas_catalog_hits(efo_id=efo_id)
-	}
+	# if(!is.null(efo_id))
+	# {
+	# 	gwas_catalog<-gwas_catalog_hits2(efo_id=efo_id)
+	# }
 
-	if(!is.null(efo) | !is.null(efo_id))
-	{
-		if(!is.null(trait))
-		{
-			gwas_catalog1<-gwas_catalog_hits(trait=trait)
-			# gwas_catalog1$efo<-"trait"
-			# gwas_catalog$efo<-"efo"
-			gwas_catalog<-rbind(gwas_catalog,gwas_catalog1)
-			gwas_catalog<-gwas_catalog[which(!duplicated(gwas_catalog[,c("study_id","rsid","test_statistic")])),]
-		}
-	}
+	# if(!is.null(efo) | !is.null(efo_id))
+	# {
+	# 	if(!is.null(trait))
+	# 	{
+	# 		gwas_catalog1<-gwas_catalog_hits2(trait=trait)
+	# 		# gwas_catalog1$efo<-"trait"
+	# 		# gwas_catalog$efo<-"efo"
+	# 		gwas_catalog<-rbind(gwas_catalog,gwas_catalog1)
+	# 		gwas_catalog<-gwas_catalog[which(!duplicated(gwas_catalog[,c("study_id","rsid","test_statistic")])),]
+	# 	}
+	# }
 	
-	if(is.null(efo) & is.null(efo_id))
-	{
-		if(!is.null(trait))
-		{
-			gwas_catalog<-gwas_catalog_hits(trait=trait)
-		}else{
-			stop("efo_id, efo and trait are all null")
-		}
-	}
+	# if(is.null(efo) & is.null(efo_id))
+	# {
+	# 	if(!is.null(trait))
+	# 	{
+	# 		gwas_catalog<-gwas_catalog_hits2(trait=trait)
+	# 	}else{
+	# 		stop("efo_id, efo and trait are all null")
+	# 	}
+	# }
 
 	# gwas_catalog[gwas_catalog$study_id == "GCST001633",]
 	# gwas_catalog[which(gwas_catalog$rsid == "rs2736100"),]
@@ -359,6 +363,8 @@ harmonise_effect_allele<-function(dat=NULL,beta=beta){
 #' @return list 
 #' @export
 
+# rs8523
+
 find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NULL){
 
 	utils::data("refdat_1000G_superpops",envir =environment())
@@ -435,11 +441,11 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 		# if(positions_biomart)
 		# {
 		gwas_variants<-data.frame(gwas_variants@variants)
-		 gwas_hits %in% gwas_variants@variants$variant_id 
+		# gwas_hits %in% gwas_variants@variants$variant_id 
 		ensembl2<-get_positions_biomart(gwas_hits=unique(gwas_variants$variant_id))
 
 			# }
-		
+		gwashit_in_gc<-NA
 		if(any(ensembl$chr_name %in% ensembl2$chr_name))
 		{
 			gwashit_notin_gc<-ensembl$refsnp_id[!ensembl$chr_name %in% ensembl2$chr_name]

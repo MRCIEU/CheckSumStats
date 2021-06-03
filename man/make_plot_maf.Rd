@@ -24,10 +24,10 @@ make_plot_maf(
   ref_study = "study",
   Title_xaxis_size = 12,
   Title_size = 12,
-  Title = "Comparison of MAF between outcome study and reference study",
-  Ylab = "Allele frequency in outcome study",
+  Title = "Comparison of MAF between test dataset and reference study",
+  Ylab = "Allele frequency in test dataset",
   Xlab = "MAF in reference study",
-  cowplot_title = "Comparison of MAF between outcome study and 1000 genomes project"
+  cowplot_title = "Comparison of MAF between test dataset and 1000 genomes project"
 )
 }
 \arguments{

@@ -30,7 +30,7 @@
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=12,Title_size=12,Title="Comparison of MAF between outcome study and reference study",Ylab="Allele frequency in outcome study",Xlab="MAF in reference study",cowplot_title="Comparison of MAF between outcome study and 1000 genomes project"){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=12,Title_size=12,Title="Comparison of MAF between test dataset and reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Comparison of MAF between test dataset and 1000 genomes project"){	
 
 	# should exclude palindromic SNPs which can cause apparent conflicts when target and reference datasets on different strands for some SNPs. drop palindromic SNPs or show in different shape?
 	# ref_dat<-load_refdata(refstudy=refstudy,Dir=Dir)
@@ -44,7 +44,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 
 	if(!any(names(ref_dat) == "minor_allele")) stop("minor_allele column missing")
 	if(!any(names(ref_dat) == "major_allele")) stop("major_allele column missing")
-
 
 	ref_dat2<-flip_strand(dat=ref_dat,allele1_col="minor_allele",allele2_col="major_allele")
 	ref_dat$minor_allele2<-ref_dat2$minor_allele
@@ -122,10 +121,12 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	Plot_list<-NULL
 	dat.m.test<-dat.m.test[order(dat.m.test$ref_dat_population),]
 	Pops<-unique(dat.m.test$ref_dat_population)
+	
 	# if(length(Pops)>1){
-		Ylab<-""
+	# 	Ylab<-""
 	# }
-	for(i in 1:length(Pops)){
+	for(i in 1:length(Pops))
+	{
 		# print(pop)
 		# dat1<-dat[dat$ref_dat_population==pop,]			
 		dat1<-dat.m.test[dat.m.test$ref_dat_population==Pops[i], ]
@@ -184,17 +185,18 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + ggplot2::geom_point(colour=Colour) +ggplot2::ggtitle(Title) +ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
 			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1)) 
 
-			if(length(Pops)> 1){
+		if(length(Pops)> 1){
 				Plot_list[[i]]<-Plot
-			}
-		}	
-
-		if(length(unique(dat.m.test$ref_dat_population)) > 1){
-			if(is.null(cowplot_title)){
-				cowplot_title<-target_study
-			}	
-			Plot<-make_cow_plot(Plot_list=Plot_list,Title=cowplot_title,Xlab="",Ylab="",return_plot=TRUE,Title_size=Title_size,Subtitle=Subtitle,Subtitle_size=8)
 		}
+	}	
+
+	if(length(unique(dat.m.test$ref_dat_population)) > 1){
+		if(is.null(cowplot_title)){
+				cowplot_title<-target_study
+		}	
+		
+		Plot<-make_cow_plot(Plot_list=Plot_list,Title=cowplot_title,Xlab="",Ylab=Ylab,return_plot=TRUE,Title_size=Title_size,Subtitle=Subtitle,Subtitle_size=8)
+	}
 		# Title_axis_size
 	return(Plot)
 }
@@ -235,19 +237,19 @@ make_cow_plot<-function(Plot_list=NULL,Title="",Xlab="",Ylab="",out_file=NULL,re
 					)
 
 		subtitle <- cowplot::ggdraw() + 
-		cowplot::draw_label(
-			Subtitle,
-			# fontface = 'bold',
-			fontface = 'plain',
-			x = 0,
-			hjust = 0,
-			# element = "plot.subtitle",
-			size=Subtitle_size)  +
-		ggplot2::theme(
-		# add margin on the left of the drawing canvas,
-		# so title is aligned with left edge of first plot
-			plot.margin = ggplot2::margin(0, 0, 0, 7)
-			)
+			cowplot::draw_label(
+				Subtitle,
+				# fontface = 'bold',
+				fontface = 'plain',
+				x = 0,
+				hjust = 0,
+				# element = "plot.subtitle",
+				size=Subtitle_size)  +
+				ggplot2::theme(
+				# add margin on the left of the drawing canvas,
+				# so title is aligned with left edge of first plot
+					plot.margin = ggplot2::margin(0, 0, 0, 7)
+					)
 		# subtitle <- ggdraw() +
   # 						draw_label_theme("By census tract, 2016",
   #                  theme = theme_georgia(), 
