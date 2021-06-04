@@ -13,7 +13,8 @@ compare_effect_to_gwascatalog(
   se = NULL,
   gwas_catalog_ancestral_group = c("European", "East Asian"),
   exclude_palindromic_snps = TRUE,
-  force_all_trait_study_hits = FALSE
+  force_all_trait_study_hits = FALSE,
+  distance_threshold = distance_threshold
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ compare_effect_to_gwascatalog(
 \item{exclude_palindromic_snps}{should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands.}
 
 \item{force_all_trait_study_hits}{force the comparison to include GWAS hits from the test dataset if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the test trait study has an unusually larger number of GWAS hits, which could, in turn, indicate analytical issues with the summary statistics}
+
+\item{distance_threshold}{distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.}
 }
 \value{
 dataframe

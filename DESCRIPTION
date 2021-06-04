@@ -28,4 +28,7 @@ Imports:
     ieugwasr,
     knitr,
     biomaRt,
-    purrr
+    purrr,
+    dplyr,
+    tibble,
+    magrittr

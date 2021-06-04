@@ -20,7 +20,8 @@ make_plot_gwas_catalog(
   force_all_trait_study_hits = FALSE,
   exclude_palindromic_snps = TRUE,
   beta = "lnor",
-  se = "lnor_se"
+  se = "lnor_se",
+  distance_threshold = 25000
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ make_plot_gwas_catalog(
 \item{beta}{name of the column containing the SNP effect size}
 
 \item{se}{name of the column containing the standard error for the SNP effect size.}
+
+\item{distance_threshold}{distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.}
 }
 \value{
 plot

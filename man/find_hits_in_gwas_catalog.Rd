@@ -8,7 +8,8 @@ find_hits_in_gwas_catalog(
   gwas_hits = NULL,
   trait = NULL,
   efo = NULL,
-  efo_id = NULL
+  efo_id = NULL,
+  distance_threshold = 25000
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ find_hits_in_gwas_catalog(
 \item{efo}{trait of interest in the experimental factor ontology}
 
 \item{efo_id}{ID for trait of interest in the experimental factor ontology}
+
+\item{distance_threshold}{distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.}
 }
 \value{
 list
