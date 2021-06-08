@@ -61,7 +61,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #'
 #' Extract results for top hits for the trait of interest from the NHGRI-EBI GWAS catalog
 #'
-#' @param trait the trait of interest
+#' @param trait the trait of interest as reported in the GWAS catalog
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of intersest in the experimental factor ontology
 #'
@@ -69,10 +69,10 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #' @importFrom magrittr %>%
 #' @export
 
-gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL){
-
-	gwas_associations<-get_gwas_associations(trait=trait,efo=efo,efo_id=efo_id)	
-	
+gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
+{
+	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
+		
 	if(nrow(gwas_associations@associations)==0) warning("no associations found in GWAS catalog")
 
 	if(nrow(gwas_associations@associations)!=0)
@@ -148,28 +148,28 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL){
 }
 
 
-get_gwas_associations<-function(trait=NULL,efo=NULL,efo_id=NULL){
-	requireNamespace("gwasrapidd", quietly=TRUE)
+# get_gwas_associations<-function(trait=NULL,efo=NULL,efo_id=NULL){
+# 	requireNamespace("gwasrapidd", quietly=TRUE)
 	
-	if(!is.null(efo)) efo<-trimws(unlist(strsplit(efo,split=";")))	
-	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
-	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))				
-	gwas_studies<-gwasrapidd::get_studies(efo_trait = efo,efo_id=efo_id,reported_trait=trait)	
-	if(class(unlist(gwas_studies)) == "character"){
-		# if(nrow(gwas_studies@studies)==0){
-		if(nrow(gwas_studies)==0){
-			warning(paste("search returned 0 studies from the GWAS catalog"))
-		}
-	}	
-	if(class(unlist(gwas_studies)) != "character")
-	{
-		if(nrow(gwas_studies@studies)!=0)
-		{	
-			gwas_associations<-gwasrapidd::get_associations(study_id = gwas_studies@studies$study_id)
-			return(gwas_associations)
-		}
-	}
-}
+# 	if(!is.null(efo)) efo<-trimws(unlist(strsplit(efo,split=";")))	
+# 	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
+# 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))				
+# 	gwas_studies<-gwasrapidd::get_studies(efo_trait = efo,efo_id=efo_id,reported_trait=trait)	
+# 	if(class(unlist(gwas_studies)) == "character"){
+# 		# if(nrow(gwas_studies@studies)==0){
+# 		if(nrow(gwas_studies)==0){
+# 			warning(paste("search returned 0 studies from the GWAS catalog"))
+# 		}
+# 	}	
+# 	if(class(unlist(gwas_studies)) != "character")
+# 	{
+# 		if(nrow(gwas_studies@studies)!=0)
+# 		{	
+# 			gwas_associations<-gwasrapidd::get_associations(study_id = gwas_studies@studies$study_id)
+# 			return(gwas_associations)
+# 		}
+# 	}
+# }
 
 map_association_to_study_id<-function(associations=NULL){
 	association_ids <- associations@associations$association_id
@@ -227,6 +227,48 @@ make_ancestry_table<-function(association_id=NULL){
 	anc2<-do.call(rbind,anc2)
 	return(anc2)
 }
+
+
+# get_associations_by_trait <- function(reported_trait = NULL,efo_trait = NULL,efo_id=NULL,verbose = FALSE,warnings = TRUE) 
+
+get_gwas_associations<-function(reported_trait=NULL,efo_trait=NULL,efo_id=NULL,verbose = FALSE,warnings = TRUE) 
+{
+  
+	if(!is.null(reported_trait)) 
+	{
+		gwas_studies <- gwasrapidd::get_studies(reported_trait = reported_trait)
+		gwas_associations_by_reported_trait <- gwasrapidd::get_associations(study_id = gwas_studies@studies$study_id,verbose = verbose,warnings = warnings)
+	}
+
+	if(!is.null(efo_trait)) 
+	{
+		gwas_associations_by_efo_trait <- gwasrapidd::get_associations(efo_trait = efo_trait,verbose = verbose,warnings = warnings)
+	}
+
+	if(!is.null(efo_id)) 
+	{
+		gwas_associations_by_efo_id <- gwasrapidd::get_associations(efo_id = efo_id,verbose = verbose,warnings = warnings)
+	}
+
+	# it is redundant to specify both efo_trait and efo_id. 
+	if(!is.null(reported_trait) && !is.null(efo_trait))
+		return(gwasrapidd::union(gwas_associations_by_reported_trait, gwas_associations_by_efo_trait))
+
+	if(!is.null(reported_trait) && !is.null(efo_id) && is.null(efo_trait))
+		return(gwasrapidd::union(gwas_associations_by_reported_trait, gwas_associations_by_efo_id))
+
+	if(!is.null(reported_trait) && is.null(efo_trait) && is.null(efo_id))
+		return(gwas_associations_by_reported_trait)
+
+	if(is.null(reported_trait) && !is.null(efo_trait))
+		return(gwas_associations_by_efo_trait)
+
+	if(is.null(reported_trait) && is.null(efo_trait) && !is.null(efo_id))
+		return(gwas_associations_by_efo_id)
+
+	stop('At least either `reported_trait`, `efo_trait` or `efo_id` must be specified.')
+}
+
 
 
 # gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL){

@@ -7,7 +7,7 @@
 gwas_catalog_hits2(trait = NULL, efo = NULL, efo_id = NULL)
 }
 \arguments{
-\item{trait}{the trait of interest}
+\item{trait}{the trait of interest as reported in the GWAS catalog}
 
 \item{efo}{trait of intersest in the experimental factor ontology}
 
