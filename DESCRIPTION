@@ -31,4 +31,5 @@ Imports:
     purrr,
     dplyr,
     tibble,
-    magrittr
+    magrittr,
+    curl

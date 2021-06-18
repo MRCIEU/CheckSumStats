@@ -27,5 +27,5 @@ find_hits_in_gwas_catalog(
 list
 }
 \description{
-Identify GWAS hits in the test dataset and see if they overlap (+/- 250kb) with GWAS hits in the GWAS catalog.
+Identify GWAS hits in the test dataset and see if they overlap with GWAS hits in the GWAS catalog.
 }

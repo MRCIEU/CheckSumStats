@@ -30,5 +30,5 @@ character vector
 Create a list of rsids corresponding to "top hits" in the GWAS catalog, the 1000 genomes super popualtions and SNPs of specific interest to the user (e.g. genetic instruments/proxies for the exposure of interest).
 }
 \examples{
-snplist<-make_snplist(efo_id="EFO_0006859") 
+snplist<-make_snplist(efo_id="EFO_0006859",ref1000G_superpops=FALSE) 
 }

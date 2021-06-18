@@ -2,7 +2,7 @@
 #'
 #' Get the outcome summary data ready for the QC checks. The function assumes that the summary data was generated in a logistic regression model of a binary phenotype, e.g. cases and controls
 #'
-#' @param dat the the dataset to be formatted
+#' @param dat the dataset to be formatted
 #' @param outcome the name of the outcome trait
 #' @param population describe the ancestry of the dataset
 #' @param pmid pubmed identifier for a publication corresponding to the dataset
@@ -223,4 +223,30 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	return(dat)
 }	
 
+#' get efo
+#'
+#' Retrieve the experimental factor ontology (EFO) for some trait of interest. EFOs are retrieved from ZOOMA https://www.ebi.ac.uk/spot/zooma/
+#'
+#' @param trait the trait of interest
+#'
+#' @return list 
+#' @export
 
+get_efo<-function(trait=NULL){
+	trait<-gsub(" ","+",trait)
+	# system(paste0("wget \"https://www.ebi.ac.uk/spot/zooma/v2/api/services/annotate?propertyValue=",trait,"\"  -O \"zooma2.txt\""))
+	curl.cmd<-paste0("https://www.ebi.ac.uk/spot/zooma/v2/api/services/annotate?propertyValue=",trait)
+	dat<-readLines(curl::curl(curl.cmd),warn=FALSE)
+	dat<-gsub("\"","",dat)
+	dat<-strsplit(dat,split=",")
+	dat<-unlist(dat)
+	EFO<-dat[grep("semanticTag",dat)]
+	EFO<-EFO[grep("EFO",EFO)]
+	Start<-unlist(gregexpr("EFO",EFO))
+ 	End<-unlist(lapply(gregexpr("([0-9])",EFO),FUN=function(x) 
+		unlist(x)[length(unlist(x))]))
+	EFO<-unique(substring(EFO,Start,End))
+	confidence<-unique(dat[grep("confidence",dat)])
+	if(length(EFO)==0) return("no EFO found")
+	return(list("efo_id"=EFO,"confidence"=confidence))
+}

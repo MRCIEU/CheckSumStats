@@ -363,7 +363,7 @@ harmonise_effect_allele<-function(dat=NULL,beta=beta){
 
 #' Are hits in the GWAS catalog? 
 #'
-#' Identify GWAS hits in the test dataset and see if they overlap (+/- 250kb) with GWAS hits in the GWAS catalog. 
+#' Identify GWAS hits in the test dataset and see if they overlap with GWAS hits in the GWAS catalog. 
 #'
 #' @param gwas_hits the "GWAS hits" in the test dataset (e.g. SNP-trait associations with P<5e-8)
 #' @param trait the trait of interest
@@ -385,7 +385,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))	
 
-	gwas_variants<-get_gwas_associations(trait=trait,efo=efo,efo_id=efo_id)	
+	gwas_variants<-get_gwas_associations(reported_trait=trait,efo=efo,efo_id=efo_id)	
 	
 	# gwas_variants<-gwasrapidd::get_variants(efo_trait = efo,efo_id=efo_id,reported_trait=trait)		
 	if(class(unlist(gwas_variants)) == "character")

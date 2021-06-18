@@ -47,7 +47,7 @@ format_data(
 )
 }
 \arguments{
-\item{dat}{the the dataset to be formatted}
+\item{dat}{the dataset to be formatted}
 
 \item{outcome}{the name of the outcome trait}
 
