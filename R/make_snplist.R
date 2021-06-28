@@ -266,11 +266,14 @@ get_gwas_associations<-function(reported_trait=NULL,efo_trait=NULL,efo_id=NULL,v
 	if(!is.null(reported_trait)) 
 	{
 		gwas_studies <- gwasrapidd::get_studies(reported_trait = reported_trait)
+		# if(class(unlist(gwas_studies)) != "character")		
+		reported_trait<-NULL 
 		if(class(unlist(gwas_studies)) != "character")		
 		{
 			if(nrow(gwas_studies@studies)!=0)
 			{	
 				gwas_associations_by_reported_trait <- gwasrapidd::get_associations(study_id = gwas_studies@studies$study_id,verbose = verbose,warnings = warnings)
+				reported_trait<-"results found"
 				# sometimes a study is in the GWAS catalog but has no associations. 
 				if(nrow(gwas_associations_by_reported_trait@associations)==0)
 				{
@@ -278,7 +281,6 @@ get_gwas_associations<-function(reported_trait=NULL,efo_trait=NULL,efo_id=NULL,v
 				}
 			}
 		}
-
 	}
 
 	if(!is.null(efo_trait)) 

@@ -21,6 +21,7 @@ format_data(
   lnor = NA,
   lnor_se = NA,
   eaf = NA,
+  maf = NA,
   p = NA,
   info1 = NA,
   info2 = NA,
@@ -38,7 +39,7 @@ format_data(
   chr = NA,
   pos = NA,
   ID = NULL,
-  test_statistic = NA,
+  z_score = NA,
   all_summary_stats = FALSE,
   open_gwas = FALSE,
   efo = NA,
@@ -113,7 +114,7 @@ format_data(
 
 \item{ID}{identifier for the dataset}
 
-\item{test_statistic}{log odds ratio divided by standard error of log odds ratio}
+\item{z_score}{effect size estimate divided by its standard error}
 
 \item{all_summary_stats}{do you have the full set of summary data or only a subset of the summary data? Default set to FALSE}
 

@@ -37,7 +37,7 @@
 #' @param chr name of the column containing the chromosome number for each genetic variant
 #' @param pos genomic position for the genetic variant in base pairs 
 #' @param ID identifier for the dataset 
-#' @param test_statistic log odds ratio divided by standard error of log odds ratio
+#' @param z_score effect size estimate divided by its standard error
 #' @param all_summary_stats do you have the full set of summary data or only a subset of the summary data? Default set to FALSE 
 #' @param open_gwas were the summary data downloaded from Open GWAS https://gwas.mrcieu.ac.uk/ ? Default set to FALSE
 #' @param efo outcome trait of interest in the experimental factor ontology.  
@@ -49,7 +49,7 @@
 #' @return data frame
 #' @export
 
-format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=NA,ncontrol=NA,UKbiobank=NA,rsid=NA,effect_allele=NA,other_allele=NA,beta=NA,se=NA,lnor=NA,lnor_se=NA,eaf=NA,p=NA,info1=NA,info2=NA,info3=NA,info4=NA,HWEp=NA,phet=NA,I2=NA,Q=NA,Direction=NA,effect_allele_confirmed=FALSE,or=NA,or_lci=NA,or_uci=NA,chr=NA,pos=NA,ID=NULL,test_statistic=NA,all_summary_stats=FALSE,open_gwas=FALSE,efo=NA,efo_id=NA,drop_duplicate_rsids=TRUE){
+format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=NA,ncontrol=NA,UKbiobank=NA,rsid=NA,effect_allele=NA,other_allele=NA,beta=NA,se=NA,lnor=NA,lnor_se=NA,eaf=NA,maf=NA,p=NA,info1=NA,info2=NA,info3=NA,info4=NA,HWEp=NA,phet=NA,I2=NA,Q=NA,Direction=NA,effect_allele_confirmed=FALSE,or=NA,or_lci=NA,or_uci=NA,chr=NA,pos=NA,ID=NULL,z_score=NA,all_summary_stats=FALSE,open_gwas=FALSE,efo=NA,efo_id=NA,drop_duplicate_rsids=TRUE){
 	# summary_set="FAsnps"
 
 	# if(any(is.na(dat[,rsid]) |  dat[,rsid] ==".")) stop("rsid missing")
@@ -112,18 +112,17 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 		lnor<-"lnor"
 	}
 
-	if(is.na(p)  & is.na(test_statistic)){
-		dat$test_statistic<-abs(as.numeric(dat[,lnor])/as.numeric(dat[,lnor_se]))
-		dat$p<-stats::pnorm(dat$test_statistic ,lower.tail=F)*2
+	if(is.na(p)  & is.na(z_score)){
+		dat$z_score<-abs(as.numeric(dat[,lnor])/as.numeric(dat[,lnor_se]))
+		dat$p<-stats::pnorm(dat$z_score ,lower.tail=F)*2
 	}	
 
-	if(is.na(p) & !is.na(test_statistic)){
-		dat$p<-stats::pnorm(dat[,test_statistic] ,lower.tail=F)*2
+	if(is.na(p) & !is.na(z_score)){
+		dat$p<-stats::pnorm(dat[,z_score] ,lower.tail=F)*2
     }
 
 
-
-	Name_cols<-c("rsid","effect_allele","other_allele","beta","se","lnor","lnor_se","eaf","p","info1","info2","info3","info4","HWEp","phet","I2","Q","Direction","chr","pos","test_statistic")
+	Name_cols<-c("rsid","effect_allele","other_allele","beta","se","lnor","lnor_se","eaf","maf","p","info1","info2","info3","info4","HWEp","phet","I2","Q","Direction","chr","pos","z_score")
 
 
 	if(is.numeric(ncase) | is.numeric(ncontrol)){
@@ -145,7 +144,7 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 			names(dat)[names(dat) == eval(parse(text=Name_cols[i]))]<-Name_cols[i]
 		}
 	}
-	
+
 
 	dat$p<-as.numeric(dat$p)
 	
@@ -190,15 +189,21 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 
 	# if("lnor" %in% names(dat)){
 	# 	study_id_temp<-paste(dat$rsid,dat$effect_allele,dat$other_allele,dat$lnor,dat$lnor_se)
-	# }
+	
 	if("beta" %in% names(dat)){
 		study_id_temp<-paste(dat$rsid,dat$effect_allele,dat$other_allele,dat$beta,dat$se)
 	}
 
+
+
 	# remove duplicate rows. 
 	# There are two types of duplicates. Those where the rsid and the results for the rsid are duplicated and those where only the rsid is duplicated (i.e. results vary across duplicate rsids). We first deal with the duplicates where results are also duplicated, retaining one of the duplicate rsids. Then we deal with the duplicates where only the rsid is duplicated. for the latter we drop the rsid entirely, i.e. we don't retain one of the duplicates. 
 
-	dat<-dat[!duplicated(study_id_temp),]
+	# sometimes only signed Z scores are provided
+	if(any(c("lnor_se","se") %in% names(dat))) 
+	{	
+		dat<-dat[!duplicated(study_id_temp),]
+	}
 	
 	# Drop duplicates rsids. These seem to usually correspond to trialleic SNPs
 	if(drop_duplicate_rsids){

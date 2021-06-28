@@ -280,8 +280,8 @@ predict_lnor_sh<-function(dat=NULL){
 	# dat1<-dat[1:Pos,]
 	# Pos<-Pos+1
 	# dat<-dat[Pos:nrow(dat),]
-	if(!any(names(dat) == "z")){
-		dat$z<-dat$lnor/dat$lnor_se
+	if(!any(names(dat) == "z_score")){
+		dat$z_score<-dat$lnor/dat$lnor_se
 	}
 	
 	log_or<-NULL
@@ -295,6 +295,7 @@ predict_lnor_sh<-function(dat=NULL){
 		Pos<-which(maf>0.5)
 		maf[Pos]<-1-maf[Pos]
 		dat$maf<-maf
+		if(!"maf" %in% names(dat)) stop("no allele frequency provided")
 	}
 	
 	for(i in 1:snp_n)
@@ -310,7 +311,7 @@ predict_lnor_sh<-function(dat=NULL){
 		odds <- n_ncase/(n_total-n_ncase)
 		
 		maf<-dat$maf[i]
-		Z<-dat$z[i]
+		Z<-dat$z_score[i]
 
 		# Ns given the MAF
 
