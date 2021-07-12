@@ -53,12 +53,14 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# summary_set="FAsnps"
 
 	# if(any(is.na(dat[,rsid]) |  dat[,rsid] ==".")) stop("rsid missing")
-	if(rsid=="ID") { 
+	if(rsid=="ID") 
+	{ 
 		names(dat)[names(dat) == rsid]<-"rsid"
 		rsid<-"rsid"
 	}
 
-	if(!is.null(ID)){
+	if(!is.null(ID))
+	{
 		dat$ID <- ID
 	}
 
@@ -86,38 +88,43 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# 	# dat<-dat[grep("rs",dat$V4),]				
 	# }
 
-	
 	# sometimes odds ratio and confidence intervals are reported
-	if(!is.na(or) & is.na(lnor_se) & !is.na(or_uci)){
-		dat$lnor<-log(dat[,or])
-		dat$lnor_se<-(log(dat[,or_uci])-log(dat[,or_lci]))/(1.96*2)
+	if(!is.na(or) & is.na(lnor_se) & !is.na(or_uci))
+	{
+		dat$lnor<-log(as.numeric(dat[,or]))
+		dat$lnor_se<-(log(as.numeric(dat[,or_uci]))-log(as.numeric(dat[,or_lci])))/(1.96*2)
 		lnor<-"lnor"
 	}
 
 	# odds ratio and p value but no standard error or confidence intervals
-	if(!is.na(or) & is.na(lnor_se) & is.na(or_uci)){
-		dat$lnor<-log(dat[,or])
+	if(!is.na(or) & is.na(lnor_se) & is.na(or_uci))
+	{
+		dat$lnor<-log(as.numeric(dat[,or]))
 		dat$z<-stats::qnorm(dat[,p]/2,lower.tail=F)
 		dat$lnor_se<-abs(dat$lnor)/dat$z
 	}
 
-	if(!is.na(lnor) & is.na(lnor_se) & is.na(or_uci)){
+	if(!is.na(lnor) & is.na(lnor_se) & is.na(or_uci))
+	{
 		dat$z<-stats::qnorm(dat[,p]/2,lower.tail=F)
 		dat$lnor_se<-abs(dat[,lnor])/dat$z
 	}
 
 	# sometimes Odds ratio and standard error of log odds ratio are reported
-	if(!is.na(or) & !is.na(lnor_se)){
+	if(!is.na(or) & !is.na(lnor_se))
+	{
 		dat$lnor<-log(as.numeric(dat[,or]))
 		lnor<-"lnor"
 	}
 
-	if(is.na(p)  & is.na(z_score)){
+	if(is.na(p)  & is.na(z_score))
+	{
 		dat$z_score<-abs(as.numeric(dat[,lnor])/as.numeric(dat[,lnor_se]))
 		dat$p<-stats::pnorm(dat$z_score ,lower.tail=F)*2
 	}	
 
-	if(is.na(p) & !is.na(z_score)){
+	if(is.na(p) & !is.na(z_score))
+	{
 		dat$p<-stats::pnorm(dat[,z_score] ,lower.tail=F)*2
     }
 
@@ -125,7 +132,8 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	Name_cols<-c("rsid","effect_allele","other_allele","beta","se","lnor","lnor_se","eaf","maf","p","info1","info2","info3","info4","HWEp","phet","I2","Q","Direction","chr","pos","z_score")
 
 
-	if(is.numeric(ncase) | is.numeric(ncontrol)){
+	if(is.numeric(ncase) | is.numeric(ncontrol))
+	{
 		dat$ncase<-ncase
 		dat$ncontrol<-ncontrol
 	}else{
@@ -138,9 +146,11 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	dat$UKbiobank<-UKbiobank
 	dat$effect_allele_confirmed<-effect_allele_confirmed
 
-	for(i in 1:length(Name_cols)){
+	for(i in 1:length(Name_cols))
+	{
 		# print(i)
-		if(!is.na(eval(parse(text=Name_cols[i])))){
+		if(!is.na(eval(parse(text=Name_cols[i]))))
+		{
 			names(dat)[names(dat) == eval(parse(text=Name_cols[i]))]<-Name_cols[i]
 		}
 	}
@@ -148,38 +158,46 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 
 	dat$p<-as.numeric(dat$p)
 	
-	if("lnor" %in% names(dat)){
+	if("lnor" %in% names(dat))
+	{
 		dat$lnor<-as.numeric(dat$lnor)
 		dat$lnor_se<-as.numeric(dat$lnor_se)
 		study_id_temp<-paste(dat$rsid,dat$effect_allele,dat$other_allele,dat$lnor,dat$lnor_se)
 
-
 		dat<-dat[!is.na(dat$lnor) & !is.na(dat$lnor_se),]
-		if(any(is.na(dat$lnor_se)) & is.na(p)){ #is this redundant?
+		if(any(is.na(dat$lnor_se)) & is.na(p))
+		{ #is this redundant?
 			dat<-dat[!is.na(dat$lnor_se), ]	
 		}
 
-		if(any(is.na(dat$lnor_se)) & !is.na(p)){		
+		if(any(is.na(dat$lnor_se)) & !is.na(p))
+		{		
 			Dat1<-dat[is.na(dat$lnor_se),]
 			if(sum(Dat1$p)!=0) stop("infer missing SE from p value")
 		}
 		dat<-dat[!is.na(dat$lnor_se),] #is this redundant?
 		dat<-dat[which(dat$lnor_se != "Inf"),]
 		dat<-dat[which(dat$lnor_se != 0), ]
-
 	}
 	
-	if("beta" %in% names(dat)){
+	if("beta" %in% names(dat))
+	{
 		dat$beta<-as.numeric(dat$beta)
+	}
+
+	if("se" %in% names(dat))
+	{
 		dat$se<-as.numeric(dat$se)
 	}
 
-	if(!is.na(eaf)){
+	if(!is.na(eaf))
+	{
 		dat$eaf<-as.numeric(dat$eaf)
 	}
 
 	dat$effect_allele<-toupper(dat$effect_allele)
-	if(!is.na(other_allele)){		
+	if(!is.na(other_allele))
+	{		
 		dat$other_allele<-toupper(dat$other_allele)
 	}
 	# dat<-dat[!duplicated(dat$rsid),]
@@ -190,7 +208,9 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# if("lnor" %in% names(dat)){
 	# 	study_id_temp<-paste(dat$rsid,dat$effect_allele,dat$other_allele,dat$lnor,dat$lnor_se)
 	
-	if("beta" %in% names(dat)){
+	# this script may not work when a study has a beta column that is set to NA and also a separate column called lnor that takes on numeric values. 
+	if("beta" %in% names(dat))
+	{
 		study_id_temp<-paste(dat$rsid,dat$effect_allele,dat$other_allele,dat$beta,dat$se)
 	}
 
@@ -199,7 +219,7 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# remove duplicate rows. 
 	# There are two types of duplicates. Those where the rsid and the results for the rsid are duplicated and those where only the rsid is duplicated (i.e. results vary across duplicate rsids). We first deal with the duplicates where results are also duplicated, retaining one of the duplicate rsids. Then we deal with the duplicates where only the rsid is duplicated. for the latter we drop the rsid entirely, i.e. we don't retain one of the duplicates. 
 
-	# sometimes only signed Z scores are provided
+	# sometimes only signed Z scores are provided. Only drop the duplicates if the dataset contains lnor_se or se. This script may not work if a dataset has these columns present and they are set to NA. The objective is to drop duplicate rows (duplicated on rsid and the result/SNP-trait association). 
 	if(any(c("lnor_se","se") %in% names(dat))) 
 	{	
 		dat<-dat[!duplicated(study_id_temp),]
@@ -220,7 +240,8 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 	# }
 
 	dat$open_gwas<-FALSE
-	if(open_gwas){
+	if(open_gwas)
+	{
 		dat$open_gwas<-TRUE
 	}
 	dat$efo<-paste(efo,collapse="; ")
