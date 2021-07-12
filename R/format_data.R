@@ -21,6 +21,7 @@
 #' @param or_lci name of column containing the lower 95% confidence interval for the odds ratio 
 #' @param or_uci name of column containing the upper 95% confidence interval for the odds ratio 
 #' @param eaf name of the effect allele frequency column
+#' @param maf name of the minor allele frequency column
 #' @param p name of the pvalue columne
 #' @param info1 name of the column containing metrics of imputation quality, such as info or r2 scores 
 #' @param info2 name of second column containing metrics of imputation quality, such as info or r2 scores 

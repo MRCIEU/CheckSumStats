@@ -80,6 +80,8 @@ format_data(
 
 \item{eaf}{name of the effect allele frequency column}
 
+\item{maf}{name of the minor allele frequency column}
+
 \item{p}{name of the pvalue columne}
 
 \item{info1}{name of the column containing metrics of imputation quality, such as info or r2 scores}
