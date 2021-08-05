@@ -430,13 +430,12 @@ predict_lnor_sh<-function(dat=NULL){
 #' @param eaf the effect allele frequency column
 #' @param sample_size the sample size column
 #' @param pval name of the p value column
-#' @param var the variance of the sample mean of the trait of interest. Default assumed to be 1. 
 #'
 #' @return data frame with predicted standardised beta, r2 and F stat statistics and estimated standard deviation 
 #' @export
 
 
-predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="ncontrol",var=1,pval="p"){
+predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="ncontrol",pval="p"){
 	z <- dat[,beta]/dat[,se]
 	Pos<-which(z==0)
 	# if z is zero when calculate from beta and se, infer from the P value
