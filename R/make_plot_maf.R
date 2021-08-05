@@ -32,6 +32,8 @@
 
 make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=12,Title_size=12,Title="Comparison of MAF between test dataset and reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Comparison of MAF between test dataset and 1000 genomes project"){	
 
+	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
+
 	# should exclude palindromic SNPs which can cause apparent conflicts when target and reference datasets on different strands for some SNPs. drop palindromic SNPs or show in different shape?
 	# ref_dat<-load_refdata(refstudy=refstudy,Dir=Dir)
 	utils::data("refdat_1000G_superpops",envir =environment())
