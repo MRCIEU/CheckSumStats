@@ -12,7 +12,10 @@ extract_snps(
   Test.gz = FALSE,
   fill = FALSE,
   Comment = "#",
-  Head = TRUE
+  Head = TRUE,
+  get_sig_snps = FALSE,
+  p_val_col_number = NULL,
+  p_threshold = 5e-08
 )
 }
 \arguments{
@@ -32,6 +35,12 @@ rsids}
 \item{Comment}{comment to pass to comment.char in read.table. default = "#"}
 
 \item{Head}{Does the file have a header ? Default set to TRUE}
+
+\item{get_sig_snps}{also extract the top hits from the target file, not just the SNPs specified in snplist. logic TRUE or FALSE. Default set to FALSE}
+
+\item{p_val_col_number}{the column number corresponding to the P values for the SNP-trait associations}
+
+\item{p_threshold}{Extract SNP-trait associtions with P values less than this value. Default set to 5e-8}
 }
 \value{
 data frame

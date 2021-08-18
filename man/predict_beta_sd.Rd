@@ -10,7 +10,6 @@ predict_beta_sd(
   se = "se",
   eaf = "eaf",
   sample_size = "ncontrol",
-  var = 1,
   pval = "p"
 )
 }
@@ -24,8 +23,6 @@ predict_beta_sd(
 \item{eaf}{the effect allele frequency column}
 
 \item{sample_size}{the sample size column}
-
-\item{var}{the variance of the sample mean of the trait of interest. Default assumed to be 1.}
 
 \item{pval}{name of the p value column}
 }
