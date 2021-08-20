@@ -134,14 +134,15 @@ Plot4
 
 <img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
 
-The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)). Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
+The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)).
+
+Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
 
 ``` r
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 Pred<-predict_lnor_sh(dat=Dat)
 Plot4<-make_plot_pred_effect(dat=Pred)
-Plot4
 ```
 
 We can also plot the relative bias, i.e. the percentage deviation of the expected from the reported effect size.
@@ -162,7 +163,16 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
+#> $not_in_gc
+#> character(0)
+#> 
+#> $in_gc
+#>  [1] "rs2736100"  "rs2853676"  "rs10120688" "rs1063192"  "rs1412829" 
+#>  [6] "rs2151280"  "rs2157719"  "rs7049105"  "rs4977756"  "rs6010620" 
+#> [11] "rs6089953"
 ```
 
 All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma.

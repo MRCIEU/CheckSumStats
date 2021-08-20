@@ -146,14 +146,14 @@ Plot4
 ```
 
 The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)). 
-	Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
+	
+Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
 
 ```{r clump1,eval = FALSE,results='hide'}
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 Pred<-predict_lnor_sh(dat=Dat)
 Plot4<-make_plot_pred_effect(dat=Pred)
-Plot4
 ```
 
 
@@ -169,7 +169,7 @@ Overall the relative bias seems small and mostly varies from -10.9% to -13.8%, w
 
 Next we check that the "top hits" for glioma in the test dataset are reported in the GWAS catalog. We define top hits as SNP-trait associations with P values < 5e-8, a conventional threshold for statistical significance in GWAS. First we extract the top hits, using the extract_sig_snps() function but, alternatively, you could use the read.table() function to read in your entire dataset and then extract the top hits. If the top hits are not reported in the GWAS catalog this could be a sign of false positives in the test dataset, which in turn could be a sign of technical problems (such as failure to exclude low quality variants), although there may be alternative explanations. By default, the function searches the GWAS catalog for all genetic variants within 25,000 base pairs of the "top hit". In the example, below we search the GWAS catalog for all genetic associations for glioma that are within 50,000 base pairs of our top hits (distance_threshold set to 50000). 
 
-```{r search_gc,eval = FALSE}
+```{r search_gc,eval = TRUE}
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
