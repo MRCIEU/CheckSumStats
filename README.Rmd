@@ -113,7 +113,7 @@ Data points with a red colour are SNPs with allele frequency conflicts. Allele f
 
 We next check that the reported effect allele metadata is correct, by comparing the reported effect alleles for glioma to the GWAS catalog.   
 
-```{r make_gwascatalog_plot1,eval = FALSE}
+```{r make_gwascatalog_plot1,eval = TRUE}
 Dat1<-Dat
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id =EFO$efo_id,trait="glioma")
 Plot2
@@ -124,7 +124,7 @@ Each datapoint represents the Z score for glioma risk for a single SNP (scaled t
 
 We can also make a plot comparing effect allele frequency between the test dataset and the GWAS catalog, which we show in the next example.
 
-```{r make_gwascatalog_plot2,eval = FALSE}
+```{r make_gwascatalog_plot2,eval = TRUE}
 Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo=unique(Dat$efo),trait=unique(Dat$outcome))
 Plot3
 ```
