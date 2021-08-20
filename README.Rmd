@@ -198,7 +198,7 @@ Next we combine all the plots into a single report.
 ```{r combine_plots1,eval = FALSE}
 Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
+combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 ```
 
 !["qc_report.png"](/man/figures/README-qc_report.png)
@@ -209,7 +209,7 @@ In this example we use the package to check the summary and metadata from a geno
 
 ## Step 1. Extract and format the  summary data for arachidonic acid 
 
-```{r arachidonic1,eval = TRUE}
+```{r arachidonic1, eval = TRUE}
 library(CheckSumStats)
 EFO<-get_efo(trait="arachidonic acid measurement")
 EFO
@@ -221,7 +221,7 @@ Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=2
 ```
 ## Step 2 Check allele frequency metadata for arachidonic acid GWAS
 
-```{r arachidonic3,eval = TRUE}
+```{r arachidonic2, eval = TRUE}
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
@@ -231,7 +231,7 @@ For the vast majority of SNPs,  allele frequencies are compatible between the te
 
 ## Step 3. Check effect allele metadata for arachidonic acid 
 
-```{r arachidonic4,eval = TRUE}
+```{r arachidonic3,eval = FALSE}
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se")
 Plot2
 ```
@@ -242,7 +242,7 @@ Most SNPs appear to have concordant effect sizes between the test dataset and th
 
 Next, we check the summary data for possible effect size errors. For this step, we extract summary data for "top hits" in the test dataset.   
 
-```{r arachidonic5,eval = TRUE}
+```{r arachidonic4,eval = FALSE}
 File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
 ara<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
@@ -251,7 +251,7 @@ dim(Dat)
 
 1064 SNPs were extracted. Its useful to clump the results to ensure independence and for speed. We call the ieugwasr package to perform the clumping.
 
-```{r arachidonic6,eval = TRUE}
+```{r arachidonic5,eval = FALSE}
 
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
@@ -259,7 +259,7 @@ Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 
 Now we generate expected effect sizes and plot these against the reported effect size. 
 
-```{r arachidonic7,eval = TRUE}
+```{r arachidonic6,eval = FALSE}
 Dat<-predict_beta_sd(dat=Dat)
 Plot3<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se")
 Plot3
@@ -267,7 +267,7 @@ Plot3
 
 We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with the presence of potential false positives in the test dataset, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes. 
 
-```{r arachidonic8,eval = TRUE}
+```{r arachidonic7,eval = FALSE}
 Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se",bias=TRUE)
 Plot4
 ```
@@ -275,12 +275,12 @@ Plot4
 The SNPs with the most bias tend to have lower minor allele frequencies, confirming possible problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog. 
 
 
-```{r arachidonic9,eval = TRUE}
+```{r arachidonic8, eval = FALSE}
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 gc_list
 
-Plot2_2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se")
-Plot2_2
+Plot5<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se")
+Plot5
 ```
 
 92 of 95 top hits in the test dataset do not overlap with associations for arachidonic acid in the GWAS catalog. Taken together with the non-linear relationship between the expected and reported effect sizes, this suggests a large number of false positives, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. Correspondence with the data provider confirmed that the GWAS summary statistics had not gone through post GWAS filtering of low quality variants (e.g. exclusion of SNPs with low minor allele frequency or low imputation r2 scores). Once we obtained a cleaned dataset (with low quality SNPs excluded), the aforementioned discrepancies were resolved.  
@@ -288,9 +288,9 @@ Plot2_2
 ## Step 5. Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
 Finally, we check whether the reported P values correspond to the reported effect sizes. 
 
-```{r arachidonic10,eval = TRUE}
-Plot5<-zz_plot(dat=Dat,beta="beta",se="se")
-Plot5
+```{r arachidonic9,eval = FALSE}
+Plot6<-zz_plot(dat=Dat,beta="beta",se="se")
+Plot6
 ```
 We see a very close concordance between the reported P-values and reported effect sizes. 
 
@@ -298,10 +298,10 @@ We see a very close concordance between the reported P-values and reported effec
 
 Lets combine all the key figures into a single report
 
-```{r combine_plots2,eval = TRUE}
-Plot_list2<-c("Plot1","Plot2","Plot3","Plot4","Plot5")
+```{r combine_plots2,eval = FALSE}
+Plot_list2<-c("Plot1","Plot2","Plot3","Plot4","Plot5","Plot6")
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
+combine_plots(Plot_list=Plot_list,out_file="qc_report2.png")
 ```
 
 !["qc_report.png"](/man/figures/README-qc_report2.png)
