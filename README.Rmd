@@ -68,13 +68,13 @@ snplist<-make_snplist(efo_id=EFO$efo_id,trait="glioma",ref1000G_superpops=TRUE)
 
 We now have a list of SNPs that include known genetic associations for glioma in the GWAS catalog as well as a 1000 genomes reference set. The number of reported genetic associations for glioma in the GWAS catalog is:
 
-```{r make_snplist2, eval = FALSE}
+```{r make_snplist2, eval = TRUE}
 length(snplist)-2297 
 ```
 
 Next, we extract the summary associations statistics for these SNPs from the glioma dataset using the extract_snps() function. 
 
-```{r extract_snps1, eval = FALSE}
+```{r extract_snps1, eval = TRUE}
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 ```
@@ -89,7 +89,7 @@ thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)
 
 Returning to the glioma example, having extracted the summary data for some SNPs, we now need to format the summary data. This is to get the data into the expected format for the QC tests to come.  
 
-```{r format_data1,eval = FALSE}
+```{r format_data1,eval = TRUE}
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 
 ```
@@ -102,7 +102,7 @@ Now we are ready to perform some quality checks on the summary data
 
 Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the glioma dataset to the 1000 genomes super populations. The function harmonises the test and reference dataset to reflect the minor allele in the 1000 genomes superpopulations. Therefore, the presence of SNPs with allele frequency > 0.5 in the test dataset implies an allele frequency metadata error. 
 
-```{r make_maf_plot1,eval = FALSE}
+```{r make_maf_plot1,eval = TRUE}
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```

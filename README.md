@@ -59,6 +59,7 @@ We now have a list of SNPs that include known genetic associations for glioma in
 
 ``` r
 length(snplist)-2297 
+#> [1] 75
 ```
 
 Next, we extract the summary associations statistics for these SNPs from the glioma dataset using the extract\_snps() function.
@@ -94,6 +95,8 @@ Next we create some plots to visualise potential problems with the effect allele
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
+
+<img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
 
 Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported allele frequency column in the glioma dataset does not correspond to the reported effect allele. Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population.
 
