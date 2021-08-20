@@ -1,4 +1,3 @@
-
 #' MAF plot 
 #'
 #' Make a plot comparing minor allele frequency between outcome and reference studies.
