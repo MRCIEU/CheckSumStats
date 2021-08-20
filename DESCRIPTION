@@ -37,3 +37,5 @@ Imports:
 Remotes:
     bioc::release/biomaRt,
     ramiromagno/gwasrapidd
+Depends:
+    R (>= 3.5.0)
