@@ -271,7 +271,7 @@ Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rs
 #> API: public: http://gwas-api.mrcieu.ac.uk/
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
 #> Using access token. For info on how this is used see logging_info()
-#> ℹ 2021-08-20 15:03:22 > Setting client.id from options(googleAuthR.client_id)
+#> ℹ 2021-08-20 15:14:57 > Setting client.id from options(googleAuthR.client_id)
 #> → Using an auto-discovered, cached token
 #>   To suppress this message, modify your code or options to clearly consent to
 #>   the use of a cached token
@@ -307,6 +307,7 @@ The SNPs with the most bias tend to have lower minor allele frequencies, confirm
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+#> Ensembl site unresponsive, trying uswest mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
 #> $not_in_gc
@@ -371,4 +372,22 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package.
 
-\*CheckSumStats greatfully acknowledges the following packages: gwasrapidd ggplot2 grid gridExtra cowplot grDevices ieugwasr knitr biomaRt purrr dplyr tibble magrittr curl plyr utils +stats
+\*CheckSumStats greatfully acknowledges the following packages:
+
+    gwasrapidd
+    ggplot2
+    grid
+    gridExtra
+    cowplot
+    grDevices
+    ieugwasr
+    knitr
+    biomaRt
+    purrr
+    dplyr
+    tibble
+    magrittr
+    curl
+    plyr
+    utils
+    +stats

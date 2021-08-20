@@ -147,7 +147,7 @@ Plot4
 
 The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)). 
 	
-Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
+Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
 
 ```{r clump1,eval = FALSE,results='hide'}
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
@@ -182,7 +182,7 @@ All the top hits for glioma in the test dataset are either associated with gliom
 
 ## Step 6. Check whether the reported P values correspond to the reported effect sizes in the glioma dataset  
 
-Next we generate some ZZ plots, in order to flag SNPs with P values that dont coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error).
+Next we generate some ZZ plots, in order to flag SNPs with P values that dont coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error). We see a very strong agreement between the Zb and Zp scores. 
 
 
 ```{r make_zz_plot1,eval = TRUE}
@@ -226,7 +226,7 @@ Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat
 Plot1
 ```
 
-For the vast majority of SNPs,  allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported allele frequency column corresponds to the effect allele.  
+For the vast majority of SNPs,  allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported effect allele frequency column corresponds to the reported effect allele.  
 
 
 ## Step 3. Check effect allele metadata for arachidonic acid 
@@ -265,7 +265,7 @@ Plot3<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",
 Plot3
 ```
 
-We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with the presence of potential false positives in the test dataset, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes. 
+We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes. 
 
 ```{r arachidonic7,eval = TRUE}
 Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se",bias=TRUE)
@@ -311,6 +311,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package. 
 
 *CheckSumStats greatfully acknowledges the following packages:
+
     gwasrapidd
     ggplot2
     grid
