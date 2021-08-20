@@ -28,9 +28,7 @@
 #' @param info3 name of third column containing metrics of imputation quality, such as info or r2 scores name of the third info score column
 #' @param info4 name of fourth column containing metrics of imputation quality, such as info or r2 scores 
 #' @param HWEp name of the column containing pvalues for tests of Hardy-Weinberg equilibrium
-
 #' @param phet name of the column containing pvalues for tests of between study heterogeneity
-
 #' @param I2 name of the column containing I2 metric of between study heterogeneity
 #' @param Q name of the column containing Cochran Q test for between study heterogeneity
 #' @param Direction name of the column specifying the direction of effect in each individual study within a meta-analysis of multiple studies
@@ -44,8 +42,6 @@
 #' @param efo outcome trait of interest in the experimental factor ontology.  
 #' @param efo_id ID for outcome trait of interest in the experimental factor ontology.  
 #' @param drop_duplicate_rsids drop duplicate rsids? logical. default TRUE. duplicate rsids may for example correspond to triallelic SNPs. 
-
-
 #'
 #' @return data frame
 #' @export
