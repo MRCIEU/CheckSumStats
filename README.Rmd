@@ -18,9 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-CheckSumStats is an R package for checking the accuracy of meta- and summary-data from genetic association studies prior to their use in post-GWAS applications, such as two-sample Mendelian randomisation. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the reported effect sizes that might introduce bias into downstream analyses. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1.full.pdf
-
-[Im an inline-style link with title](https://www.google.com "Googles Homepage")
+CheckSumStats is an R package for checking the accuracy of meta- and summary-data from genetic association studies prior to their use in post-GWAS applications, such as two-sample Mendelian randomisation. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the reported effect sizes that might introduce bias into downstream analyses. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
 
 
 ## Installation
