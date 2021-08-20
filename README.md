@@ -163,19 +163,10 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
-#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
-#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
-#> $not_in_gc
-#> character(0)
-#> 
-#> $in_gc
-#>  [1] "rs2736100"  "rs2853676"  "rs10120688" "rs1063192"  "rs1412829" 
-#>  [6] "rs2151280"  "rs2157719"  "rs7049105"  "rs4977756"  "rs6010620" 
-#> [11] "rs6089953"
 ```
 
-All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma.
+All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in\_gc).
 
 ## Step 6. Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
 
@@ -208,22 +199,26 @@ In this example we use the package to check the summary and metadata from a geno
 library(CheckSumStats)
 EFO<-get_efo(trait="arachidonic acid measurement")
 EFO
+#> $efo_id
+#> [1] "EFO_0006808"
+#> 
+#> $confidence
+#> [1] "confidence:MEDIUM"
 
 snplist<-make_snplist(efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",ref1000G_superpops=TRUE)
+File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
+ara<-extract_snps(snplist=snplist,path_to_target_file=File)
+Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
 ```
 
-The number of genetic associations for arachidonic acid in the GWAS catalog
-
-``` r
-length(snplist)-2297 
-```
-
-File\<-system.file("extdata", "ara\_test\_dat.txt", package = "CheckSumStats") ara\<-extract\_snps(snplist=snplist,path\_to\_target\_file=File) Dat\<-format\_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect\_allele="effect\_allele",other\_allele="other\_allele",beta="beta",se="se",eaf="effect\_allele\_freq",p="p") \`\`\` \#\# Step 2 Check allele frequency metadata for arachidonic acid GWAS
+## Step 2 Check allele frequency metadata for arachidonic acid GWAS
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
+
+<img src="man/figures/README-arachidonic3-1.png" width="100%" />
 
 For the vast majority of SNPs, allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported allele frequency column corresponds to the effect allele.
 
@@ -233,6 +228,8 @@ For the vast majority of SNPs, allele frequencies are compatible between the tes
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se")
 Plot2
 ```
+
+<img src="man/figures/README-arachidonic4-1.png" width="100%" />
 
 Most SNPs appear to have concordant effect sizes between the test dataset and the GWAS catalog. Although there are a few SNPs with effect sizes in opposite directions, the Z scores for these SNPs are small and therefore compatible with chance deviations. This suggests that the reported effect allele is correct.
 
@@ -245,6 +242,7 @@ File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
 ara<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
 dim(Dat)
+#> [1] 1064   19
 ```
 
 1064 SNPs were extracted. Its useful to clump the results to ensure independence and for speed. We call the ieugwasr package to perform the clumping.
@@ -252,6 +250,18 @@ dim(Dat)
 ``` r
 
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
+#> API: public: http://gwas-api.mrcieu.ac.uk/
+#> Please look at vignettes for options on running this locally if you need to run many instances of this command.
+#> Using access token. For info on how this is used see logging_info()
+#> ℹ 2021-08-20 14:08:38 > Setting client.id from options(googleAuthR.client_id)
+#> → Using an auto-discovered, cached token
+#>   To suppress this message, modify your code or options to clearly consent to
+#>   the use of a cached token
+#>   See gargle's "Non-interactive auth" vignette for more details:
+#>   <https://gargle.r-lib.org/articles/non-interactive-auth.html>
+#> → The googleAuthR package is using a cached token for 'philip.haycock@gmail.com'
+#> Clumping , 1064 variants, using EUR population reference
+#> Removing 969 of 1064 variants due to LD with other variants or absence from LD reference panel
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 ```
 
@@ -263,6 +273,8 @@ Plot3<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",
 Plot3
 ```
 
+<img src="man/figures/README-arachidonic7-1.png" width="100%" />
+
 We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with the presence of potential false positives in the test dataset, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
 
 ``` r
@@ -270,15 +282,46 @@ Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",
 Plot4
 ```
 
+<img src="man/figures/README-arachidonic8-1.png" width="100%" />
+
 The SNPs with the most bias tend to have lower minor allele frequencies, confirming possible problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog.
 
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
+#> $not_in_gc
+#>  [1] "rs10026364" "rs10488885" "rs10819512" "rs10938476" "rs10986188"
+#>  [6] "rs11726352" "rs12238732" "rs12416578" "rs12456907" "rs12639648"
+#> [11] "rs12888839" "rs12894905" "rs12955978" "rs13128117" "rs13268288"
+#> [16] "rs13381393" "rs16940996" "rs16943026" "rs16951711" "rs16974991"
+#> [21] "rs17060495" "rs17568699" "rs1887892"  "rs2192242"  "rs2826490" 
+#> [26] "rs3088245"  "rs340480"   "rs4359352"  "rs4818759"  "rs7080747" 
+#> [31] "rs7093714"  "rs7226534"  "rs7231821"  "rs727887"   "rs7292052" 
+#> [36] "rs7456249"  "rs7690731"  "rs7778698"  "rs7904736"  "rs12747494"
+#> [41] "rs10788947" "rs10798816" "rs957129"   "rs11578575" "rs7546429" 
+#> [46] "rs12037648" "rs6658106"  "rs12623171" "rs6750701"  "rs13386900"
+#> [51] "rs13314643" "rs13325952" "rs16851412" "rs11917725" "rs17077488"
+#> [56] "rs11958171" "rs279412"   "rs5745104"  "rs13178241" "rs10040997"
+#> [61] "rs1432985"  "rs781980"   "rs9275354"  "rs13191761" "rs9356335" 
+#> [66] "rs12523734" "rs6456902"  "rs11752402" "rs2294281"  "rs9375065" 
+#> [71] "rs12285167" "rs487023"   "rs7933136"  "rs2903922"  "rs930786"  
+#> [76] "rs760306"   "rs11824358" "rs890455"   "rs10830946" "rs259874"  
+#> [81] "rs11833369" "rs7970058"  "rs4931549"  "rs11147144" "rs7137292" 
+#> [86] "rs12297743" "rs11107024" "rs2653765"  "rs16959795" "rs16985879"
+#> [91] "rs4614987"  "rs6060682" 
+#> 
+#> $in_gc
+#> [1] "rs174528" "rs472031" "rs1741"
 
 Plot2_2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se")
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 Plot2_2
 ```
+
+<img src="man/figures/README-arachidonic9-1.png" width="100%" />
 
 92 of 95 top hits in the test dataset do not overlap with associations for arachidonic acid in the GWAS catalog. Taken together with the non-linear relationship between the expected and reported effect sizes, this suggests a large number of false positives, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. Correspondence with the data provider confirmed that the GWAS summary statistics had not gone through post GWAS filtering of low quality variants (e.g. exclusion of SNPs with low minor allele frequency or low imputation r2 scores). Once we obtained a cleaned dataset (with low quality SNPs excluded), the aforementioned discrepancies were resolved.
 
@@ -291,7 +334,7 @@ Plot5<-zz_plot(dat=Dat,beta="beta",se="se")
 Plot5
 ```
 
-We see a very close concordance between the reported P-values and reported effect sizes.
+<img src="man/figures/README-arachidonic10-1.png" width="100%" /> We see a very close concordance between the reported P-values and reported effect sizes.
 
 ## Step 6. Combine all plots into a single report (arachidonic acid example)
 
