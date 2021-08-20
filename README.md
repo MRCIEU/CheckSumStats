@@ -59,6 +59,7 @@ We now have a list of SNPs that include known genetic associations for glioma in
 
 ``` r
 length(snplist)-2297 
+#> [1] 75
 ```
 
 Next, we extract the summary associations statistics for these SNPs from the glioma dataset using the extract\_snps() function.
@@ -95,6 +96,8 @@ Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat
 Plot1
 ```
 
+<img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
+
 Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported allele frequency column in the glioma dataset does not correspond to the reported effect allele. Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population.
 
 ## Step 3. Check the effect allele metadata
@@ -107,6 +110,8 @@ Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id =EFO$efo_id,trait="glioma")
 Plot2
 ```
 
+<img src="man/figures/README-make_gwascatalog_plot1-1.png" width="100%" />
+
 Each datapoint represents the Z score for glioma risk for a single SNP (scaled to reflect the reported effect allele in the GWAS catalog). The Y and X axes represent the Z scores in the test and GWAS catalog datasets, respectively. For most SNPs, the allele associated with higher risk in the GWAS catalog is associated with lower risk in the test dataset. We call these discrepancies "effect size conflicts" and it is a very strong indication for an effect allele metadata error, i.e. the reported effect allele is actually the non-effect allele. When comparing datasets, its important to make allowance for chance deviations in effect direction, especially for test datasets generated in small sample sizes. For this reason, effect size conflicts are labelled as high if the two-sided P value for the Z score is ≤0.0001 and as moderate if \>0.0001 (this is a pragmatic cutoff). When comparing datasets, one should also consider the number of SNPs. Effect size conflicts are more likely to reflect metadata errors when they are systematic across a large number of SNPs.
 
 We can also make a plot comparing effect allele frequency between the test dataset and the GWAS catalog, which we show in the next example.
@@ -115,6 +120,8 @@ We can also make a plot comparing effect allele frequency between the test datas
 Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo=unique(Dat$efo),trait=unique(Dat$outcome))
 Plot3
 ```
+
+<img src="man/figures/README-make_gwascatalog_plot2-1.png" width="100%" />
 
 We see an inverse correlation in *reported* effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plot. In the absence of effect allele metadata errors, the correlation in allele frequency should be positive (assuming the datasets are matched on ancestry). The reported effect allele frequency is opposite to what wed expect based on the GWAS catalog - e.g. the top left red datapoint has a frequency close to 0.8 in the test dataset but frequency of 0.2 in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6. This makes allowance for chance deviations in allele frequency. When making comparisons with the GWAS catalog its important to consider whether the datasets are matched on ancestry (however, this consideration does not apply for comparisons with our customised 1000 genomes reference dataset, see step 2 above).
 
@@ -152,7 +159,7 @@ Plot5<-make_plot_pred_effect(dat=Pred,bias=TRUE)
 Plot5
 ```
 
-Overall the relative bias seems small and mostly varies from -10.9% to -13.8%, which seems reasonable. Given that genetic effect sizes tend to be small, a relative bias of 10% will be very small on an absolute scale (e.g. scaling an odds ratio of 1.10 up by 10% is 1.11).
+<img src="man/figures/README-make_plot_predlnor3-1.png" width="100%" /> Overall the relative bias seems small and mostly varies from -10.9% to -13.8%, which seems reasonable. Given that genetic effect sizes tend to be small, a relative bias of 10% will be very small on an absolute scale (e.g. scaling an odds ratio of 1.10 up by 10% is 1.11).
 
 ## Step 5. Check that the top hits in the glioma test dataset are reported in the GWAS catalog
 
@@ -163,7 +170,16 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+#> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
+#> $not_in_gc
+#> character(0)
+#> 
+#> $in_gc
+#>  [1] "rs2736100"  "rs2853676"  "rs10120688" "rs1063192"  "rs1412829" 
+#>  [6] "rs2151280"  "rs2157719"  "rs7049105"  "rs4977756"  "rs6010620" 
+#> [11] "rs6089953"
 ```
 
 All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in\_gc).
@@ -177,6 +193,8 @@ Plot6<-zz_plot(dat=Dat)
 Plot6
 ```
 
+<img src="man/figures/README-make_zz_plot1-1.png" width="100%" />
+
 ## Step 6. Combine all plots into a single report for the glioma GWAS
 
 Next we combine all the plots into a single report.
@@ -184,7 +202,7 @@ Next we combine all the plots into a single report.
 ``` r
 Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
+combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 ```
 
 !["qc\_report.png"](/man/figures/README-qc_report.png)
@@ -225,7 +243,7 @@ For the vast majority of SNPs, allele frequencies are compatible between the tes
 ## Step 3. Check effect allele metadata for arachidonic acid
 
 ``` r
-Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se")
+Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset")
 Plot2
 ```
 
@@ -253,7 +271,7 @@ Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rs
 #> API: public: http://gwas-api.mrcieu.ac.uk/
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
 #> Using access token. For info on how this is used see logging_info()
-#> ℹ 2021-08-20 14:40:39 > Setting client.id from options(googleAuthR.client_id)
+#> ℹ 2021-08-20 15:03:22 > Setting client.id from options(googleAuthR.client_id)
 #> → Using an auto-discovered, cached token
 #>   To suppress this message, modify your code or options to clearly consent to
 #>   the use of a cached token
@@ -315,9 +333,10 @@ gc_list
 #> $in_gc
 #> [1] "rs174528" "rs472031" "rs1741"
 
-Plot5<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se")
+Plot5<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se",Title = "Comparison of top hits in test dataset to GWAS catalog")
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
+
 Plot5
 ```
 
@@ -343,31 +362,13 @@ Lets combine all the key figures into a single report
 ``` r
 Plot_list2<-c("Plot1","Plot2","Plot3","Plot4","Plot5","Plot6")
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="qc_report2.png")
+combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 ```
 
 !["qc\_report.png"](/man/figures/README-qc_report2.png)
 
 # Acknowledgements
 
-We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package, which extracts associations from the NHGRI-EBI GWAS catalog.
+We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package.
 
-\*CheckSumStats greatfully acknowledges the following packages, which support the above functions and tests:
-
-    gwasrapidd
-    ggplot2
-    grid
-    gridExtra
-    cowplot
-    grDevices
-    ieugwasr
-    knitr
-    biomaRt
-    purrr
-    dplyr
-    tibble
-    magrittr
-    curl
-    plyr
-    utils
-    +stats
+\*CheckSumStats greatfully acknowledges the following packages: gwasrapidd ggplot2 grid gridExtra cowplot grDevices ieugwasr knitr biomaRt purrr dplyr tibble magrittr curl plyr utils +stats
