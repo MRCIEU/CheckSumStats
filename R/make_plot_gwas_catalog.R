@@ -388,7 +388,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))	
 
-	gwas_variants<-get_gwas_associations(reported_trait=trait,efo=efo,efo_id=efo_id)	
+	gwas_variants<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)	
 	
 	# gwas_variants<-gwasrapidd::get_variants(efo_trait = efo,efo_id=efo_id,reported_trait=trait)		
 	if(class(unlist(gwas_variants)) == "character")
