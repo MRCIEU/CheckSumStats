@@ -17,7 +17,11 @@ devtools::install_github("MRCIEU/CheckSumStats")
 
 ## General overview
 
-This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues: 1) **a 1000 genomes reference set**. This is a set of 2297 SNPs that have the same minor allele across the 1000 genomes super populations and that have a minor allele frequency between 0.1 and 0.3; 2) **GWAS catalog associations**. These are SNPs that are associated with the trait of interest in the GWAS catalog; and 3) the **test GWAS top hits**. These are SNPs that are strongly associated with the trait of interest in the target GWAS of interest.
+This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues:
+
+1.  **a 1000 genomes reference set**. This is a set of 2297 SNPs that have the same minor allele across the 1000 genomes super populations and that have a minor allele frequency between 0.1 and 0.3;
+2.  **GWAS catalog associations**. These are SNPs that are associated with the trait of interest in the GWAS catalog; and
+3.  the **test GWAS top hits**. These are SNPs that are strongly associated with the trait of interest in the target GWAS of interest.
 
 Our objective is to extract summary data for these three groups of SNPs from the target GWAS of interest (we call this the test dataset) in order to perform the following quality control checks:
 
@@ -128,7 +132,7 @@ Plot4<-make_plot_pred_effect(dat=Pred)
 Plot4
 ```
 
-The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2). Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
+The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)). Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
 
 ``` r
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
@@ -293,4 +297,22 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package, which extracts associations from the NHGRI-EBI GWAS catalog.
 
-CheckSumStats greatfully acknowledges the following packages, which support the above functions and tests: +gwasrapidd +ggplot2 +grid +gridExtra +cowplot +grDevices +ieugwasr +knitr +biomaRt +purrr +dplyr +tibble +magrittr +curl +plyr +utils +stats
+\*CheckSumStats greatfully acknowledges the following packages, which support the above functions and tests:
+
+    +gwasrapidd
+    +ggplot2
+    +grid
+    +gridExtra
+    +cowplot
+    +grDevices
+    +ieugwasr
+    +knitr
+    +biomaRt
+    +purrr
+    +dplyr
+    +tibble
+    +magrittr
+    +curl
+    +plyr
+    +utils
+    +stats
