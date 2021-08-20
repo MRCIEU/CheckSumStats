@@ -23,7 +23,7 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset and GWAS catalog",Title_size_subplot=12,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=12,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se",distance_threshold=25000){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se",distance_threshold=25000){
 
 	
 	Dat.m<-compare_effect_to_gwascatalog(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold)

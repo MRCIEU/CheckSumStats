@@ -6,11 +6,11 @@
 \usage{
 zz_plot(
   dat = NULL,
-  Title_size = 12,
+  Title_size = 10,
   Title = "ZZ plot",
   Ylab = "Z score inferred from p value",
   Xlab = "Z score inferred from effect size and standard error",
-  Title_xaxis_size = 12,
+  Title_xaxis_size = 10,
   beta = "lnor",
   se = "lnor_se",
   exclude_1000G_MAF_refdat = TRUE

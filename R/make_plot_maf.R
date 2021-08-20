@@ -30,7 +30,7 @@
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=12,Title_size=12,Title="Comparison of MAF between test dataset and reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Comparison of MAF between test dataset and 1000 genomes project"){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=8,Title_size=10,Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Comparison of allele frequency between test dataset & 1000 genomes project"){	
 
 	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
 
@@ -132,7 +132,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		# print(pop)
 		# dat1<-dat[dat$ref_dat_population==pop,]			
 		dat1<-dat.m.test[dat.m.test$ref_dat_population==Pops[i], ]
-		pop2<-c("European","East Asian","African","American","South Asian","Global")
+		pop2<-c("European MAF","East Asian MAF","African MAF","American MAF","South Asian MAF","Global MAF")
 		Pops2<-c("EUR","EAS","AFR","AMR","SAS","ALL")
 		j<-which(Pops2 %in% Pops[i])
 		# if(Xlab==""){
@@ -149,14 +149,14 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		# if(subtitle_off) Title<-""
 
 		Colour<-rep("black",nrow(dat1))
-		Colour[which(dat1[,eaf]>0.5)]<-"blue"
+		Colour[which(dat1[,eaf]>0.5)]<-"red"
 		# Colour[dat1[,target_dat_effect_allele]!=dat1[,ref_dat_minor_allele]]<-"red"	
 		
 		# fix harmonisation functions above so that efffect allele strand flipped to minor_allele (not harmonised with minor_allele2)
-		Colour[dat1$Effect.Allele!=dat1$minor_allele & dat1$Effect.Allele!=dat1$minor_allele2]<-"red"	
+		# Colour[dat1$Effect.Allele!=dat1$minor_allele & dat1$Effect.Allele!=dat1$minor_allele2]<-"red"	
 
-		Diff<-abs(dat1[,eaf]-dat1[,"maf_ref"])
-		Colour[which(Diff>0.10)]<-"red"
+		# Diff<-abs(dat1[,eaf]-dat1[,"maf_ref"])
+		# Colour[which(Diff>0.10)]<-"red"
 		Shape<-rep(19,nrow(dat1))
 		Shape[which(dat1$alleles %in% c("AT","TA","GC","CG"))]<-1
 		dat1$eaf<-dat1[,eaf]

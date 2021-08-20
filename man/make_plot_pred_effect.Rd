@@ -7,13 +7,13 @@
 make_plot_pred_effect(
   dat = NULL,
   Xlab = "Reported effect size",
-  Ylab = "Predicted effect size",
+  Ylab = "Expected effect size",
   subtitle = "",
   maf_filter = FALSE,
   bias = FALSE,
-  Title_size = 12,
-  Title = "Predicted versus reported effect size",
-  Title_xaxis_size = 12,
+  Title_size = 10,
+  Title = "Expected versus reported effect size",
+  Title_xaxis_size = 10,
   legend = TRUE,
   standard_errors = FALSE,
   pred_beta = "lnor_pred",
@@ -35,7 +35,7 @@ make_plot_pred_effect(
 
 \item{maf_filter}{minor allele frequency threshold. If not NULL, genetic variants with a minor allele frequency below this threshold are excluded}
 
-\item{bias}{logical argument. If TRUE, plots the \% deviation of the predicted from the reported effect size on the Y axis against the reported effect size on the X axis.}
+\item{bias}{logical argument. If TRUE, plots the \% deviation of the expected from the reported effect size on the Y axis against the reported effect size on the X axis.}
 
 \item{Title_size}{size of title}
 
@@ -45,7 +45,7 @@ make_plot_pred_effect(
 
 \item{legend}{logical argument. If true, includes figure legend in plot}
 
-\item{standard_errors}{logical argument. If TRUE, plots the predicted versus the reported standard errors for the effect sizes}
+\item{standard_errors}{logical argument. If TRUE, plots the expected versus the reported standard errors for the effect sizes}
 
 \item{pred_beta}{name of column containing the predicted effect size}
 

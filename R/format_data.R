@@ -62,7 +62,12 @@ format_data<-function(dat=NULL,outcome=NA,population=NA,pmid=NA,study=NA,ncase=N
 
 	if(!is.null(ID))
 	{
-		dat$ID <- ID
+		dat$id <- ID
+	}
+
+	if(is.null(ID) & !"id" %in% names(dat))
+	{
+		dat$id <- ""
 	}
 
 	# if(!is.null(ref)){

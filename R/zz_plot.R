@@ -15,7 +15,7 @@
 #' @return plot 
 #' @export
 
-zz_plot<-function(dat=NULL,Title_size=12,Title="ZZ plot",Ylab="Z score inferred from p value",Xlab="Z score inferred from effect size and standard error",Title_xaxis_size=12,beta="lnor",se="lnor_se",exclude_1000G_MAF_refdat=TRUE){
+zz_plot<-function(dat=NULL,Title_size=10,Title="ZZ plot",Ylab="Z score inferred from p value",Xlab="Z score inferred from effect size and standard error",Title_xaxis_size=10,beta="lnor",se="lnor_se",exclude_1000G_MAF_refdat=TRUE){
 
 	if(exclude_1000G_MAF_refdat){
 		utils::data("refdat_1000G_superpops",envir =environment())

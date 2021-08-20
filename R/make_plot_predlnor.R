@@ -9,7 +9,7 @@
 #' @param beta name of column containing the reported effect size
 #' @param se name of column containing the standard error for the reported effect size
 #' @param sd_est the standard deviation of the phenotypic mean. Can either be a numeric vector of length 1 or name of the column in dat containing the standard deviation value (in which case should be constant across SNPs). Only applicable for continuous traits. If not supplied by the user, the standard deviation is approximated using sd_est, estimated by the predict_beta_sd() function. The sd_est is then used to standardise the reported effect size. If the reported effect size is already standardised (ie is in SD units) then sd_est should be set to NULL 
-#' @param bias logical argument. If TRUE, plots the % deviation of the predicted from the reported effect size on the Y axis against the reported effect size on the X axis.  
+#' @param bias logical argument. If TRUE, plots the % deviation of the expected from the reported effect size on the Y axis against the reported effect size on the X axis.  
 #' @param subtitle subtitle
 #' @param maf_filter minor allele frequency threshold. If not NULL, genetic variants with a minor allele frequency below this threshold are excluded
 #' @param legend logical argument. If true, includes figure legend in plot
@@ -18,13 +18,13 @@
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
-#' @param standard_errors logical argument. If TRUE, plots the predicted versus the reported standard errors for the effect sizes
+#' @param standard_errors logical argument. If TRUE, plots the expected versus the reported standard errors for the effect sizes
 #' @param exclude_1000G_MAF_refdat exclude rsids from the 1000 genome MAF reference dataset. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predicted effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=12,Title="Predicted versus reported effect size",Title_xaxis_size=12,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE){
+make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=10,Title="Expected versus reported effect size",Title_xaxis_size=10,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE){
 
 	if("ncase" %in% names(dat)){
 		if(all(!is.na(dat$ncase))){
@@ -103,7 +103,7 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 		dat$plot_y<-dat[,pred_beta_se]
 		dat$plot_x<-dat[,se]
 		Xlab<-"Reported standard error"
-		Ylab<-"Predicted standard error"
+		Ylab<-"Expected standard error"
 	}
 
 	if(bias){
@@ -114,7 +114,7 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 		Min<-round(summary(dat$bias)[1],1)
 		Max<-round(summary(dat$bias)[6],1)
 		subtitle<-paste0("Median bias=",Med,"% (IQR:",p25,"%, ",p75,"% | min=",Min,"%, max=",Max,"%)")
-		Ylab<-"% deviation of predicted from reported effect size"
+		Ylab<-"% deviation of expected from reported effect size"
 	}
 
 	# dat$X<-dat[,1]
@@ -125,7 +125,11 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 
 	Values<-c("red","orange","purple","blue","black")
 	Labels<-c("0.01-0.10","0.11-0.20","0.21-0.30","0.31-0.40","0.41-0.50")
+	Subtitle_size1<-8
 
+	Pos.inf<-which(!dat$plot_y=="Inf")
+	dat<-dat[Pos.inf,]
+	
 	if(!bias){	
 		Model<-summary(stats::lm(plot_y~plot_x,dat))
 		int<-Model$coefficients[1,1]
@@ -135,8 +139,9 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 
 
 	if(!legend){
-		Plot<-ggplot2::ggplot(dat) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+ggplot2::theme(legend.position = "none")  + ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"))+
+		Plot<-ggplot2::ggplot(dat) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+ggplot2::theme(legend.position = "none")  + ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
 		ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
+
 		# +
 		# ggplot2::scale_colour_manual(name = "maf",
 	 #        labels = Labels,
@@ -144,12 +149,13 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Predi
 	}
 
 	if(legend){
-		Plot<-ggplot2::ggplot(dat) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+ ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"))+
+		Plot<-ggplot2::ggplot(dat) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+ ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
 				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
 				# +
 				# ggplot2::scale_colour_manual(name = "maf",
 			        # labels = Labels,
 			        # values = Values)
+			        # 
 	}
 
 	return(Plot)
