@@ -34,3 +34,6 @@ Imports:
     magrittr,
     curl,
     plyr
+Remotes:
+    bioc::release/biomaRt,
+    ramiromagno/gwasrapidd
