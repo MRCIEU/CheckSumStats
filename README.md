@@ -112,7 +112,7 @@ Plot2
 
 <img src="man/figures/README-make_gwascatalog_plot1-1.png" width="100%" />
 
-Each datapoint represents the Z score for glioma risk for a single SNP (scaled to reflect the reported effect allele in the GWAS catalog). The Y and X axes represent the Z scores in the test and GWAS catalog datasets, respectively. For most SNPs, the allele associated with higher risk in the GWAS catalog is associated with lower risk in the test dataset. We call these discrepancies "effect size conflicts" and it is a very strong indication for an effect allele metadata error, i.e. the reported effect allele is actually the non-effect allele. When comparing datasets, its important to make allowance for chance deviations in effect direction, especially for test datasets generated in small sample sizes. For this reason, effect size conflicts are labelled as high if the two-sided P value for the Z score is ≤0.0001 and as moderate if \>0.0001 (this is a pragmatic cutoff). When comparing datasets, one should also consider the number of SNPs. Effect size conflicts are more likely to reflect metadata errors when they are systematic across a large number of SNPs.
+Each datapoint represents the Z score for glioma risk for a single SNP (scaled to reflect the reported effect allele in the GWAS catalog). The Y and X axes represent the Z scores in the test and GWAS catalog datasets, respectively. For most SNPs, the allele associated with higher risk in the GWAS catalog is associated with lower risk in the test dataset. We call these discrepancies "effect size conflicts" and it is a very strong indication for an effect allele metadata error, i.e. the reported effect allele is actually the non-effect allele. When comparing datasets, it's important to make allowance for chance deviations in effect direction, especially for test datasets generated in small sample sizes. For this reason, effect size conflicts are labelled as high if the two-sided P value for the Z score is ≤0.0001 and as moderate if \>0.0001 (this is a pragmatic cutoff). When comparing datasets, one should also consider the number of SNPs. Effect size conflicts are more likely to reflect metadata errors when they are systematic across a large number of SNPs.
 
 We can also make a plot comparing effect allele frequency between the test dataset and the GWAS catalog, which we show in the next example.
 
@@ -123,7 +123,7 @@ Plot3
 
 <img src="man/figures/README-make_gwascatalog_plot2-1.png" width="100%" />
 
-We see an inverse correlation in *reported* effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plot. In the absence of effect allele metadata errors, the correlation in allele frequency should be positive (assuming the datasets are matched on ancestry). The reported effect allele frequency is opposite to what wed expect based on the GWAS catalog - e.g. the top left red datapoint has a frequency close to 0.8 in the test dataset but frequency of 0.2 in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6. This makes allowance for chance deviations in allele frequency. When making comparisons with the GWAS catalog its important to consider whether the datasets are matched on ancestry (however, this consideration does not apply for comparisons with our customised 1000 genomes reference dataset, see step 2 above).
+We see an inverse correlation in *reported* effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plot. In the absence of effect allele metadata errors, the correlation in allele frequency should be positive (assuming the datasets are matched on ancestry). The reported effect allele frequency is opposite to what wed expect based on the GWAS catalog - e.g. the top left red datapoint has a frequency close to 0.8 in the test dataset but frequency of 0.2 in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6. This makes allowance for chance deviations in allele frequency. When making comparisons with the GWAS catalog it's important to consider whether the datasets are matched on ancestry (however, this consideration does not apply for comparisons with our customised 1000 genomes reference dataset, see step 2 above).
 
 ## Step 4. Check for effect sizes errors in the glioma GWAS
 
@@ -143,7 +143,7 @@ Plot4
 
 The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)).
 
-Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
+Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
 
 ``` r
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
@@ -186,7 +186,7 @@ All the top hits for glioma in the test dataset are either associated with gliom
 
 ## Step 6. Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
 
-Next we generate some ZZ plots, in order to flag SNPs with P values that dont coincide with their reported effect sizes. The zz\_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error).
+Next we generate some ZZ plots, in order to flag SNPs with P values that don't coincide with their reported effect sizes. The zz\_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error). We see a very strong agreement between the Zb and Zp scores.
 
 ``` r
 Plot6<-zz_plot(dat=Dat)
@@ -238,7 +238,7 @@ Plot1
 
 <img src="man/figures/README-arachidonic2-1.png" width="100%" />
 
-For the vast majority of SNPs, allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported allele frequency column corresponds to the effect allele.
+For the vast majority of SNPs, allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported effect allele frequency column corresponds to the reported effect allele.
 
 ## Step 3. Check effect allele metadata for arachidonic acid
 
@@ -263,7 +263,7 @@ dim(Dat)
 #> [1] 1064   19
 ```
 
-1064 SNPs were extracted. Its useful to clump the results to ensure independence and for speed. We call the ieugwasr package to perform the clumping.
+1064 SNPs were extracted. It's useful to clump the results to ensure independence amongst SNPs and to speed up subsequent QC checks. We call the ieugwasr package to perform the clumping.
 
 ``` r
 
@@ -271,7 +271,7 @@ Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rs
 #> API: public: http://gwas-api.mrcieu.ac.uk/
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
 #> Using access token. For info on how this is used see logging_info()
-#> ℹ 2021-08-20 15:14:57 > Setting client.id from options(googleAuthR.client_id)
+#> ℹ 2021-08-20 15:33:19 > Setting client.id from options(googleAuthR.client_id)
 #> → Using an auto-discovered, cached token
 #>   To suppress this message, modify your code or options to clearly consent to
 #>   the use of a cached token
@@ -293,7 +293,7 @@ Plot3
 
 <img src="man/figures/README-arachidonic6-1.png" width="100%" />
 
-We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with the presence of potential false positives in the test dataset, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
+We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
 
 ``` r
 Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se",bias=TRUE)
@@ -302,7 +302,7 @@ Plot4
 
 <img src="man/figures/README-arachidonic7-1.png" width="100%" />
 
-The SNPs with the most bias tend to have lower minor allele frequencies, confirming possible problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog.
+The SNPs with the most bias tend to have lower minor allele frequencies, perhaps reflecting problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog.
 
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
@@ -343,7 +343,7 @@ Plot5
 
 <img src="man/figures/README-arachidonic8-1.png" width="100%" />
 
-92 of 95 top hits in the test dataset do not overlap with associations for arachidonic acid in the GWAS catalog. Taken together with the non-linear relationship between the expected and reported effect sizes, this suggests a large number of false positives, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. Correspondence with the data provider confirmed that the GWAS summary statistics had not gone through post GWAS filtering of low quality variants (e.g. exclusion of SNPs with low minor allele frequency or low imputation r2 scores). Once we obtained a cleaned dataset (with low quality SNPs excluded), the aforementioned discrepancies were resolved.
+92 of 95 top hits in the test dataset do not overlap with associations for arachidonic acid in the GWAS catalog. Taken together with the non-linear relationship between the expected and reported effect sizes, this suggests a large number of false positives, which may in turn reflect problems with the post-GWAS cleaning of the summary statistics. Correspondence with the data provider confirmed that the GWAS summary statistics had not gone through post GWAS filtering of low quality variants (e.g. exclusion of SNPs with low minor allele frequency or low imputation r2 scores). Once we obtained a cleaned dataset (with low quality SNPs excluded), the aforementioned discrepancies were resolved.
 
 ## Step 5. Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
 
@@ -358,7 +358,7 @@ Plot6
 
 ## Step 6. Combine all plots into a single report (arachidonic acid example)
 
-Lets combine all the key figures into a single report
+Let's combine all the key figures into a single report
 
 ``` r
 Plot_list2<-c("Plot1","Plot2","Plot3","Plot4","Plot5","Plot6")
@@ -372,7 +372,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 We gratefully acknowledge the help of Ramiro Magno for their help and advice with the gwasrapidd package.
 
-\*CheckSumStats greatfully acknowledges the following packages:
+CheckSumStats greatfully acknowledges the following packages:
 
     gwasrapidd
     ggplot2
@@ -390,4 +390,4 @@ We gratefully acknowledge the help of Ramiro Magno for their help and advice wit
     curl
     plyr
     utils
-    +stats
+    stats
