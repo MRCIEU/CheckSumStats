@@ -53,7 +53,7 @@ In this example we show how the package can be used to check the quality of  rep
 
 The first step is to map the reported trait with the Experimental Factor Ontology (EFO). 
 
-```{r efo_list, eval = FALSE}
+```{r efo_list, eval = TRUE}
 library(CheckSumStats)
 EFO<-get_efo(trait="glioma")
 EFO
@@ -324,20 +324,20 @@ We gratefully acknowledge the help of Ramiro Magno for their help and advice wit
 
 *CheckSumStats greatfully acknowledges the following packages, which support the above functions and tests:
 
-    +gwasrapidd
-    +ggplot2
-    +grid
-    +gridExtra
-    +cowplot
-    +grDevices
-    +ieugwasr
-    +knitr
-    +biomaRt
-    +purrr
-    +dplyr
-    +tibble
-    +magrittr
-    +curl
-    +plyr
-    +utils
+    gwasrapidd
+    ggplot2
+    grid
+    gridExtra
+    cowplot
+    grDevices
+    ieugwasr
+    knitr
+    biomaRt
+    purrr
+    dplyr
+    tibble
+    magrittr
+    curl
+    plyr
+    utils
     +stats

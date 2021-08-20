@@ -42,6 +42,11 @@ The first step is to map the reported trait with the Experimental Factor Ontolog
 library(CheckSumStats)
 EFO<-get_efo(trait="glioma")
 EFO
+#> $efo_id
+#> [1] "EFO_0000326" "EFO_0005543"
+#> 
+#> $confidence
+#> [1] "confidence:GOOD"
 ```
 
 Then we make a list of SNP rsids.
@@ -299,20 +304,20 @@ We gratefully acknowledge the help of Ramiro Magno for their help and advice wit
 
 \*CheckSumStats greatfully acknowledges the following packages, which support the above functions and tests:
 
-    +gwasrapidd
-    +ggplot2
-    +grid
-    +gridExtra
-    +cowplot
-    +grDevices
-    +ieugwasr
-    +knitr
-    +biomaRt
-    +purrr
-    +dplyr
-    +tibble
-    +magrittr
-    +curl
-    +plyr
-    +utils
+    gwasrapidd
+    ggplot2
+    grid
+    gridExtra
+    cowplot
+    grDevices
+    ieugwasr
+    knitr
+    biomaRt
+    purrr
+    dplyr
+    tibble
+    magrittr
+    curl
+    plyr
+    utils
     +stats
