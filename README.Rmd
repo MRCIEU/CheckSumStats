@@ -231,7 +231,7 @@ For the vast majority of SNPs,  allele frequencies are compatible between the te
 
 ## Step 3. Check effect allele metadata for arachidonic acid 
 
-```{r arachidonic3,eval = FALSE}
+```{r arachidonic3,eval = TRUE}
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se")
 Plot2
 ```
@@ -242,7 +242,7 @@ Most SNPs appear to have concordant effect sizes between the test dataset and th
 
 Next, we check the summary data for possible effect size errors. For this step, we extract summary data for "top hits" in the test dataset.   
 
-```{r arachidonic4,eval = FALSE}
+```{r arachidonic4,eval = TRUE}
 File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
 ara<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
@@ -251,7 +251,7 @@ dim(Dat)
 
 1064 SNPs were extracted. Its useful to clump the results to ensure independence and for speed. We call the ieugwasr package to perform the clumping.
 
-```{r arachidonic5,eval = FALSE}
+```{r arachidonic5,eval = TRUE}
 
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
@@ -259,7 +259,7 @@ Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 
 Now we generate expected effect sizes and plot these against the reported effect size. 
 
-```{r arachidonic6,eval = FALSE}
+```{r arachidonic6,eval = TRUE}
 Dat<-predict_beta_sd(dat=Dat)
 Plot3<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se")
 Plot3
@@ -267,7 +267,7 @@ Plot3
 
 We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with the presence of potential false positives in the test dataset, which in turn may reflect problems with the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes. 
 
-```{r arachidonic7,eval = FALSE}
+```{r arachidonic7,eval = TRUE}
 Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se",bias=TRUE)
 Plot4
 ```
@@ -275,7 +275,7 @@ Plot4
 The SNPs with the most bias tend to have lower minor allele frequencies, confirming possible problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog. 
 
 
-```{r arachidonic8, eval = FALSE}
+```{r arachidonic8, eval = TRUE}
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 gc_list
 
@@ -288,7 +288,7 @@ Plot5
 ## Step 5. Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
 Finally, we check whether the reported P values correspond to the reported effect sizes. 
 
-```{r arachidonic9,eval = FALSE}
+```{r arachidonic9,eval = TRUE}
 Plot6<-zz_plot(dat=Dat,beta="beta",se="se")
 Plot6
 ```
