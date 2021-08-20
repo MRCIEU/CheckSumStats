@@ -62,7 +62,7 @@ EFO
 Then we make a list of SNP rsids. 
 
 
-```{r make_snplist1, eval = FALSE}
+```{r make_snplist1, eval = TRUE}
 snplist<-make_snplist(efo_id=EFO$efo_id,trait="glioma",ref1000G_superpops=TRUE)
 ```
 
