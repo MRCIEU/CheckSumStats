@@ -1,4 +1,4 @@
 library(testthat)
-library(mrQC)
+library(CheckSumStats)
 
-test_check("mrQC")
+test_check("CheckSumStats")

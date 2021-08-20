@@ -64,11 +64,12 @@ make_plot_maf(
 
 \item{target_study}{column in target_dat indicating name of target study}
 
-\item{ref_study}{column in reference study indicating name of reference study #'. Only necessary if ref_dat is specified}
+\item{ref_study}{column in reference study indicating name of reference study.
+Only necessary if ref_dat is specified}
 
-\item{Title_xaxis_size}{size of title on x axis #'}
+\item{Title_xaxis_size}{size of title on x axis}
 
-\item{Title_size}{size of plot title #'}
+\item{Title_size}{size of plot title}
 
 \item{Title}{plot title}
 

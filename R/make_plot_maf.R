@@ -1,4 +1,3 @@
-
 #' MAF plot 
 #'
 #' Make a plot comparing minor allele frequency between outcome and reference studies.
@@ -19,10 +18,11 @@
 #' @param outcome name of the outcome trait corresponding to target_dat 
 #' @param ID ID for the outcome trait of interest 
 #' @param target_study column in target_dat indicating name of target study 
-#' @param ref_study column in reference study indicating name of reference study #'. Only necessary if ref_dat is specified
-#' @param Title_xaxis_size size of title on x axis #' 
-#' @param Title_size size of plot title #' 
-#' @param Title plot title 
+#' @param ref_study column in reference study indicating name of reference study. 
+#' Only necessary if ref_dat is specified
+#' @param Title_xaxis_size size of title on x axis
+#' @param Title_size size of plot title
+#' @param Title plot title
 #' @param Ylab Y label 
 #' @param Xlab X label 
 #' @param cowplot_title title of overall plot 
