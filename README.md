@@ -4,7 +4,7 @@
 
 <!-- badges: start -->
 <!-- badges: end -->
-CheckSumStats is an R package for checking meta- and summary-data from genetic association studies prior to their use in post-GWAS applications, such as two-sample Mendelian randomisation. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
+CheckSumStats is an R package for checking meta and summary data from genetic association studies. For example, the package can be used to check that the reported effect allele and effect allele frequency columns are correct. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
 
 ## Installation
 
@@ -98,7 +98,9 @@ Plot1
 
 <img src="man/figures/README-make_maf_plot1-1.png" width="100%" />
 
-Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported allele frequency column in the glioma dataset does not correspond to the reported effect allele. Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population.
+Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" GWAS example ([Example 2](#example_2)) for another type of allele frequency metadata error. In Example 2, minor allele frequency is incorrectly reported as effect allele frequency, which gives a distinct pattern in the allele frequency plots.
+
+Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population.
 
 ## Step 3. Check the effect allele metadata
 
@@ -141,7 +143,7 @@ Plot4
 
 <img src="man/figures/README-make_plot_predlnor1-1.png" width="100%" />
 
-The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)).
+The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 3](#example_3)).
 
 Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have \>100 SNPs. Below is how you could clump your results using the ieugwasr package.
 
@@ -170,7 +172,6 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
-#> Ensembl site unresponsive, trying useast mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
@@ -208,7 +209,36 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 
 !["qc\_report.png"](/man/figures/README-qc_report.png)
 
-# <a id="example_2"></a> Example 2. Check the summary and meta data from a GWAS of arachidonic acid.
+# <a id="example_2"></a> Example 2. Check the allele frequency meta data from a GWAS of fasting glucose.
+
+In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose.
+
+``` r
+library(CheckSumStats)
+EFO<-get_efo(trait="fasting glucose")
+EFO
+#> $efo_id
+#> [1] "EFO_0004468" "EFO_0004465"
+#> 
+#> $confidence
+#> [1] "confidence:GOOD"
+snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
+length(snplist)-2297 #Number of SNPs associated with fasting glucose in the GWAS catalog
+#> [1] 566
+glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
+#> API: public: http://gwas-api.mrcieu.ac.uk/
+dim(glu)
+#> [1] 541  12
+Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p",efo_id=EFO$efo_id)
+Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
+Plot1
+```
+
+<img src="man/figures/README-glucose1-1.png" width="100%" />
+
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele is not always the effect allele.
+
+# <a id="example_3"></a> Example 3. Check the summary and meta data from a GWAS of arachidonic acid.
 
 In this example we use the package to check the summary and metadata from a genome-wide association study of arachidonic acid that has not gone through standad post-GWAS QC (e.g. with low quality or unreliable genetic variants excluded).
 
@@ -269,16 +299,7 @@ dim(Dat)
 ``` r
 
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
-#> API: public: http://gwas-api.mrcieu.ac.uk/
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
-#> Using access token. For info on how this is used see logging_info()
-#> ℹ 2021-08-20 16:16:08 > Setting client.id from options(googleAuthR.client_id)
-#> → Using an auto-discovered, cached token
-#>   To suppress this message, modify your code or options to clearly consent to
-#>   the use of a cached token
-#>   See gargle's "Non-interactive auth" vignette for more details:
-#>   <https://gargle.r-lib.org/articles/non-interactive-auth.html>
-#> → The googleAuthR package is using a cached token for 'philip.haycock@gmail.com'
 #> Clumping , 1064 variants, using EUR population reference
 #> Removing 969 of 1064 variants due to LD with other variants or absence from LD reference panel
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
@@ -307,6 +328,7 @@ The SNPs with the most bias tend to have lower minor allele frequencies, perhaps
 
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
+#> Ensembl site unresponsive, trying uswest mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-CheckSumStats is an R package for checking the accuracy of meta- and summary-data from genetic association studies prior to their use in post-GWAS applications, such as two-sample Mendelian randomisation. For example, the package provides tools for checking that the reported effect allele and effect allele frequency columns are correct. It also checks for possible errors in the reported effect sizes that might introduce bias into downstream analyses. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
+CheckSumStats is an R package for checking meta and summary data from genetic association studies. For example, the package can be used to check that the reported effect allele and effect allele frequency columns are correct. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
 
 
 ## Installation
@@ -107,7 +107,9 @@ Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat
 Plot1
 ```
 
-Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported allele frequency column in the glioma dataset does not correspond to the reported effect allele. Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population. 
+Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" GWAS example ([Example 2](#example_2)) for another type of allele frequency metadata error. In Example 2, minor allele frequency is incorrectly reported as effect allele frequency, which gives a distinct pattern in the allele frequency plots.  
+
+Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European 1000 genomes super population. 
 
 ## Step 3. Check the effect allele metadata
 
@@ -145,7 +147,7 @@ Plot4<-make_plot_pred_effect(dat=Pred)
 Plot4
 ```
 
-The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 2](#example_2)). 
+The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what wed expect to see in the absence of major analytical issues. The "arachidonic acid" GWAS provides a counter example ([Example 3](#example_3)). 
 	
 Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
 
@@ -203,7 +205,26 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 
 !["qc_report.png"](/man/figures/README-qc_report.png)
 
-#<a id="example_2"></a> Example 2. Check the summary and meta data from a GWAS of arachidonic acid.  
+#<a id="example_2"></a> Example 2. Check the allele frequency meta data from a GWAS of fasting glucose.  
+
+In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose.
+
+```{r glucose1, eval = TRUE}
+library(CheckSumStats)
+EFO<-get_efo(trait="fasting glucose")
+EFO
+snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
+length(snplist)-2297 #Number of SNPs associated with fasting glucose in the GWAS catalog
+glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
+dim(glu)
+Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p",efo_id=EFO$efo_id)
+Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
+Plot1
+```
+
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele is not always the effect allele. 
+
+#<a id="example_3"></a> Example 3. Check the summary and meta data from a GWAS of arachidonic acid.  
 
 In this example we use the package to check the summary and metadata from a genome-wide association study of arachidonic acid that has not gone through standad post-GWAS QC (e.g. with low quality or unreliable genetic variants excluded).
 
