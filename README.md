@@ -15,6 +15,14 @@ install.packages("devtools")
 devtools::install_github("MRCIEU/CheckSumStats")
 ```
 
+---
+title: "CheckSumStats"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
 ## General overview
 
 This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues:
