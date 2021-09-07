@@ -328,7 +328,6 @@ The SNPs with the most bias tend to have lower minor allele frequencies, perhaps
 
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
-#> Ensembl site unresponsive, trying uswest mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list

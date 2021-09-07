@@ -191,9 +191,9 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 		if(!"lnor" %in% names(dat)) stop("name of beta column set to lnor but there is no column with that name")
 	}
 
-	if(!beta %in% names(dat)) stop(paste0("beta column set to '",beta,"' but there is no column with that name"))
+	if(!beta %in% names(dat)) stop(paste0("beta column not found. Check you correctly specified the name of the beta column"))
 
-	if(!se %in% names(dat)) stop(paste0("se column set to '",se,"' but there is no column with that name"))
+	if(!se %in% names(dat)) stop(paste0("se column not found. Check you correctly specified the name of the se column"))
 
 	if(is.null(efo) & is.null(efo_id) & is.null(trait)) stop("you must specify either efo, efo_id or trait")
 	# if(!is.null(trait)){
