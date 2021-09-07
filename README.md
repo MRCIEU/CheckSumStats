@@ -30,6 +30,12 @@ Our objective is to extract summary data for these three groups of SNPs from the
 3.  identify possible errors in the reported effect sizes
 4.  infer ancestry
 
+Below are sample examples to illustrate application of the package 
+1. Effect allele metadata error in Glioma GWAS [Example 1](#example_1)
+2. Allele frequency metadata error in fasting glucose GWAS [Example 2](#example_2)
+3. Summary data errors in arachidonic acid GWAS due lack of post GWAS cleaning [Example 3](#example_3)
+4. Sample size errors glioma GWAS [Example 4](#example_4)
+
 # Example 1. Glioma GWAS
 
 In this example we show how the package can be used to check the quality of reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the non-effect allele column was mis-labelled as the effect allele.
