@@ -47,7 +47,7 @@ Our objective is to extract summary data for these three groups of SNPs from the
 
 # Example 1. Glioma GWAS
 
-In this example we show how the package can be used to check the quality of  reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the effect allele column was mis-labelled as the non-effect allele. 
+In this example we show how the package can be used to check the quality of  reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the non-effect allele column was mis-labelled as the effect allele. 
 
 ## Step 1. Extract and format the outcome summary data for glioma 
 
@@ -79,7 +79,7 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 ```
 
-In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice the File object is just the file path to your GWAS results. Note that the extract_snps() function only works on MAC/linux machines.  Alternatively, you could use the read.table() function to load all the summary data into R and then extract the SNPs of interest. Another alternative is to source the summary data from online databases, such as the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, the equivalent scripts to extract summary data for thyroid cancer from Open GWAS are:
+In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice the File object is just the file path to your GWAS results. Note that the extract_snps() function only works on MAC/unix machines.  Alternatively, you could use the read.table() function to load all the summary data into R and then extract the SNPs of interest. Another alternative is to source the summary data from online databases, such as the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, the equivalent scripts to extract summary data for thyroid cancer from Open GWAS are:
 
 ```{r extract_snps2,eval = FALSE} 
 EFO<-get_efo(trait="thyroid cancer")

@@ -32,7 +32,7 @@ Our objective is to extract summary data for these three groups of SNPs from the
 
 # Example 1. Glioma GWAS
 
-In this example we show how the package can be used to check the quality of reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the effect allele column was mis-labelled as the non-effect allele.
+In this example we show how the package can be used to check the quality of reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the non-effect allele column was mis-labelled as the effect allele.
 
 ## Step 1. Extract and format the outcome summary data for glioma
 
@@ -69,7 +69,7 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 ```
 
-In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice the File object is just the file path to your GWAS results. Note that the extract\_snps() function only works on MAC/linux machines. Alternatively, you could use the read.table() function to load all the summary data into R and then extract the SNPs of interest. Another alternative is to source the summary data from online databases, such as the Open GWAS project (<https://gwas.mrcieu.ac.uk/>). For example, the equivalent scripts to extract summary data for thyroid cancer from Open GWAS are:
+In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice the File object is just the file path to your GWAS results. Note that the extract\_snps() function only works on MAC/unix machines. Alternatively, you could use the read.table() function to load all the summary data into R and then extract the SNPs of interest. Another alternative is to source the summary data from online databases, such as the Open GWAS project (<https://gwas.mrcieu.ac.uk/>). For example, the equivalent scripts to extract summary data for thyroid cancer from Open GWAS are:
 
 ``` r
 EFO<-get_efo(trait="thyroid cancer")
@@ -170,6 +170,7 @@ File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
+#> Ensembl site unresponsive, trying useast mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
@@ -271,7 +272,7 @@ Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rs
 #> API: public: http://gwas-api.mrcieu.ac.uk/
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
 #> Using access token. For info on how this is used see logging_info()
-#> ℹ 2021-08-20 15:33:19 > Setting client.id from options(googleAuthR.client_id)
+#> ℹ 2021-08-20 16:16:08 > Setting client.id from options(googleAuthR.client_id)
 #> → Using an auto-discovered, cached token
 #>   To suppress this message, modify your code or options to clearly consent to
 #>   the use of a cached token
@@ -307,7 +308,6 @@ The SNPs with the most bias tend to have lower minor allele frequencies, perhaps
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
-#> Ensembl site unresponsive, trying uswest mirror
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
 #> $not_in_gc
