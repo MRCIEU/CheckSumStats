@@ -75,6 +75,7 @@ In the above example, we extracted the summary data for the SNPs of interest fro
 EFO<-get_efo(trait="thyroid cancer")
 snplist<-make_snplist(efo_id = EFO$efo_id,trait="thyroid carcinoma")
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
+#> API: public: http://gwas-api.mrcieu.ac.uk/
 ```
 
 Returning to the glioma example, having extracted the summary data for some SNPs, we now need to format the summary data. This is to get the data into the expected format for the QC tests to come.
@@ -149,6 +150,9 @@ Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your
 
 ``` r
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
+#> Please look at vignettes for options on running this locally if you need to run many instances of this command.
+#> Clumping , 22 variants, using EUR population reference
+#> Removing 19 of 22 variants due to LD with other variants or absence from LD reference panel
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 Pred<-predict_lnor_sh(dat=Dat)
 Plot4<-make_plot_pred_effect(dat=Pred)
@@ -176,12 +180,11 @@ gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance
 #> Using GRCh38.p13 of human genome from ensembl for genomic coordinates
 gc_list
 #> $not_in_gc
-#> character(0)
+#> [1] "rs6010620"  "rs6089953"  "rs1412829"  "rs2151280"  "rs10120688"
+#> [6] "rs1063192"  "rs7049105"  "rs4977756"  "rs2157719" 
 #> 
 #> $in_gc
-#>  [1] "rs2736100"  "rs2853676"  "rs10120688" "rs1063192"  "rs1412829" 
-#>  [6] "rs2151280"  "rs2157719"  "rs7049105"  "rs4977756"  "rs6010620" 
-#> [11] "rs6089953"
+#> [1] "rs2736100" "rs2853676"
 ```
 
 All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in\_gc).
@@ -204,7 +207,7 @@ Next we combine all the plots into a single report.
 ``` r
 Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
+combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 ```
 
 !["qc\_report.png"](/man/figures/README-qc_report.png)
@@ -215,28 +218,17 @@ In this example we use the package to check the allele frequency metadata from a
 
 ``` r
 library(CheckSumStats)
-EFO<-get_efo(trait="fasting glucose")
-EFO
-#> $efo_id
-#> [1] "EFO_0004468" "EFO_0004465"
-#> 
-#> $confidence
-#> [1] "confidence:GOOD"
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
-length(snplist)-2297 #Number of SNPs associated with fasting glucose in the GWAS catalog
-#> [1] 566
+utils::data("refdat_1000G_superpops")
+snplist<-unique(refdat_1000G_superpops$SNP)
 glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
-#> API: public: http://gwas-api.mrcieu.ac.uk/
-dim(glu)
-#> [1] 541  12
-Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p",efo_id=EFO$efo_id)
+Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
 
-<img src="man/figures/README-glucose1-1.png" width="100%" />
+!["example2.png"](/man/figures/README-example2.png)
 
-Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele is not always the effect allele.
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele.
 
 # <a id="example_3"></a> Example 3. Check the summary and meta data from a GWAS of arachidonic acid.
 

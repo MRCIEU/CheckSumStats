@@ -30,6 +30,7 @@ install.packages("devtools")
 devtools::install_github("MRCIEU/CheckSumStats")
 
 ```
+
 ## General overview 
 
 This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues: 
@@ -44,6 +45,7 @@ Our objective is to extract summary data for these three groups of SNPs from the
 2) confirm the identity of the effect allele column  
 3) identify possible errors in the reported effect sizes
 4) infer ancestry  
+
 
 # Example 1. Glioma GWAS
 
@@ -81,7 +83,7 @@ gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_s
 
 In the above example, we extracted the summary data for the SNPs of interest from a tab separated text file that was stored on our local machine. In practice the File object is just the file path to your GWAS results. Note that the extract_snps() function only works on MAC/unix machines.  Alternatively, you could use the read.table() function to load all the summary data into R and then extract the SNPs of interest. Another alternative is to source the summary data from online databases, such as the Open GWAS project (https://gwas.mrcieu.ac.uk/). For example, the equivalent scripts to extract summary data for thyroid cancer from Open GWAS are:
 
-```{r extract_snps2,eval = FALSE} 
+```{r extract_snps2,eval = TRUE} 
 EFO<-get_efo(trait="thyroid cancer")
 snplist<-make_snplist(efo_id = EFO$efo_id,trait="thyroid carcinoma")
 thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)  
@@ -151,7 +153,7 @@ The plot shows a strong positive correlation between the expected and reported e
 	
 Note that the predict_lnor_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have >100 SNPs. Below is how you could clump your results using the ieugwasr package. 
 
-```{r clump1,eval = FALSE,results='hide'}
+```{r clump1,eval = TRUE,results='hide'}
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 Dat<-Dat[Dat$rsid %in% Clump$rsid,]
 Pred<-predict_lnor_sh(dat=Dat)
@@ -197,10 +199,10 @@ Plot6
 
 Next we combine all the plots into a single report.
 
-```{r combine_plots1,eval = TRUE}
+```{r combine_plots1,eval = FALSE}
 Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
 Plot_list<-lapply(1:length(Plot_list2),FUN=function(x) eval(parse(text=Plot_list2[x])))
-combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
+combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 ```
 
 !["qc_report.png"](/man/figures/README-qc_report.png)
@@ -209,20 +211,19 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report.png")
 
 In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose.
 
-```{r glucose1, eval = TRUE}
+```{r glucose1, eval = FALSE}
 library(CheckSumStats)
-EFO<-get_efo(trait="fasting glucose")
-EFO
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
-length(snplist)-2297 #Number of SNPs associated with fasting glucose in the GWAS catalog
+utils::data("refdat_1000G_superpops")
+snplist<-unique(refdat_1000G_superpops$SNP)
 glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
-dim(glu)
-Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p",efo_id=EFO$efo_id)
+Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
 
-Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele is not always the effect allele. 
+!["example2.png"](/man/figures/README-example2.png)
+
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele. 
 
 #<a id="example_3"></a> Example 3. Check the summary and meta data from a GWAS of arachidonic acid.  
 
