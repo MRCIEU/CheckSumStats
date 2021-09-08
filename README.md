@@ -284,7 +284,7 @@ Plot3
 
 !["example3\_predplot1.png"](/man/figures/README-example3_predplot1.png)
 
-We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. Discrepancies between reported and expected effect sizes can also arise for other reasons: [Example 4](#bcc) and [Example 5](#crc)
+We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. The [basal cell carcinoma](#bcc) and [colorectal cancer](#crc) examples illustrate other reasons for discrepancies between reported and expected effect sizes.
 
 We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
 
@@ -361,7 +361,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 # Other examples
 
-## <a id="fasting_glucose></a>An allele frequency metadata error in a GWAS of fasting glucose.
+## <a id=fasting_glucose></a>An allele frequency metadata error in a GWAS of fasting glucose.
 
 In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose. In this example, minor allele frequency was incorrectly assumed to be the same as effect allele frequency.
 
