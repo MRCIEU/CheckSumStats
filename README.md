@@ -187,7 +187,7 @@ gc_list
 #> [11] "rs6089953" 
 ```
 
-All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in\_gc). See [Example 3](#example3_notingc) for an example where most of the test dataset top hits are not reported in the GWAS catalog.
+All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in\_gc). The [arachidonic acid example](#example3_notingc) illustrates a test dataset where most of the top hits are not reported in the GWAS catalog.
 
 ## 1.6 Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
 
@@ -377,7 +377,7 @@ Plot1
 
 !["example2.png"](/man/figures/README-example2.png)
 
-Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele.
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when the reported effect allele frequency corresponds to minor allele frequency and the minor allele is not always the effect allele.
 
 ## <a id="bcc"></a> Effect size scale issues in a genome-wide association study of basal cell carcinoma
 
@@ -407,7 +407,7 @@ The slope of the relationship between the expected and reported effect sizes is 
 ``` r
 dat2<-transform_betas(dat=dat2,effect="lnor",effect.se="lnor_se")
 Pred<-predict_lnor_sh(dat=dat2)
-lm(Pred$lnor_pred ~ Pred$lnor)
+lm(Pred$lnor_pred ~ Pred$lnor)$coefficients
 #> (Intercept)   Pred$lnor 
 #> 0.01590922  1.01429487 
 Plot4<-make_plot_pred_effect(dat=data.frame(Pred))
@@ -425,7 +425,7 @@ File<-system.file("extdata", "crc_test_dat.txt", package = "CheckSumStats")
 crc<-read.table(File,sep="\t",head=TRUE,stringsAsFactors=FALSE)
 dat<-format_data(dat=crc,outcome="Colorectal cancer",population="East Asian",ncase=23572,ncontrol=48700,study="ACCC",rsid="rsid",effect_allele="Allele1",other_allele="Allele2",lnor="Effect",lnor_se="StdErr",eaf="Freq1",p="P.value")
 Pred<-predict_lnor_sh(dat=dat)
-lm(Pred$lnor_pred ~ Pred$lnor)
+lm(Pred$lnor_pred ~ Pred$lnor)$coefficients
 #> (Intercept)   Pred$lnor 
 #> 0.002193062 0.231316576 
 ```
@@ -444,11 +444,11 @@ We can see that the number of studies contributing to each SNP analysis varies f
 
 ``` r
 Pos<-Pred$Nstudies>=14
-lm(Pred$lnor_pred[Pos] ~ Pred$lnor[Pos])
+lm(Pred$lnor_pred[Pos] ~ Pred$lnor[Pos])$coefficients
 #> (Intercept) Pred$lnor[Pos] 
 #> 6.634408e-05   8.379027e-01 
 Pos<-Pred$Nstudies<14
-lm(Pred$lnor_pred[Pos] ~ Pred$lnor[Pos])
+lm(Pred$lnor_pred[Pos] ~ Pred$lnor[Pos])$coefficients
 #> (Intercept) Pred$lnor[Pos] 
 #> 4.587284e-05   2.140147e-01 
 ```
