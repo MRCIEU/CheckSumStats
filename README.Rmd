@@ -47,11 +47,11 @@ Our objective is to extract summary data for these three groups of SNPs from the
 4) infer ancestry  
 
 
-# Example 1. Glioma GWAS
+# Example 1. Genome-wide association study of glioma 
 
 In this example we show how the package can be used to check the accuracy of  reported summary and metadata from a case-control genome-wide association study of glioma. In this particular example, the non-effect allele column was mis-labelled as the effect allele. 
 
-## Step 1. Extract and format the outcome summary data for glioma 
+##1.1 Extract and format the outcome summary data for glioma 
 
 The first step is to map the reported trait with the Experimental Factor Ontology (EFO). 
 
@@ -110,7 +110,7 @@ In this example, the glioma results file contained columns for the odds ratio an
 
 Now we are ready to perform some quality checks on the data.
 
-##<a id="step2"></a>Step 2. Check allele frequency metadata for the glioma GWAS
+##<a id="step2"></a>1.2 Check allele frequency metadata for the glioma GWAS
 
 Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the glioma dataset to the 1000 genomes super populations. The function harmonises the test and reference dataset to reflect the minor allele in the 1000 genomes superpopulations. Therefore, the presence of SNPs with allele frequency > 0.5 in the test dataset implies an allele frequency conflict. 
 
@@ -121,11 +121,11 @@ Plot1
 !["README-example1_mafplot.png"](/man/figures/README-example1_mafplot.png)
 
 
-Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" GWAS example ([Other examples](#fasting_glucose)) for another type of allele frequency metadata error. 
+Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" example ([Other examples](#fasting_glucose)) for another type of allele frequency metadata error. 
 
 Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European-ancestry 1000 genomes super population, which matches the reported ancestry for the test dataset. 
 
-## Step 3. Check the effect allele metadata
+##1.3 Check the effect allele metadata
 
 We next check that the reported effect allele metadata is correct, by comparing the reported effect alleles for glioma to the GWAS catalog.   
 
@@ -147,10 +147,10 @@ Plot3
 !["README-example1_gcplot2.png"](/man/figures/README-example1_gcplot2.png)
 
 
-We see an inverse correlation in reported effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plots. In the absence of effect allele metadata errors, and assuming the test dataset and GWAS catalog are matched on ancestry, the correlation in allele frequency should be positive. The reported effect allele frequency in the test dataset is opposite to that observed in the GWAS catalog - e.g. for the top left red data point the effect allele is the major allele (frequency close to 0.8) in the test dataset but is the minor allele (frequency of 0.2) in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if <0.4 or >0.6. This makes allowance for chance deviations in allele frequency around 0.5. When making comparisons with the GWAS catalog it's important to consider whether the datasets are matched on ancestry. This consideration does not, however, apply for comparisons with the customised 1000 genomes reference dataset (see [step 2](#step2) above).   
+We see an inverse correlation in reported effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plots. In the absence of effect allele metadata errors, and assuming the test dataset and GWAS catalog are matched on ancestry, the correlation in allele frequency should be positive. The reported effect allele frequency in the test dataset is opposite to that observed in the GWAS catalog - e.g. for the top left red data point the effect allele is the major allele (frequency close to 0.8) in the test dataset but is the minor allele (frequency of 0.2) in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if <0.4 or >0.6. This makes allowance for chance deviations in allele frequency around 0.5. When making comparisons with the GWAS catalog it's important to consider whether the datasets are matched on ancestry. This consideration does not, however, apply for comparisons with the customised 1000 genomes reference dataset (see [step 1.2](#step2) above).   
 
 
-## Step 4. Check for effect sizes errors in the glioma GWAS
+##1.4 Check for effect sizes errors in the glioma GWAS
 
 We next compare the expected and reported effect sizes. In this example we include two groups of SNPs: those associated with glioma in the GWAS catalog ("GWAS catalog associations") and those associated with glioma in the test dataset ("test GWAS top hits"). Typically these two sets of SNPs will strongly overlap but this is not necessarily always the case (and lack of overlap is itself a sign of potential problems). First, we make a list of SNPs corresponding to the GWAS catalog associations. Then we use the extract_snps() function to extract those SNPs from the test dataset. We also set the argument "get_sig_snps" to TRUE, which tells the function to additionally extract GWAS significant SNPs from the test dataset (default p value is 5e-8). Alternatively to the extract_snps() function, which does not work on Windows machines, you could use read.table() to read in your GWAS results file and then extract the two sets of SNPs. We then generate the expected effect sizes. Since the reported effect sizes correspond to log odds ratios, we use the predict_lnor_sh() function. This function was developed by [Sean Harrison](https://seanharrisonblog.com/2020/04/11/estimating-an-odds-ratio-from-a-gwas-only-reporting-the-p-value)
 
@@ -187,7 +187,7 @@ Plot5
 
 Overall the relative bias seems small and mostly varies from -10.9% to -13.8%, which seems reasonable. Given that genetic effect sizes tend to be small, a relative bias of 10% will be very small on an absolute scale (e.g. scaling an odds ratio of 1.10 up by 10% is 1.11). 
 
-## Step 5. Check that the top hits in the glioma test dataset are reported in the GWAS catalog
+##1.5 Check that the top hits in the glioma test dataset are reported in the GWAS catalog
 
 Next we check that the "top hits" for glioma in the test dataset are reported in the GWAS catalog. We define top hits as SNP-trait associations with P values < 5e-8, a conventional threshold for statistical significance in GWAS. First we extract the top hits, using the extract_sig_snps() function but, alternatively, you could use the read.table() function to read in your entire dataset and then extract the top hits. If the top hits are not reported in the GWAS catalog this could be a sign of false positives in the test dataset, which in turn could be a sign of technical problems (such as failure to exclude low quality variants), although there may be alternative explanations. In the example below, we search the GWAS catalog for all genetic associations for glioma that are within 50,000 base pairs of the top hits in the test dataset. 
 
@@ -209,7 +209,7 @@ gc_list
 All the top hits for glioma in the test dataset are either associated with glioma in the GWAS cataog or are in close physical proximity to a reported association for glioma (see $in_gc). See [Example 3](#example3_notingc ) for an example where most of the test dataset top hits are not reported in the GWAS catalog. 
 
 
-## Step 6. Check whether the reported P values correspond to the reported effect sizes in the glioma dataset  
+##1.6 Check whether the reported P values correspond to the reported effect sizes in the glioma dataset  
 
 Next we generate some ZZ plots, in order to flag SNPs with P values that don't coincide with their reported effect sizes. The zz_plot() function compares Zp scores (inferred from the reported P values) to Zb scores (inferred from the reported effect size and standard error). We see a very strong agreement between the Zb and Zp scores. 
 
@@ -221,7 +221,7 @@ Plot6
 !["example1_zzplot.png"](/man/figures/README-example1_zzplot.png)
 
 
-## Step 7. Combine all plots into a single report for the glioma GWAS
+##1.7 Combine all plots into a single report for the glioma GWAS
 
 Next we combine all the plots into a single report.
 
@@ -317,9 +317,8 @@ Plot4
 
 The SNPs with the most bias tend to have lower minor allele frequencies, perhaps reflecting problems with the post-GWAS cleaning of the results file. 
 
-##2.5. Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
+##<a id="example3_notingc"></a>2.5. Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
 
-#<a id="example3_notingc"></a> 
 ```{r arachidonic8, eval = FALSE}
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 gc_list
@@ -379,7 +378,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 #Other examples
 
-##<a id="fasting_glucose></a> An allele frequency metadata error in a GWAS of fasting glucose.  
+##<a id="fasting_glucose></a>An allele frequency metadata error in a GWAS of fasting glucose.  
 
 In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose. In this example, minor allele frequency was incorrectly assumed to be the same as effect allele frequency.  
 
@@ -433,7 +432,7 @@ Plot4
 !["example4_2.png"](/man/figures/README-example4_2.png)
 
 
-#<a id="crc"></a> Sample size errors in a genome-wide association study of colorectal cancer
+#<a id="crc"></a> Sample size issues in a genome-wide association study of colorectal cancer
 
 Discrepancies between expected and reported effect sizes can also arise from errors in reported allele frequency or SNP-level sample sizes. In the next example, we assess results from a GWAS meta-analysis of colorectal cancer, where the number of samples contributing to the analysis varied across SNPs. 
 
