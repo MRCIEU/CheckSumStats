@@ -212,7 +212,7 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 
 !["qc\_report.png"](/man/figures/README-qc_report.png)
 
-# <a id="example_2"></a> Example 2. Check the allele frequency meta data from a GWAS of fasting glucose.
+# <a id="example_2"></a> Example 2. Check the allele frequency metadata from a GWAS of fasting glucose.
 
 In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose.
 
@@ -226,7 +226,7 @@ Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat
 Plot1
 ```
 
-!["example2.png"](/man/figures/README-example2.png)
+!["example2.png"](/man/figures/README-glucose1-1.png)
 
 Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele.
 
@@ -307,7 +307,9 @@ Plot3
 
 <img src="man/figures/README-arachidonic6-1.png" width="100%" />
 
-We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
+We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. Discrepancies between the reported and predicted effect sizes can however arise for other reasons: [Example 4](#example_4) and [Example 5](#example_5)
+
+We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
 
 ``` r
 Plot4<-make_plot_pred_effect(dat=Dat,pred_beta = "beta_sd",pred_beta_se="se_sd",beta="beta",se="se",bias=TRUE)
@@ -380,6 +382,28 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 ```
 
 !["qc\_report.png"](/man/figures/README-qc_report2.png)
+
+# <a id="example_4"></a> Example 4. Genome-wide association study of basal cell carcinoma conducted in UK Biobank
+
+In this example we compare the reported and expected effect sizes from a genome-wide association study of basal cell carcinoma conducted in UK Biobank
+
+``` r
+library(CheckSumStats)
+EFO<-get_efo(trait="basal cell carcinoma")
+snplist<-make_snplist(efo_id = EFO$efo_id)
+bcc <- ieugwasr::associations(id="ukb-b-8837", variants=snplist,proxies=0)  
+dim(bcc)
+dat<-format_data(dat=bcc,outcome="Basal cell carcinoma",population="European",ncase=4290,ncontrol=458643,study="UKB",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",lnor_se="se",eaf="eaf",p="p",efo_id = EFO$efo_id)
+Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=dat$rsid, pval=dat$p, id=dat$id),pop="EUR")
+dat2<-dat[dat$rsid %in% Clump$rsid,]
+Pred<-predict_lnor_sh(dat=dat2)
+Plot4<-make_plot_pred_effect(dat=data.frame(Pred))
+Plot4
+```
+
+!["example4.png"](/man/figures/README-example4.png)
+
+# <a id="example_5"></a> Example 5. Genome-wide association study of colorectal cancer
 
 # Acknowledgements
 
