@@ -91,7 +91,7 @@ In this example, the glioma results file contained columns for the odds ratio an
 
 Now we are ready to perform some quality checks on the data.
 
-# <a id="step2"></a>\#\# Step 2. Check allele frequency metadata for the glioma GWAS
+## <a id="step2"></a>Step 2. Check allele frequency metadata for the glioma GWAS
 
 Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the glioma dataset to the 1000 genomes super populations. The function harmonises the test and reference dataset to reflect the minor allele in the 1000 genomes superpopulations. Therefore, the presence of SNPs with allele frequency \> 0.5 in the test dataset implies an allele frequency conflict.
 
@@ -102,7 +102,7 @@ Plot1
 
 !["README-example1\_mafplot.png"](/man/figures/README-example1_mafplot.png)
 
-Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" GWAS example ([Example 2](#example_2)) for another type of allele frequency metadata error.
+Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" GWAS example ([Other examples](#fasting_glucose)) for another type of allele frequency metadata error.
 
 Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European-ancestry 1000 genomes super population, which matches the reported ancestry for the test dataset.
 
@@ -146,7 +146,7 @@ Plot4
 
 !["README-example1\_predplot1.png"](/man/figures/README-example1_predplot1.png)
 
-The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what we'd expect to see in the absence of major analytical issues or errors in the summary data. Examples [3] (\#example\_3) [4] (\#example\_4) and [5] (\#example\_5) illustrate scenarios where reported and expected effect sizes differ quite substantially.
+The plot shows a strong positive correlation between the expected and reported effect sizes, an intercept close to zero and a slope that is close to 1. This is reasonably close to what we'd expect to see in the absence of major analytical issues or errors in the summary data. Genetic association results for [arachidonic acid](#ara), [basal cell carcinoma](#bcc) and [colorectal cancer](#crc) provide examples where reported and expected effect sizes differ quite substantially.
 
 Note that the predict\_lnor\_sh can be quite slow, so you may want to clump your results prior to using it, especially if you have \>100 SNPs. Below is how you would clump your results using the ieugwasr package.
 
@@ -200,7 +200,7 @@ Plot6
 
 !["example1\_zzplot.png"](/man/figures/README-example1_zzplot.png)
 
-## Step 6. Combine all plots into a single report for the glioma GWAS
+## Step 7. Combine all plots into a single report for the glioma GWAS
 
 Next we combine all the plots into a single report.
 
@@ -212,39 +212,11 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 
 !["qc\_report.png"](/man/figures/README-qc_report.png)
 
-# <a id="example_2"></a> Example 2. Check the allele frequency metadata from a GWAS of fasting glucose.
-
-In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose. In this example, minor allele frequency was incorrectly assumed to be the same as effect allele frequency.
-
-``` r
-library(CheckSumStats)
-EFO<-get_efo(trait="fasting glucose")
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
-glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
-Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
-Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
-Plot1
-```
-
-!["example2.png"](/man/figures/README-example2.png)
-
-Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele.
-
-Although effect allele frequency has been wrongly specified, the identify of the effect allele column appears correct:
-
-``` r
-Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id =EFO$efo_id,trait="Fasting glucose",beta="beta",se="se")
-```
-
-!["example2\_gcplot.png"](/man/figures/README-example2_gcplot.png)
-
-No effect size conflicts with the GWAS catalog are observed, indicating the absence of an effect allele metadata error. This illustates that effect allele and allele frequency metadata errors can occur independently.
-
-# <a id="example_3"></a> Example 3. Check the summary and metadata from a genome-wide association study of arachidonic acid.
+# <a id="ara"></a> Example 2. Check the summary and metadata from a genome-wide association study of arachidonic acid.
 
 In this example we use the package to check the summary and metadata from a genome-wide association study (GWAS) of arachidonic acid that has not gone through standad post-GWAS QC (e.g. with low quality or unreliable genetic variants excluded).
 
-## Step 1. Extract and format the summary data for arachidonic acid
+## 2.1. Extract and format the summary data for arachidonic acid
 
 ``` r
 library(CheckSumStats)
@@ -257,7 +229,7 @@ ara<-extract_snps(snplist=snplist,path_to_target_file=File)
 Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
 ```
 
-## Step 2 Check allele frequency metadata for arachidonic acid GWAS
+## 2.2 Check allele frequency metadata for arachidonic acid GWAS
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
@@ -268,7 +240,7 @@ Plot1
 
 For the vast majority of SNPs, allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported effect allele frequency column corresponds to the reported effect allele.
 
-## Step 3. Check effect allele metadata for arachidonic acid
+## 2.3. Check effect allele metadata for arachidonic acid
 
 ``` r
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset")
@@ -279,7 +251,7 @@ Plot2
 
 Most SNPs appear to have concordant effect sizes between the test dataset and the GWAS catalog. Although there are a few SNPs with effect sizes in opposite directions, the Z scores for these SNPs are small and therefore compatible with chance deviations. This suggests that the reported effect allele is correct.
 
-## Step 4. Check for errors in the reported effect sizes in the arachidonic acid GWAS
+## 2.4. Check for errors in the reported effect sizes in the arachidonic acid GWAS
 
 Next, we check the summary data for possible effect size errors. For this step, we extract summary data for "top hits" in the test dataset.
 
@@ -312,7 +284,7 @@ Plot3
 
 !["example3\_predplot1.png"](/man/figures/README-example3_predplot1.png)
 
-We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. Discrepancies between reported and expected effect sizes can also arise for other reasons: [Example 4](#example_4) and [Example 5](#example_5)
+We see a slope of 0.548 and non-linear correlation pattern, indicating that the SNPs have unusual effect sizes. This patterm of results is compatible with potential problems in the post-GWAS cleaning of the summary statistics. Discrepancies between reported and expected effect sizes can also arise for other reasons: [Example 4](#bcc) and [Example 5](#crc)
 
 We can also plot the relative bias - the relative deviation of the reported from the expected effect sizes.
 
@@ -323,7 +295,9 @@ Plot4
 
 !["example3\_predplot2.png"](/man/figures/README-example3_predplot2.png)
 
-The SNPs with the most bias tend to have lower minor allele frequencies, perhaps reflecting problems with the post-GWAS cleaning of the results file. Next, we check how many of the top hits for arachidonic acid in the test dataset are present in the GWAS catalog.
+The SNPs with the most bias tend to have lower minor allele frequencies, perhaps reflecting problems with the post-GWAS cleaning of the results file.
+
+## 2.5. Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
 
 # <a id="example3_notingc"></a>
 
@@ -362,7 +336,7 @@ Plot5
 
 92 of 95 top hits in the test dataset do not overlap with associations for arachidonic acid in the GWAS catalog. Taken together with the non-linear relationship between the expected and reported effect sizes, this suggests a large number of false positives, which may in turn reflect problems with the post-GWAS cleaning of the summary statistics. Correspondence with the data provider confirmed that the GWAS summary statistics had not gone through post GWAS filtering of low quality variants (e.g. exclusion of SNPs with low minor allele frequency or low imputation r2 scores). Once we obtained a cleaned dataset (with low quality SNPs excluded), the aforementioned discrepancies were resolved.
 
-## Step 5. Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
+## 2.6 Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
 
 Finally, we check whether the reported P values correspond to the reported effect sizes.
 
@@ -375,7 +349,7 @@ Plot6
 
 We see a very close concordance between the reported P-values and reported effect sizes.
 
-## Step 6. Combine all plots into a single report (arachidonic acid example)
+## 2.7 Combine all plots into a single report
 
 Let's combine all the key figures into a single report
 
@@ -387,7 +361,27 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 !["qc\_report.png"](/man/figures/README-qc_report2.png)
 
-# <a id="example_4"></a> Example 4. Genome-wide association study of basal cell carcinoma conducted in UK Biobank
+# Other examples
+
+## <a id="fasting_glucose></a> An allele frequency metadata error in a GWAS of fasting glucose.
+
+In this example we use the package to check the allele frequency metadata from a genome-wide association study of fasting glucose. In this example, minor allele frequency was incorrectly assumed to be the same as effect allele frequency.
+
+``` r
+library(CheckSumStats)
+EFO<-get_efo(trait="fasting glucose")
+snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
+glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
+Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
+Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
+Plot1
+```
+
+!["example2.png"](/man/figures/README-example2.png)
+
+Each red data point corresponds to an allele frequency conflict and is identified for approximately half of the SNPs. This pattern occurs when reported effect allele frequency corresponds to minor allele frequency and the minor allele has not been specifically modelled as the effect allele.
+
+## <a id="bcc"></a> Effect size scale issues in a genome-wide association study of basal cell carcinoma
 
 One of the limitations of using GWAS results from online platforms is that the scale of the effect sizes may not always be clear. This can hamper comparison of results from different studies. For example, for some studies conducted in large population biobanks, disease case-control status has been assessed using linear mixed models, when most previously conducted case-control GWAS have employed logistic regression models. One way to test that the effect sizes correspond to log odds ratios is to use the predict\_lnor\_sh function, which generates expected log odds ratios based on Z scores, allele frequency and sample size. These can then be compared to the reported effect sizes. Disagreements between the two could suggest differences in the underlying statistical models used to generate the results. In the next example, we compare the reported and expected effect sizes from a GWAS of basal cell carcinoma conducted in UK Biobank. The effect sizes were generated in a linear mixed model, with case-control status (controls coded 1 and cases coded 2) regressed on genotype.
 
@@ -424,7 +418,7 @@ Plot4
 
 !["example4\_2.png"](/man/figures/README-example4_2.png)
 
-# <a id="example_5"></a> Example 5. Genome-wide association study of colorectal cancer
+# <a id="crc"></a> Sample size errors in a genome-wide association study of colorectal cancer
 
 Discrepancies between expected and reported effect sizes can also arise from errors in reported allele frequency or SNP-level sample sizes. In the next example, we assess results from a GWAS meta-analysis of colorectal cancer, where the number of samples contributing to the analysis varied across SNPs.
 
