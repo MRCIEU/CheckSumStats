@@ -33,7 +33,7 @@ devtools::install_github("MRCIEU/CheckSumStats")
 
 ## General overview 
 
-This package exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues: 
+CheckSumStats exploits three groups of single nucleotide polymorphisms (SNPs) in order to identify potential errors or issues: 
 
 1) **a 1000 genomes reference set**. This is a set of 2297 SNPs that have the same minor allele across the 1000 genomes super populations and that have a minor allele frequency between 0.1 and 0.3; 
 2) **GWAS catalog associations**. These are SNPs that are associated with the trait of interest in the GWAS catalog; and 
