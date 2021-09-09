@@ -4,7 +4,7 @@
 
 <!-- badges: start -->
 <!-- badges: end -->
-CheckSumStats is an R package for checking meta and summary data from genetic association studies. For example, the package can be used to check that the reported effect allele and effect allele frequency columns are correct. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
+CheckSumStats provides tools for the identification of errors and analytical issues in the results and metadata of genome-wide association studies. The package was developed for the Fatty Acids in Cancer Mendelian Randomization Collaboration (FAMRC). See our pre-print describing application of the package here: [Design and quality control of large-scale two-sample Mendelian randomisation studies](https://www.medrxiv.org/content/10.1101/2021.07.30.21260578v1)
 
 ## Installation
 
