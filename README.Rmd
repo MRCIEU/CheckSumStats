@@ -178,7 +178,7 @@ Plot4<-make_plot_pred_effect(dat=Pred)
 
 We can also plot the relative bias, i.e. the percentage deviation of the expected from the reported effect size. 
 
-```{r make_plot_predlnor3,eval = FALSE}
+```{r make_plot_predlnor3, eval = FALSE}
 Plot5<-make_plot_pred_effect(dat=Pred,bias=TRUE)
 Plot5
 ```
