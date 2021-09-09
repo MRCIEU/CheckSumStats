@@ -240,7 +240,7 @@ Plot1
 
 For the vast majority of SNPs, allele frequencies are compatible between the test dataset and 1000 genomes superpopulations. This indicates that the reported effect allele frequency column corresponds to the reported effect allele.
 
-## 2.3. Check effect allele metadata for arachidonic acid
+## 2.3 Check effect allele metadata for arachidonic acid
 
 ``` r
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset")
@@ -251,7 +251,7 @@ Plot2
 
 Most SNPs appear to have concordant effect sizes between the test dataset and the GWAS catalog. Although there are a few SNPs with effect sizes in opposite directions, the Z scores for these SNPs are small and therefore compatible with chance deviations. This suggests that the reported effect allele is correct.
 
-## 2.4. Check for errors in the reported effect sizes in the arachidonic acid GWAS
+## 2.4 Check for errors in the reported effect sizes in the arachidonic acid GWAS
 
 Next, we check the summary data for possible effect size errors. For this step, we extract summary data for "top hits" in the test dataset.
 
