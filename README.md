@@ -483,5 +483,4 @@ CheckSumStats greatfully acknowledges the following packages:
 
 CheckSumStats greatfully acknowledges use of the following resources:
 
-    [ZOOMA](https://www.ebi.ac.uk/spot/zooma/)
-    [NHGRI-EBI GWAS catalog](https://www.ebi.ac.uk/gwas/)
+[ZOOMA](https://www.ebi.ac.uk/spot/zooma/) [NHGRI-EBI GWAS catalog](https://www.ebi.ac.uk/gwas/)
