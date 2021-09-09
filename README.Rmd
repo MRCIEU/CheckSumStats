@@ -121,7 +121,7 @@ Plot1
 !["README-example1_mafplot.png"](/man/figures/README-example1_mafplot.png)
 
 
-Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" example ([Other examples](#fasting_glucose)) for another type of allele frequency metadata error. 
+Data points with a red colour are SNPs with allele frequency conflicts. Allele frequencies in the glioma dataset are all greater than 0.5, indicating that the reported effect allele frequency column actually corresponds to the non-effect allele. See the "fasting glucose" example ([Other examples](#fasting_glucose)) for another allele frequency metadata error, where reported effect allele frequency corresponds to a mixture of effect and non-effect alleles. 
 
 Notice also how conflicts are flagged across all SNPs across all superpopulations. This illustrates that allele frequency metadata errors can be identified without matching of test and reference datasets on ancestry. Notice also how the comparison provides information on the ancestral background of the test dataset: the test dataset is strongly correlated with the European-ancestry 1000 genomes super population, which matches the reported ancestry for the test dataset. 
 
