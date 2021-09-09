@@ -108,7 +108,7 @@ Notice also how conflicts are flagged across all SNPs across all superpopulation
 
 ## 1.3 Check the effect allele metadata
 
-We next check that the reported effect allele metadata is correct, by comparing the reported effect alleles for glioma to the GWAS catalog.
+We next check that the reported effect allele metadata is correct, by comparing the reported effect alleles for glioma to the GWAS catalog. We do this using the make\_plot\_gwas\_catalog() function. A dataframe of results, including the comparisons to the GWAS catalog, can also be obtained using the compare\_effect\_to\_gwascatalog function().
 
 ``` r
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id =EFO$efo_id,trait="glioma")
