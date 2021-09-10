@@ -24,13 +24,14 @@
 #' @param Title_size size of plot title
 #' @param Title plot title
 #' @param Ylab Y label 
-#' @param Xlab X label 
-#' @param cowplot_title title of overall plot 
+#' @param Xlab X label
+#' @param cowplot_title title of overall plot
+#' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=8,Title_size=10,Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Comparison of allele frequency between test dataset & 1000 genomes project"){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=8,Title_size=10,Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes",return_dat=FALSE){	
 
 	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
 
@@ -80,9 +81,9 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m1<-dat.m[Pos1,]
 	dat.m2<-dat.m[Pos2,]
 	
-	# dat.m1[,c("Effect.Allele","Other.Allele","minor_allele2","major_allele2")]
+	
 	Pos<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
-	# dat.m1[Pos,c("Effect.Allele","Other.Allele","minor_allele2","major_allele2")]
+	
 	dat.m1[,eaf][Pos]<-1-dat.m1[,eaf][Pos]
 	EA<-dat.m1[,target_dat_effect_allele][Pos]
 	OA<-dat.m1[,target_dat_other_allele][Pos]
@@ -91,14 +92,8 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	Pos1<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
 	if(sum(Pos1) > 0 ) stop("there are still mismatched alleles after flipping the strands")
 
-	dat.m<-rbind(dat.m1,dat.m2)
+	dat.m<-rbind(dat.m1,dat.m2)	
 	
-	# dat.m[,c("SNP",eaf,"maf_ref",target_dat_effect_allele,"minor_allele","minor_allele2")]
-
-	# dat.m[,c("Effect.Allele","Other.Allele","minor_allele","major_allele","eaf","maf")]
-
-# Pos<-which(dat.m1$Effect.Allele  != dat.m1$minor_allele2 &  dat.m1$Effect.Allele  != dat.m1$minor_allele)
-# dat.m1[Pos,c("Effect.Allele","Other.Allele","minor_allele","minor_allele2")]
 	dat.m$alleles<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])
 	dat.m$alleles2<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])
 	
@@ -123,10 +118,10 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	Plot_list<-NULL
 	dat.m.test<-dat.m.test[order(dat.m.test$ref_dat_population),]
 	Pops<-unique(dat.m.test$ref_dat_population)
-	
-	# if(length(Pops)>1){
-	# 	Ylab<-""
-	# }
+	dat.m.test$conflict<-FALSE
+	dat.m.test$conflict[dat.m.test$eaf>0.5]<-TRUE
+	if(return_dat) return(dat.m.test)
+
 	for(i in 1:length(Pops))
 	{
 		# print(pop)
@@ -277,3 +272,41 @@ make_cow_plot<-function(Plot_list=NULL,Title="",Xlab="",Ylab="",out_file=NULL,re
 	}
 
 }
+
+
+#' Infer ancestry
+#'
+#' Infer possible ancestry through comparison of allele frequency amongst test dataset and 1000 genomes super populations. Returns list of Pearson correlation coefficients.  
+#'
+#' @param target_dat  the outcome dataset of interest. Data frame. 
+#'
+#' @return list
+#' @export
+infer_ancestry<-function(target_dat=NULL){
+	anc_dat<-make_plot_maf(target_dat=target_dat,return_dat=TRUE)	
+	anc_dat[,c("maf_ref","eaf","ref_dat_population")]
+	pops<-unique(anc_dat$ref_dat_population)
+	cor_results<-lapply(pops,FUN=function(x) 
+		stats::cor(anc_dat$maf_ref[anc_dat$ref_dat_population==pops[pops==x]],anc_dat$eaf[anc_dat$ref_dat_population==pops[pops==x]],method = "pearson"))
+	names(cor_results)<-c(pops)
+	return(cor_results)
+}
+
+#' Flag allele frequency conflicts 
+#'
+#' Flag allele frequency conflicts through comparison of reported allele frequency to minor allele frequency in the 1000 genomes super populations.   
+#'
+#' @param target_dat  the outcome dataset of interest. Data frame. 
+#'
+#' @return list
+#' @export
+flag_af_conflicts<-function(target_dat=NULL){
+	afc_dat<-make_plot_maf(target_dat=target_dat,return_dat=TRUE)			
+	afc_dat<-afc_dat[which(!is.na(afc_dat$conflict)),]
+	n_af_conflict<-length(which(afc_dat$conflict[afc_dat$ref_dat_population=="ALL"]))
+	total<-length(unique(afc_dat$SNP))
+	prop_conflicts<-round(length(which(afc_dat$conflict))/nrow(afc_dat),3)
+	return(list("number_of_conflicts"=n_af_conflict,"proportion_conflicts"=prop_conflicts,"number_of_snps"=total))
+}
+
+

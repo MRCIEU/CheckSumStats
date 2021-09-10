@@ -19,11 +19,12 @@
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
+#' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se",distance_threshold=25000){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se",distance_threshold=25000,return_dat=TRUE){
 
 	
 	Dat.m<-compare_effect_to_gwascatalog(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold)
@@ -66,6 +67,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Title="Comparison of EAF between test dataset and GWAS catalog"
 	}
 
+	if(return_dat) return(Dat.m)
 	
 	labels_colour[labels_colour == "red"]<-"high"
 	if(force_all_trait_study_hits & any(Dat.m$z.x ==0)) 
@@ -503,5 +505,45 @@ get_positions_biomart<-function(gwas_hits=NULL){
 	# ensembl$bp_minus<-ensembl$chrom_start - bp_down
 	# ensembl$bp_plus<-ensembl$chrom_start + bp_up
 	return(ensembl)
+}
+
+#' Flag conflicts with the GWAS catalog
+#'
+#' Flag conflicts with the GWAS catalog through comparison of reported effect alleles and reported effect allele frequency.  
+#'
+#' @param dat the test dataset of interest
+#' @param beta name of the column containing the SNP effect size
+#' @param se name of the column containing the standard error for the SNP effect size. 
+#' @param trait the trait of interest
+#' @param efo_id ID for trait of interest in the experimental factor ontology 
+#' @param efo trait of interest in the experimental factor ontology
+#' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian") 
+#' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
+#'
+#' @return list
+#' @export
+flag_gc_conflicts<-function(dat=NULL,beta="lnor",se="lnor_se",efo=NULL,trait=NULL,efo_id=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE){
+	
+	gc_dat<-compare_effect_to_gwascatalog(dat=dat,efo=efo,trait=trait,efo_id=efo_id,beta=beta,se=se,gwas_catalog_ancestral_group=gwas_catalog_ancestral_group,exclude_palindromic_snps=exclude_palindromic_snps)
+
+	effect_size_conflict<-gc_dat$Z_scores
+	gc_conflicts<-c("high conflict","moderate conflict","no conflict")
+	es_conflicts_list<-lapply(1:length(gc_conflicts),FUN=function(x)
+		length(effect_size_conflict[which(effect_size_conflict==gc_conflicts[x])]))
+	total<-length(which(!is.na(gc_dat$Z_scores)))
+	es_conflicts_list<-c(es_conflicts_list,total)
+	names(es_conflicts_list)<-c(gc_conflicts,"n_snps")
+
+	eaf_conflicts<-gc_dat$EAF
+	eaf_conflicts_list<-lapply(1:length(gc_conflicts),FUN=function(x)
+		length(eaf_conflicts[which(eaf_conflicts==gc_conflicts[x])]))
+	total<-length(which(!is.na(gc_dat$EAF)))
+	eaf_conflicts_list<-c(eaf_conflicts_list,total)
+	names(eaf_conflicts_list)<-c(gc_conflicts,"n_snps")	
+
+	# gc_ancestries<-paste(unique(gc_dat$ancestral_group),collapse="; ")	
+
+	all_conflicts_list<-list("effect_size_conflicts"=es_conflicts_list,"eaf_conflicts"=eaf_conflicts_list)
+	return(all_conflicts_list)
 }
 

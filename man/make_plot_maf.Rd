@@ -27,8 +27,8 @@ make_plot_maf(
   Title = "Comparison of allele frequency between test dataset & reference study",
   Ylab = "Allele frequency in test dataset",
   Xlab = "MAF in reference study",
- 
-    cowplot_title = "Comparison of allele frequency between test dataset & 1000 genomes project"
+  cowplot_title = "Allele frequency in test dataset vs 1000 genomes",
+  return_dat = FALSE
 )
 }
 \arguments{
@@ -78,6 +78,8 @@ Only necessary if ref_dat is specified}
 \item{Xlab}{X label}
 
 \item{cowplot_title}{title of overall plot}
+
+\item{return_dat}{if TRUE, the dataset used to generate the plot is returned to the user and no plot is made.}
 }
 \value{
 plot
