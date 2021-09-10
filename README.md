@@ -56,7 +56,7 @@ mis-labelled as the effect allele.
 
 ## 1.1 Extract and format the summary data for glioma
 
-The first step is to map the reported trait with the Experimental Factor
+The first step is to map the reported trait to the Experimental Factor
 Ontology (EFO), using the get\_efo function. The function identifies
 EFOs using the [ZOOMA REST API](https://www.ebi.ac.uk/spot/zooma/).
 
@@ -161,19 +161,19 @@ Plot1
 Data points with a red colour are SNPs with allele frequency conflicts.
 Allele frequencies in the glioma dataset are all greater than 0.5,
 indicating that the reported effect allele frequency column actually
-corresponds to the non-effect allele. See the “fasting glucose” GWAS
+corresponds to the non-effect allele. Notice how conflicts are flagged
+across all SNPs across all superpopulations. This illustrates that
+allele frequency metadata errors can be identified without matching of
+test and reference datasets on ancestry. See the “fasting glucose” GWAS
 ([Other examples](#fasting_glucose)) for an example where the reported
 effect allele frequency corresponds to a mixture of effect and
 non-effect alleles.
 
-Notice also how conflicts are flagged across all SNPs across all
-superpopulations. This illustrates that allele frequency metadata errors
-can be identified without matching of test and reference datasets on
-ancestry. Notice also how the comparison provides information on the
-ancestral background of the test dataset: the test dataset is strongly
-correlated with the European-ancestry 1000 genomes super population,
-which matches the reported ancestry for the test dataset. We can also do
-a more formal assessment using the infer\_ancestry function:
+Notice also how the comparison provides information on the ancestral
+background of the test dataset: the test dataset is strongly correlated
+with the European-ancestry 1000 genomes super population, which matches
+the reported ancestry for the test dataset. We can also do a more formal
+assessment using the infer\_ancestry function:
 
 ``` r
 infer_ancestry(target_dat=Dat) 
@@ -197,13 +197,13 @@ infer_ancestry(target_dat=Dat)
 ```
 
 The strongest correlation is observed with the European ancestry 1000
-genomes super population (r=0.89). This confirms the reported ancestry
+genomes super population (r=-0.89). This confirms the reported ancestry
 of the test dataset. Note that this function assumes that reported
 effect allele frequency corresponds to either the effect allele (returns
 positive correlation coefficient) or non-effect allele (returns a
 negative correlation coefficient). In the presence of some types of
-metadata errors, the function will not provide sensible results,
-e.g. see [fasting glucose example](#fasting_glucose).
+metadata errors, the function will not return sensible results, e.g. see
+[fasting glucose example](#fasting_glucose).
 
 We can also ask the function to return the dataset used to generate the
 previous plot, by setting the return\_dat argument to TRUE.
@@ -229,7 +229,7 @@ flag_af_conflicts(target_dat=Dat)
 # [1] 88
 ```
 
-The flag\_af\_conflicts function returns the proportion of SNPs with an
+The flag\_af\_conflicts function returns the number of SNPs with an
 allele frequency conflict and also the number of SNPs used for the
 comparison with the 1000 genomes super populations. In this example, all
 SNPs are flagged with a conflict, indicating that reported effect allele
@@ -269,10 +269,10 @@ conflicts are flagged across the vast majority of a reasonably large
 number of SNPs. In addition, most of the associations being compared
 have been generated in samples of European ancestry. We can therefore
 interpret this plot as providing very strong evidence for an effect
-allele metadata error. This is consistent with the effect allele
-frequency conflicts flagged in the previous plot. The reason for these
-conflicts is that the non-effect allele column was mis-labelled as the
-effect allele.
+allele metadata error. This is consistent with the allele frequency
+conflicts flagged in the previous plot. The reason for these conflicts
+is that the non-effect allele column was mis-labelled as the effect
+allele.
 
 We can also return the dataset used to generate the above plot by
 setting the return\_dat argument to
@@ -282,9 +282,9 @@ TRUE.
 plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
 ```
 
-We could also make a plot comparing effect allele frequency between the
-test dataset and the GWAS catalog, which we show in the next
-example.
+We can also make a plot comparing effect allele frequency between the
+test dataset and the GWAS
+catalog:
 
 ``` r
 Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo_id =EFO$efo_id,trait=unique(Dat$outcome))
@@ -293,18 +293,15 @@ Plot3
 
 ![“README-example1\_gcplot2.png”](/man/figures/README-example1_gcplot2.png)
 
-We see an inverse correlation in reported effect allele frequency (EAF)
-between the test dataset and the GWAS catalog in European ancestry
-studies, which confirms the metadata error identified in the previous
-plots. In the absence of effect allele metadata errors, and assuming the
-test dataset and GWAS catalog are matched on ancestry, the correlation
-in allele frequency should be positive. The reported effect allele
-frequency in the test dataset is opposite to that observed in the GWAS
-catalog - e.g. for the top left red data point the effect allele is the
-major allele (frequency close to 0.8) in the test dataset but is the
-minor allele (frequency of 0.2) in the GWAS catalog. We call these
-discrepancies EAF conflicts. EAF conflicts are labelled as moderate if
-EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6.
+We see an inverse correlation in effect allele frequency (EAF) between
+the test dataset and the GWAS catalog in European ancestry studies,
+which confirms the metadata error identified in the previous plots (in
+the absence of metadata errors the correlation should be positive).
+Effect allele frequency in the test dataset is opposite to that observed
+in the GWAS catalog - e.g. effect alleles with frequencies \>0.5 in the
+test dataset have frequencies \<0.5 in the GWAS catalog. We flag these
+discrepancies as EAF conflicts. EAF conflicts are labelled as moderate
+if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6.
 This makes allowance for chance deviations in allele frequency around
 0.5. When making comparisons with the GWAS catalog it’s important to
 consider whether the datasets are matched on ancestry. This
@@ -312,11 +309,11 @@ consideration does not, however, apply for comparisons with the
 customised 1000 genomes reference dataset (see [step 1.2](#step2)
 above).
 
-Alternatively to the make\_plot\_gwas\_catalog function, we can identify
-conflicts with the GWAS catalog using flag\_gc\_conflicts(). This can be
-used to programmatically identify effect size and EAF conflicts, which
-may be particularly useful when assessing large numbers of datasets and
-when one doesn’t wish to generate lots of plots for manual
+Alternatively, we can identify conflicts with the GWAS catalog using
+flag\_gc\_conflicts(). This can be used to programmatically identify
+effect size and EAF conflicts, which may be particularly useful when
+assessing large numbers of datasets and when one doesn’t want to
+generate lots of plots for manual
 inspection.
 
 ``` r
@@ -368,7 +365,7 @@ we use the extract\_snps() function to extract those SNPs from the test
 dataset. We also set the argument “get\_sig\_snps” to TRUE, which tells
 the function to additionally extract GWAS significant SNPs from the test
 dataset (default p value is 5e-8). Alternatively to the extract\_snps()
-function, which does not work on Windows machines, you could use
+function, which does not work on Windows machines, you can use
 read.table() to read in your GWAS results file and then extract the two
 sets of SNPs. We then generate the expected effect sizes. Since the
 reported effect sizes correspond to log odds ratios, we use the
@@ -432,14 +429,19 @@ associations with P values \< 5e-8, a conventional threshold for
 statistical significance in GWAS. First we extract the top hits, using
 the extract\_sig\_snps() function but, alternatively, you could use the
 read.table() function to read in your entire dataset and then extract
-the top hits. If the top hits are not reported in the GWAS catalog this
-could be a sign of false positives in the test dataset, which in turn
-could be a sign of technical problems (such as failure to exclude low
-quality variants), although there may be alternative explanations. In
-the example below, we search the GWAS catalog for all genetic
+the top hits. We then search the GWAS catalog for all genetic
 associations for glioma that are within 50,000 base pairs of the top
-hits in the test
-dataset.
+hits in the test dataset.
+
+A lack of overlap with the GWAS catalog could be a sign of false
+positives in the test dataset, which in turn could be a sign of
+analytical issues (such as failure to exclude low quality variants).
+Alternatively, lack of overlap may reflect an insufficiently stringent
+“GWAS significance threshold” to define top hits in the test dataset,
+or may a reflect a test dataset that is unpublished and has much greater
+power than any previously published study. The function is also
+sensitive to the distance\_threshold used to define overlap amongst top
+hits.
 
 ``` r
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
@@ -458,7 +460,8 @@ gc_list
 
 All the top hits for glioma in the test dataset are either associated
 with glioma in the GWAS cataog or are in close physical proximity to a
-reported association for glioma (see $in\_gc). The [arachidonic acid
+reported association for glioma (see $in\_gc), indicating the absence of
+major analytical issues. The [arachidonic acid
 example](#example3_notingc) illustrates a test dataset where most of the
 top hits are not reported in the GWAS
 catalog.
@@ -490,12 +493,12 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 
 ![“qc\_report.png”](/man/figures/README-qc_report.png)
 
-# <a id="ara"></a>Example 2. Check the summary and metadata from a genome-wide association study of arachidonic acid.
+# <a id="ara"></a>Example 2. Check the results and metadata from a genome-wide association study of arachidonic acid.
 
 In this example we use the package to check the results and metadata
 from a genome-wide association study (GWAS) of arachidonic acid that has
-not gone through standad post-GWAS QC (e.g. with low quality or
-unreliable genetic variants excluded).
+not gone through standad post-GWAS quality control (e.g. with low
+quality or unreliable genetic variants excluded).
 
 ## 2.1. Extract and format the summary data for arachidonic acid
 
@@ -580,8 +583,8 @@ Plot3
 ![“example3\_predplot1.png”](/man/figures/README-example3_predplot1.png)
 
 We see a slope of 0.548 and non-linear correlation pattern, indicating
-that the SNPs have unusual effect sizes and indicating the presence of
-summary data errors or major analytical issues.
+that the SNPs have unusual effect sizes and the presence of summary data
+errors or major analytical issues.
 
 We can also plot the relative bias - the relative deviation of the
 reported from the expected effect
@@ -673,8 +676,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 ![“qc\_report.png”](/man/figures/README-qc_report2.png)
 
-\#Other
-examples
+# Other examples
 
 ## <a id=fasting_glucose></a> An allele frequency metadata error in a genome-wide association study of fasting glucose
 
@@ -699,10 +701,11 @@ Each red data point corresponds to an allele frequency conflict and is
 identified for a substantial proportion of SNPs. This pattern occurs
 when minor allele frequency in the test dataset is interpreted as effect
 allele frequency but the effect allele is not always the minor allele.
+In other words, the reported effect allele frequency corresponds to a
+mixture of effect and non-effect alleles.
 
-Comparison to the GWAS catalog confirms the error in reported effect
-allele
-frequency:
+Comparison to the GWAS catalog confirms the
+error:
 
 ``` r
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),beta="beta",se="se",plot_type = "plot_eaf")
@@ -711,16 +714,13 @@ Plot2
 
 ![“example2\_gcplot2.png”](/man/figures/README-example2_gcplot2.png)
 
-The observed “X” shaped correlation is due to the minor allele frequency
-column in the test dataset being mis-interpreted as effect allele
-frequency. The correlation pattern is distinct to the previous plot
-because allele frequency has been harmonised to reflect effect allele
-frequency in the GWAS catalog, whereas for comparisons to the 1000
-genomes super populations allele frequency is harmonised to reflect the
-1000 genomes minor allele.
+The observed “X” shaped correlation pattern is due to the aforementioned
+metadata error. The pattern is distinct to the previous plot because
+allele frequency reflects effect allele frequency in the GWAS catalog,
+whereas in the previous plot it reflected the 1000 genomes minor allele.
 
-Note that the infer\_ancestry function does provide sensible results in
-the presence of this type of metadata error.
+Note that the infer\_ancestry function does not provide sensible results
+in the presence of this type of metadata error:
 
 ``` r
 infer_ancestry(target_dat=Dat) 
@@ -745,9 +745,8 @@ infer_ancestry(target_dat=Dat)
 
 Although we know the test dataset was generated in a European ancestry
 population, the correlation with the European ancestry 1000 genomes
-super population is only 0.058. This however reflects the aforementioned
-allele frequency metadata error and the fact that effect allele
-frequency is actually a mixture of the effect and non-effect
+super population is only 0.058. This is because reported effect allele
+frequency actually refers to a mixture of effect and non-effect
 alleles.
 
 ## <a id="bcc"></a> Effect size scale issues in a genome-wide association study of basal cell carcinoma
@@ -789,12 +788,12 @@ Plot4
 ![“example4\_1.png”](/man/figures/README-example4_1.png)
 
 The slope of the relationship between the expected and reported effect
-sizes is 110, when we expect it to be 1. This discrepancy arises because
-the reported effect sizes correspond to absolute changes in risk,
-whereas the expected effect sizes correspond to log odds ratios. To
-transform the reported effect sizes to log odds ratios, we can use the
-transform\_betas function. After applying this transformation, we see
-that the regression slope is very close to 1.
+sizes is 110, when we expect it to be 1. This discrepancy has arisen
+because the reported effect sizes correspond to absolute changes in
+risk, whereas the expected effect sizes correspond to log odds ratios.
+To transform the reported effect sizes to log odds ratios, we can use
+the transform\_betas function. After applying this transformation, we
+see that the regression slope is very close to 1.
 
 ``` r
 dat2<-transform_betas(dat=dat2,effect="lnor",effect.se="lnor_se")
