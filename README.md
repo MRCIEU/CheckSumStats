@@ -54,7 +54,7 @@ and metadata from a case-control genome-wide association study of
 glioma. In this particular example, the non-effect allele column was
 mis-labelled as the effect allele.
 
-\#\#1.1 Extract and format the summary data for glioma
+## 1.1 Extract and format the summary data for glioma
 
 The first step is to map the reported trait with the Experimental Factor
 Ontology (EFO), using the get\_efo function. The function identifies
@@ -139,7 +139,7 @@ formats. See ?format\_data() for more info.
 
 Now we are ready to perform some checks on the data.
 
-\#\#<a id="step2"></a>1.2 Check allele frequency metadata in the glioma
+\#\#<a id="step2"></a> 1.2 Check allele frequency metadata in the glioma
 GWAS
 
 Next we create some plots to visualise potential problems with the
@@ -219,6 +219,14 @@ one doesn’t wish to generate lots of plots for manual inspection.
 
 ``` r
 flag_af_conflicts(target_dat=Dat)
+# $number_of_conflicts
+# [1] 88
+
+# $proportion_conflicts
+# [1] 1
+
+# $number_of_snps
+# [1] 88
 ```
 
 The flag\_af\_conflicts function returns the proportion of SNPs with an
@@ -227,7 +235,7 @@ comparison with the 1000 genomes super populations. In this example, all
 SNPs are flagged with a conflict, indicating that reported effect allele
 frequency reflects the non-effect allele.
 
-\#\#1.3 Check the effect allele metadata
+## 1.3 Check the effect allele metadata
 
 We next check that the reported effect allele metadata is correct, by
 comparing the reported effect alleles for glioma to the GWAS catalog. We
@@ -312,9 +320,32 @@ when one doesn’t wish to generate lots of plots for manual
 inspection.
 
 ``` r
-    gc_conflicts<-flag_gc_conflicts(dat=Dat,efo_id =EFO$efo_id,trait=unique(Dat$outcome),gwas_catalog_ancestral_group="European")
-    gc_conflicts$effect_size_conflicts
-    gc_conflicts$eaf_conflicts
+gc_conflicts<-flag_gc_conflicts(dat=Dat,efo_id =EFO$efo_id,trait=unique(Dat$outcome),gwas_catalog_ancestral_group="European")
+gc_conflicts$effect_size_conflicts
+# $`high conflict`
+# [1] 19
+
+# $`moderate conflict`
+# [1] 21
+
+# $`no conflict`
+# [1] 2
+
+# $n_snps
+# [1] 42
+
+gc_conflicts$eaf_conflicts
+# $`high conflict`
+# [1] 12
+
+# $`moderate conflict`
+# [1] 4
+
+# $`no conflict`
+# [1] 0
+
+# $n_snps
+# [1] 16
 ```
 
 Moderate or high effect size conflicts are identified for 40 out of 42
@@ -323,7 +354,7 @@ of 16 SNPs (the number of SNPs differ because effect allele frequency
 was missing for 26 SNPs). This strongly indicates that the reported
 effect allele is actually the non-effect allele.
 
-\#\#1.4 Check for errors or analytical issues in the summary data
+## 1.4 Check for errors or analytical issues in the summary data
 
 To identify potential errors or analytical issues in the summary data,
 we next compare the expected and reported effect sizes. In this example
@@ -390,10 +421,10 @@ Plot5
 Overall the relative bias seems small and mostly varies from -10.9% to
 -13.8%, which seems reasonable. Given that genetic effect sizes tend to
 be small, a relative bias of 10% will be very small on an absolute scale
-(e.g. scaling an odds ratio of 1.10 up by 10% is 1.11).
+(e.g. scaling an odds ratio of 1.10 up by 10% is
+1.11).
 
-\#\#1.5 Check that the top hits in the glioma test dataset are reported
-in the GWAS catalog
+## 1.5 Check that the top hits in the glioma test dataset are reported in the GWAS catalog
 
 Next we check that the “top hits” for glioma in the test dataset are
 reported in the GWAS catalog. We define top hits as SNP-trait
@@ -429,10 +460,10 @@ All the top hits for glioma in the test dataset are either associated
 with glioma in the GWAS cataog or are in close physical proximity to a
 reported association for glioma (see $in\_gc). The [arachidonic acid
 example](#example3_notingc) illustrates a test dataset where most of the
-top hits are not reported in the GWAS catalog.
+top hits are not reported in the GWAS
+catalog.
 
-\#\#1.6 Check whether the reported P values correspond to the reported
-effect sizes in the glioma dataset
+## 1.6 Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
 
 Next we generate some ZZ plots, in order to flag SNPs with P values that
 don’t coincide with their reported effect sizes. The zz\_plot() function
@@ -447,7 +478,7 @@ Plot6
 
 ![“example1\_zzplot.png”](/man/figures/README-example1_zzplot.png)
 
-\#\#1.7 Combine all plots into a single report for the glioma GWAS
+## 1.7 Combine all plots into a single report for the glioma GWAS
 
 Next we combine all the plots into a single report.
 
@@ -467,7 +498,7 @@ from a genome-wide association study (GWAS) of arachidonic acid that has
 not gone through standad post-GWAS QC (e.g. with low quality or
 unreliable genetic variants excluded).
 
-\#\#2.1. Extract and format the summary data for arachidonic acid
+## 2.1. Extract and format the summary data for arachidonic acid
 
 ``` r
 library(CheckSumStats)
@@ -480,8 +511,7 @@ ara<-extract_snps(snplist=snplist,path_to_target_file=File)
 Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
 ```
 
-\#\#2.2 Check allele frequency metadata for arachidonic acid
-GWAS
+## 2.2 Check allele frequency metadata for arachidonic acid GWAS
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
@@ -493,10 +523,10 @@ Plot1
 For the vast majority of SNPs, allele frequencies are compatible between
 the test dataset and 1000 genomes superpopulations. This indicates that
 the reported effect allele frequency column corresponds to the reported
-effect allele.
+effect
+allele.
 
-\#\#2.3 Check effect allele metadata for arachidonic
-acid
+## 2.3 Check effect allele metadata for arachidonic acid
 
 ``` r
 Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset")
@@ -511,7 +541,7 @@ sizes in opposite directions, the Z scores for these SNPs are small and
 therefore compatible with chance deviations. This suggests that the
 reported effect allele column is correct.
 
-\#\#2.4 Check for errors or analytical issues in the summary data
+## 2.4 Check for errors or analytical issues in the summary data
 
 Next, we check the summary data for potential errors or analytical
 issues. For this step, we extract summary data for “top hits” in the
@@ -567,7 +597,7 @@ Plot4
 
 The SNPs with the most bias tend to have lower minor allele frequencies.
 
-\#\#<a id="example3_notingc"></a>2.5. Check that the top hits in the
+\#\#<a id="example3_notingc"></a> 2.5. Check that the top hits in the
 arachidonic acid test dataset are reported in the GWAS
 catalog
 
@@ -615,11 +645,13 @@ discrepancies were resolved.
 
 Discrepancies between expected and reported effect sizes can arise for
 other reasons, illustrated in the [basal cell carcinoma](#bcc) and
-[colorectal cancer](#crc) examples.
+[colorectal cancer](#crc)
+examples.
 
-\#\#2.6 Check whether the reported P values correspond to the reported
-effect sizes (arachidonic acid example) Finally, we check whether the
-reported P values correspond to the reported effect sizes.
+## 2.6 Check whether the reported P values correspond to the reported effect sizes (arachidonic acid example)
+
+Finally, we check whether the reported P values correspond to the
+reported effect sizes.
 
 ``` r
 Plot6<-zz_plot(dat=Dat,beta="beta",se="se")
@@ -631,7 +663,7 @@ Plot6
 We see a very close concordance between the reported P-values and
 reported effect sizes.
 
-\#\#2.7 Combine all plots into a single report
+## 2.7 Combine all plots into a single report
 
 Let’s combine all the key figures into a single report
 
@@ -645,7 +677,7 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 \#Other examples
 
-\#\#<a id=fasting_glucose></a>An allele frequency metadata error in a
+\#\#<a id=fasting_glucose></a> An allele frequency metadata error in a
 genome-wide association study of fasting glucose
 
 In this example we use the package to check the allele frequency
