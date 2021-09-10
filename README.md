@@ -594,11 +594,10 @@ Plot4
 
 ![“example3\_predplot2.png”](/man/figures/README-example3_predplot2.png)
 
-The SNPs with the most bias tend to have lower minor allele frequencies.
+The SNPs with the most bias tend to have lower minor allele
+frequencies.
 
-\#\#<a id="example3_notingc"></a> 2.5 Check that the top hits in the
-arachidonic acid test dataset are reported in the GWAS
-catalog
+## <a id="example3_notingc"></a> 2.5 Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
 
 ``` r
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
@@ -674,10 +673,10 @@ combine_plots(Plot_list=Plot_list,out_file="~/qc_report2.png")
 
 ![“qc\_report.png”](/man/figures/README-qc_report2.png)
 
-\#Other examples
+\#Other
+examples
 
-\#\#<a id=fasting_glucose></a> An allele frequency metadata error in a
-genome-wide association study of fasting glucose
+## <a id=fasting_glucose></a> An allele frequency metadata error in a genome-wide association study of fasting glucose
 
 In this example we use the package to check the allele frequency
 metadata from a genome-wide association study of fasting glucose. In
@@ -748,10 +747,10 @@ Although we know the test dataset was generated in a European ancestry
 population, the correlation with the European ancestry 1000 genomes
 super population is only 0.058. This however reflects the aforementioned
 allele frequency metadata error and the fact that effect allele
-frequency is actually a mixture of the effect and non-effect alleles.
+frequency is actually a mixture of the effect and non-effect
+alleles.
 
-\#\#<a id="bcc"></a> Effect size scale issues in a genome-wide
-association study of basal cell carcinoma
+## <a id="bcc"></a> Effect size scale issues in a genome-wide association study of basal cell carcinoma
 
 One of the limitations of using GWAS results from online platforms is
 that the scale of the effect sizes may not always be clear. This can
@@ -809,8 +808,7 @@ Plot4
 
 ![“example4\_2.png”](/man/figures/README-example4_2.png)
 
-\#<a id="crc"></a> Sample size issues in a genome-wide association study
-of colorectal cancer
+# <a id="crc"></a> Sample size issues in a genome-wide association study of colorectal cancer
 
 Discrepancies between expected and reported effect sizes can also arise
 from errors in reported allele frequency or SNP-level sample sizes. In
