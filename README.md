@@ -274,6 +274,14 @@ frequency conflicts flagged in the previous plot. The reason for these
 conflicts is that the non-effect allele column was mis-labelled as the
 effect allele.
 
+We can also return the dataset used to generate the above plot by
+setting the return\_dat argument to
+TRUE.
+
+``` r
+plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
+```
+
 We could also make a plot comparing effect allele frequency between the
 test dataset and the GWAS catalog, which we show in the next
 example.
@@ -303,14 +311,6 @@ consider whether the datasets are matched on ancestry. This
 consideration does not, however, apply for comparisons with the
 customised 1000 genomes reference dataset (see [step 1.2](#step2)
 above).
-
-We can also return the dataset used to generate the above plot by
-setting the return\_dat argument to
-TRUE.
-
-``` r
-plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
-```
 
 Alternatively to the make\_plot\_gwas\_catalog function, we can identify
 conflicts with the GWAS catalog using flag\_gc\_conflicts(). This can be
@@ -490,7 +490,7 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 
 ![“qc\_report.png”](/man/figures/README-qc_report.png)
 
-\#<a id="ara"></a> Example 2. Check the summary and metadata from a
+\#<a id="ara"></a>\#Example 2. Check the summary and metadata from a
 genome-wide association study of arachidonic acid.
 
 In this example we use the package to check the results and metadata
@@ -597,7 +597,7 @@ Plot4
 
 The SNPs with the most bias tend to have lower minor allele frequencies.
 
-\#\#<a id="example3_notingc"></a> 2.5. Check that the top hits in the
+\#\#<a id="example3_notingc"></a> 2.5 Check that the top hits in the
 arachidonic acid test dataset are reported in the GWAS
 catalog
 

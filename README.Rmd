@@ -180,9 +180,15 @@ Plot2
 
 Each data point represents the Z score for glioma risk for a single SNP (scaled to reflect the reported effect allele in the GWAS catalog). The Y and X axes represent the Z scores in the test and GWAS catalog datasets, respectively. For most SNPs, the allele associated with higher risk in the GWAS catalog is associated with lower risk in the test dataset. We call these discrepancies "effect size conflicts" and their presence can be interpreted as evidence for an effect allele metadata error. However, when comparing datasets, it's important to make allowance for chance deviations in effect direction, especially for test datasets generated in small sample sizes. For this reason, effect size conflicts are labelled as high if the two-sided P value for the Z score is ≤0.0001 and as moderate if >0.0001 (this is a pragmatic cutoff). When comparing datasets, one should also consider the number of SNPs as well as whether datasets are matched on ancestry. Effect size conflicts are more likely to reflect a metadata error when they are systematic across a large number of SNPs and when the datasets being compared are closely matched on ancestry. In this glioma example, effect size conflicts are flagged across the vast majority of a reasonably large number of SNPs. In addition, most of the associations being compared have been generated in samples of European ancestry. We can therefore interpret this plot as providing very strong evidence for an effect allele metadata error. This is consistent with the effect allele frequency conflicts flagged in the previous plot. The reason for these conflicts is that the non-effect allele column was mis-labelled as the effect allele. 
 
-We could also make a plot comparing effect allele frequency between the test dataset and the GWAS catalog, which we show in the next example.
+We can also return the dataset used to generate the above plot by setting the return_dat argument to TRUE. 
 
 ```{r make_gwascatalog_plot2,eval = FALSE}
+plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
+```
+
+We could also make a plot comparing effect allele frequency between the test dataset and the GWAS catalog, which we show in the next example.
+
+```{r make_gwascatalog_plot3,eval = FALSE}
 Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo_id =EFO$efo_id,trait=unique(Dat$outcome))
 Plot3
 ```
@@ -190,12 +196,6 @@ Plot3
 
 
 We see an inverse correlation in reported effect allele frequency (EAF) between the test dataset and the GWAS catalog in European ancestry studies, which confirms the metadata error identified in the previous plots. In the absence of effect allele metadata errors, and assuming the test dataset and GWAS catalog are matched on ancestry, the correlation in allele frequency should be positive. The reported effect allele frequency in the test dataset is opposite to that observed in the GWAS catalog - e.g. for the top left red data point the effect allele is the major allele (frequency close to 0.8) in the test dataset but is the minor allele (frequency of 0.2) in the GWAS catalog. We call these discrepancies EAF conflicts. EAF conflicts are labelled as moderate if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if <0.4 or >0.6. This makes allowance for chance deviations in allele frequency around 0.5. When making comparisons with the GWAS catalog it's important to consider whether the datasets are matched on ancestry. This consideration does not, however, apply for comparisons with the customised 1000 genomes reference dataset (see [step 1.2](#step2) above).   
-
-We can also return the dataset used to generate the above plot by setting the return_dat argument to TRUE. 
-
-```{r make_gwascatalog_plot3,eval = FALSE}
-plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
-```
 
 Alternatively to the make_plot_gwas_catalog function, we can identify conflicts with the GWAS catalog using flag_gc_conflicts(). This can be used to programmatically identify effect size and EAF conflicts, which may be particularly useful when assessing large numbers of datasets and when one doesn't wish to generate lots of plots for manual inspection. 
 
@@ -313,7 +313,7 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 ```
 !["qc_report.png"](/man/figures/README-qc_report.png)
 
-#<a id="ara"></a> Example 2. Check the summary and metadata from a genome-wide association study of arachidonic acid.  
+#<a id="ara"></a>#Example 2. Check the summary and metadata from a genome-wide association study of arachidonic acid.  
 
 In this example we use the package to check the results and metadata from a genome-wide association study (GWAS) of arachidonic acid that has not gone through standad post-GWAS QC (e.g. with low quality or unreliable genetic variants excluded).
 
@@ -397,7 +397,7 @@ Plot4
 
 The SNPs with the most bias tend to have lower minor allele frequencies. 
 
-##<a id="example3_notingc"></a> 2.5. Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
+##<a id="example3_notingc"></a> 2.5 Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
 
 ```{r arachidonic8, eval = FALSE}
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
