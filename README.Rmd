@@ -109,7 +109,7 @@ In this example, the glioma results file contained columns for the odds ratio an
 
 Now we are ready to perform some checks on the data.
 
-##<a id="step2"></a> 1.2 Check allele frequency metadata in the glioma GWAS
+## <a id="step2"></a> 1.2 Check allele frequency metadata in the glioma GWAS
 
 Next we create some plots to visualise potential problems with the effect allele frequency column. We do this by comparing allele frequency in the glioma dataset to the 1000 genomes super populations. The function harmonises the test and reference dataset to reflect the minor allele in the 1000 genomes superpopulations. Therefore, the presence of SNPs with allele frequency > 0.5 in the test dataset implies an allele frequency conflict. 
 

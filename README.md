@@ -137,10 +137,10 @@ ratio and P value without confidence intervals or a standard error. The
 format\_data() function accepts these and other effect size reporting
 formats. See ?format\_data() for more info.
 
-Now we are ready to perform some checks on the data.
+Now we are ready to perform some checks on the
+data.
 
-\#\#<a id="step2"></a> 1.2 Check allele frequency metadata in the glioma
-GWAS
+## <a id="step2"></a> 1.2 Check allele frequency metadata in the glioma GWAS
 
 Next we create some plots to visualise potential problems with the
 effect allele frequency column. We do this by comparing allele frequency
