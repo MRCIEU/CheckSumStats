@@ -490,7 +490,7 @@ combine_plots(Plot_list=Plot_list,out_file="qc_report.png")
 
 ![“qc\_report.png”](/man/figures/README-qc_report.png)
 
-\#<a id="ara"></a>\#Example 2. Check the summary and metadata from a
+\#<a id="ara"></a> \#Example 2. Check the summary and metadata from a
 genome-wide association study of arachidonic acid.
 
 In this example we use the package to check the results and metadata
