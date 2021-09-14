@@ -24,6 +24,14 @@ install.packages("devtools")
 devtools::install_github("MRCIEU/CheckSumStats")
 ```
 
+If you are on a MAC and installation fails owing to a problem with the
+biomaRt package, you may need to install developer tools using the
+following in terminal:
+
+``` r
+xcode-select -install
+```
+
 ## General overview
 
 CheckSumStats exploits three groups of single nucleotide polymorphisms

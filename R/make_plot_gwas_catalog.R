@@ -81,12 +81,6 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	values_colour<-values_colour[Pos]
 	labels_colour<-labels_colour[Pos]
 
-	# dim(unique(Dat.m[,c("rsid","pmid")]))
-	# Dat.m2<Dat.m
-	# length(unique(Dat.m$rsid))
-	# unique(Dat.m$pmid)
-	# Dat.m<-Dat.m[grep(";",Dat.m$ancestral_group,invert=T),]
-	# Dat.m<-Dat.m[Dat.n$ancestral_group == "European"]
 	ancestry1<-Dat.m$ancestral_group
 	
 	labels_shape<-unique(ancestry1)[order(unique(ancestry1))]
@@ -101,24 +95,8 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	}
 
 	
-	# unique(ancestry1)[order(unique(ancestry1))]
-	# 1:length(unique(ancestry1))
-	# ancestry2<-c("European")
-	
-	# Shape<-ancestry1
-	# Shape[Shape=="European"]<-15
-	# Shape[Shape=="East Asian"]<-16
-	# Shape<-as.numeric(Shape)
-	# # Shape<-unique(Shape)[order(unique(Shape))]
-
-	
-	# Shape2<-Shape
-	# Shape2<-unique(Shape2)[order(unique(Shape2))]
-	
-
 	Subtitle<-paste0(Dat.m$outcome," | ",Dat.m$population)
 
-	# ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=z.x, y=z.y,colour=Z_scores,shape=ancestry1))
 	if(legend){
 			Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
 				)+
@@ -198,49 +176,12 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 	if(!se %in% names(dat)) stop(paste0("se column not found. Check you correctly specified the name of the se column"))
 
 	if(is.null(efo) & is.null(efo_id) & is.null(trait)) stop("you must specify either efo, efo_id or trait")
-	# if(!is.null(trait)){
-		# gwas_catalog<-gwas_catalog_hits2(trait=trait)
-	# }
-# gwas_catalog_ancestral_group="East Asian"
-	# if(!is.null(efo))
-	# {
+	
 	gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait)
-
-		# gwas_catalog$ancestral_group
-	# }
-	
-	# if(!is.null(efo_id))
-	# {
-	# 	gwas_catalog<-gwas_catalog_hits2(efo_id=efo_id)
-	# }
-
-	# if(!is.null(efo) | !is.null(efo_id))
-	# {
-	# 	if(!is.null(trait))
-	# 	{
-	# 		gwas_catalog1<-gwas_catalog_hits2(trait=trait)
-	# 		# gwas_catalog1$efo<-"trait"
-	# 		# gwas_catalog$efo<-"efo"
-	# 		gwas_catalog<-rbind(gwas_catalog,gwas_catalog1)
-	# 		gwas_catalog<-gwas_catalog[which(!duplicated(gwas_catalog[,c("study_id","rsid","test_statistic")])),]
-	# 	}
-	# }
-	
-	# if(is.null(efo) & is.null(efo_id))
-	# {
-	# 	if(!is.null(trait))
-	# 	{
-	# 		gwas_catalog<-gwas_catalog_hits2(trait=trait)
-	# 	}else{
-	# 		stop("efo_id, efo and trait are all null")
-	# 	}
-	# }
-
-	# gwas_catalog[gwas_catalog$study_id == "GCST001633",]
-	# gwas_catalog[which(gwas_catalog$rsid == "rs2736100"),]
 
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
+
 	if(all(is.na(Dat.m$effect_allele.x))) stop(paste0("associations for ",message_trait," were found but all effect alleles are missing in the GWAS catalog. Therefore no comparison of effect size direction can be made"))
 	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
 	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
@@ -401,37 +342,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 		}
 	}
 
-	# if(!is.null(efo_id))
-	# {
-	# 	efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
-	# 	gwas_variants<-gwasrapidd::get_variants(efo_id = efo_id)		
-	# 	# unique(gwas_studies@studies$reported_trait)
-	# 	if(class(unlist(gwas_variants)) == "character")
-	# 	{
-	# 		# if(nrow(gwas_studies@studies)==0){
-	# 		if(nrow(gwas_variants)==0)
-	# 		{
-	# 			warning(paste("search for efo -",efo_id,"- returned 0 variants from the GWAS catalog"))
-	# 		}
-	# 	}
-	# }
 	
-	# if(!is.null(trait))
-	# {
-	# 	# unique(gwas_variants@ensembl_ids$variant_id)
-	# 	gwas_variants<-gwasrapidd::get_variants(reported_trait = trait)
-	# 	if(class(unlist(gwas_variants)) == "character")
-	# 	{
-	# 		# if(nrow(gwas_studies@studies)==0){
-	# 		if(nrow(gwas_variants)==0)
-	# 		{
-	# 			warning(paste("search for trait -",trait,"- returned 0 variants from the GWAS catalog"))
-	# 		}
-	# 	}
-	# }
-
-# gwas_hits<-"rs17077488"
-# gwas_hits<-"rs472031"
 	if(is.null(trait) & is.null(efo) & is.null(efo_id))
 	{
 		genomic_range<-list(chromosome=as.character(ensembl$chr_name),start=ensembl$chrom_start - distance_threshold,end=ensembl$chrom_start + distance_threshold)

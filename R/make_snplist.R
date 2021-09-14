@@ -17,11 +17,9 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 	requireNamespace("gwasrapidd", quietly=TRUE)
 	
 	snplist<-""
-	# if(!is.null(efo_id)){
-		# efo_id="EFO_0001"
-		# 
+	 
 	top_hits<-gwas_catalog_hits2(efo_id=efo_id,trait=trait,efo=efo)	
-	# if(top_hits=="trait or efo not found in GWAS catalog")
+	
 	if(class(top_hits)!="data.frame")
 	{
 		# if(nrow(top_hits))
@@ -30,31 +28,6 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 			
 	snplist<-top_hits$rsid
 
-	
-	# }
-
-	# if(!is.null(trait)){
-	# 	top_hits<-gwas_catalog_hits2(trait=trait)	
-	# 	if(!is.null(efo_id)){
-	# 		snplist1<-top_hits$rsid	
-	# 		snplist<-c(snplist,snplist1)
-	# 	}else{
-	# 		snplist<-top_hits$rsid	
-	# 	}
-	# }
-
-	# if(!is.null(efo)){
-	# 	top_hits<-gwas_catalog_hits2(efo=efo)
-	# 	if(!is.null(efo_id) | !is.null(trait)){
-	# 		snplist1<-top_hits$rsid	
-	# 		snplist<-c(snplist,snplist1)
-	# 	}else{		
-	# 		snplist<-top_hits$rsid	
-	# 	}
-		
-	# }
-		
-	# # snplist<-c(snplist,top_hits_rsids)
 	if(ref1000G_superpops){
 		utils::data("refdat_1000G_superpops",envir =environment())
 		snplist<-unique(c(snplist,unique(refdat_1000G_superpops$SNP)))
@@ -84,18 +57,7 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 {
 	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
 
-	# if(nrow(gwas_associations@associations)==0) warning("no associations found in GWAS catalog")
-	# if(class(unlist(gwas_associations)) != "character")
-	# 	{
-	# 		if(nrow(gwas_studies@studies)!=0)
-	# 		{	
-	
-	# this doesnt work  "IDP T1 FAST ROIs R front orb cortex"	
-	# make_snplist(efo=NULL,trait=ao$trait[i],ref1000G_superpops=TRUE)
-	
-	# if(nrow(gwas_associations@associations)==0)
-	# {
-	# if(gwas_associations != "trait or efo not found in GWAS catalog")
+
 	if(class(gwas_associations) =="associations") 
 	{
 		
@@ -148,10 +110,6 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 				gwas_results<-rbind(gwas_results1,gwas_results2)
 			}
 			
-			# gwas_results$study_id<-study_ids[i]						
-			# Dat[[i]]<-gwas_results								
-		
-
 			if(!is.null(efo_id)) trait_efo<-efo_id
 			if(!is.null(efo)) trait_efo<-efo
 			if(!is.null(trait)) trait_efo<-trait
@@ -176,29 +134,6 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 	return(gwas_associations)	
 }
 
-
-# get_gwas_associations<-function(trait=NULL,efo=NULL,efo_id=NULL){
-# 	requireNamespace("gwasrapidd", quietly=TRUE)
-	
-# 	if(!is.null(efo)) efo<-trimws(unlist(strsplit(efo,split=";")))	
-# 	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
-# 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))				
-# 	gwas_studies<-gwasrapidd::get_studies(efo_trait = efo,efo_id=efo_id,reported_trait=trait)	
-# 	if(class(unlist(gwas_studies)) == "character"){
-# 		# if(nrow(gwas_studies@studies)==0){
-# 		if(nrow(gwas_studies)==0){
-# 			warning(paste("search returned 0 studies from the GWAS catalog"))
-# 		}
-# 	}	
-# 	if(class(unlist(gwas_studies)) != "character")
-# 	{
-# 		if(nrow(gwas_studies@studies)!=0)
-# 		{	
-# 			gwas_associations<-gwasrapidd::get_associations(study_id = gwas_studies@studies$study_id)
-# 			return(gwas_associations)
-# 		}
-# 	}
-# }
 
 map_association_to_study_id<-function(associations=NULL){
 	association_ids <- associations@associations$association_id
@@ -258,15 +193,13 @@ make_ancestry_table<-function(association_id=NULL){
 }
 
 
-# get_associations_by_trait <- function(reported_trait = NULL,efo_trait = NULL,efo_id=NULL,verbose = FALSE,warnings = TRUE) 
-
 get_gwas_associations<-function(reported_trait=NULL,efo_trait=NULL,efo_id=NULL,verbose = FALSE,warnings = TRUE) 
 {
   
 	if(!is.null(reported_trait)) 
 	{
 		gwas_studies <- gwasrapidd::get_studies(reported_trait = reported_trait)
-		# if(class(unlist(gwas_studies)) != "character")		
+		
 		reported_trait<-NULL 
 		if(class(unlist(gwas_studies)) != "character")		
 		{
