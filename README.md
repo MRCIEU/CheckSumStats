@@ -24,9 +24,9 @@ install.packages("devtools")
 devtools::install_github("MRCIEU/CheckSumStats")
 ```
 
-If you are on a MAC and installation fails owing to a problem with the
-biomaRt package, you may need to install developer tools using the
-following in terminal:
+If you are on a MAC and installation fails, owing to a problem with the
+biomaRt package, before installing the package you may first need to
+install developer tools using the following in terminal:
 
 ``` r
 xcode-select -install
