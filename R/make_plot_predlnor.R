@@ -279,21 +279,15 @@ format_data_predlnor_sh<-function(dat=NULL){
 #' @export
 	
 predict_lnor_sh<-function(dat=NULL){
-	# load("~/harmonised_data.Rdata")
-	# dat<-Dat
-	# dat<-Dat[!is.na(Dat$eaf),]
-	# Pos<-nrow(dat)/2
-	# dat1<-dat[1:Pos,]
-	# Pos<-Pos+1
-	# dat<-dat[Pos:nrow(dat),]
+	
+	dat<-dat[!is.na(dat$eaf),]
 	if(!any(names(dat) == "z_score")){
 		dat$z_score<-dat$lnor/dat$lnor_se
 	}
 	
 	log_or<-NULL
 	log_or_se<-NULL
-	# ID<-NULL
-	# snp<-NULL
+	
 	snp_n<-nrow(dat)
 	
 	if(!"maf" %in% names(dat)){
@@ -305,12 +299,10 @@ predict_lnor_sh<-function(dat=NULL){
 	}
 	
 	for(i in 1:snp_n)
-	# for(i in 1:10)
 	{
-		# i<-1
+		
 		print(paste0("Analysing SNP " ,i, " of ",snp_n))
-		# qui {
-
+		
 		#Odds of the outcome	
 		n_ncase<-dat$ncase[i]
 		n_total<-dat$ncase[i]+dat$ncontrol[i]
@@ -320,7 +312,6 @@ predict_lnor_sh<-function(dat=NULL){
 		Z<-dat$z_score[i]
 
 		# Ns given the MAF
-
 		# p^2 + 2pq + q^2 = 1
 
 		n0 <- n_total*maf^2
@@ -331,8 +322,6 @@ predict_lnor_sh<-function(dat=NULL){
 
 		#Simulate values of the log-OR, and estimate the Z score
 
-		# preserve
-		# clear
 		n<-1:1000000
 		if(z >= 0) 
 		{
@@ -341,8 +330,6 @@ predict_lnor_sh<-function(dat=NULL){
 		}else{
 			x <- n*-0.000001
 		}
-
-		# gen n = _n 
 
 		p0 <- 1/(1+exp(-(log(odds) - x*(n1+2*n2)/N)))
 		p1 <- 1/(1+exp(-(log(odds) - x*(n1+2*n2)/N)-x))
@@ -364,14 +351,9 @@ predict_lnor_sh<-function(dat=NULL){
 		while(complete == 0) 
 		{
 
-			# qui su _y
-			# Mean<-as.numeric(summary(y)[4])
-			# qui su n if _y == r(min)
 			Min<-as.numeric(summary(y))[1] #finds the minimum value of _y
 			n<-which(y == Min)
 			
-			# If the minimum isn’t the last observation
-			# if r(mean) < 1000000 
 			if(n < 1000000)
 			{
 				complete <- 1
@@ -395,30 +377,17 @@ predict_lnor_sh<-function(dat=NULL){
 
 		#While loop complete, so minimum difference found
 
-		# su _y
-		# su _x if _y == r(min)
-		# local x = r(mean)
-
 		Min<-as.numeric(summary(y)[1])
 		x_local<-summary(x[which(y==Min)])[4]
 		
 		y_se <- sqrt((n0*odds*exp(x*(n1+2*n2)/N)/(odds+exp(x*(n1+2*n2)/N))^2 + n1*odds*exp(x*(n1+2*n2-N)/N)/(odds+exp(x*(n1+2*n2-N)/N))^2 + n2*odds*exp(x*(n1+2*n2-2*N)/N)/(odds+exp(x*(n1+2*n2-2*N)/N))^2)/((n0*odds*exp(x*(n1+2*n2)/N)/(odds+exp(x*(n1+2*n2)/N))^2 + n1*odds*exp(x*(n1+2*n2-N)/N)/(odds+exp(x*(n1+2*n2-N)/N))^2 + n2*odds*exp(x*(n1+2*n2-2*N)/N)/(odds+exp(x*(n1+2*n2-2*N)/N))^2)*(n1*odds*exp(x*(n1+2*n2-N)/N)/(odds+exp(x*(n1+2*n2-N)/N))^2 + 4*n2*odds*exp(x*(n1+2*n2-2*N)/N)/(odds+exp(x*(n1+2*n2-2*N)/N))^2)-((n1*odds*exp(x*(n1+2*n2-N)/N)/(odds+exp(x*(n1+2*n2-N)/N))^2 + 2*n2*odds*exp(x*(n1+2*n2-2*N)/N)/(odds+exp(x*(n1+2*n2-2*N)/N))^2)^2)))
 
-		# su _y
-		# su _y_se if _y == r(min)
 		Min<-as.numeric(summary(y)[1])
 		se_local<-summary(y_se[which(y==Min)])[4]
 
-		# restore
-		# End of simulation, bring back the original data and update the results
-
-		# replace _log_or = `x’ in `i’
-		# replace _log_or_se = `se’ in `i’
-
 		log_or[[i]] <- x_local
 		log_or_se[[i]] <- se_local
-		# ID[[i]]<-dat$ID[i]
-		# snp[[i]]<-dat$rsid[i]		
+		
 	}
 	dat$lnor_pred <- as.numeric(unlist(log_or))
 	dat$lnor_se_pred <- as.numeric(unlist(log_or_se))
@@ -442,6 +411,7 @@ predict_lnor_sh<-function(dat=NULL){
 
 
 predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="ncontrol",pval="p"){
+	dat<-dat[!is.na(dat[,eaf]),]
 	z <- dat[,beta]/dat[,se]
 	Pos<-which(z==0)
 	# if z is zero when calculate from beta and se, infer from the P value
@@ -450,8 +420,6 @@ predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="nc
 		z[Pos]<-z2
 	}	
 	
-	# Pos<-which(Z1!="Inf")
-	# plot(abs(z[Pos]),Z1[Pos])
 	if(!"maf" %in% names(dat)){
 		maf<-dat[,eaf]
 		Pos<-which(maf>0.5)
@@ -471,7 +439,7 @@ predict_beta_sd<-function(dat=NULL,beta="beta",se="se",eaf="eaf",sample_size="nc
 
 	estimated_sd <- dat[,beta] / dat$beta_sd
   	estimated_sd <- estimated_sd[!is.na(estimated_sd)]
-  # estimate variance for Y from summary data
+  	# estimate variance for Y from summary data
   	dat$sd_est <- stats::median(estimated_sd)
 	return(dat)
 }
