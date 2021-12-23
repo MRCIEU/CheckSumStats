@@ -48,27 +48,31 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #' @param trait the trait of interest as reported in the GWAS catalog
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of intersest in the experimental factor ontology
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
 #'
 #' @return data frame
 #' @importFrom magrittr %>%
 #' @export
 
-gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
+gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE)
 {
-	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
 
+	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
+			
 
 	if(class(gwas_associations) =="associations") 
 	{
 		
 		if(nrow(gwas_associations@associations)!=0)	
 		{
-			assoc2study<-map_association_to_study_id(associations=gwas_associations)		
+			
 			associations<-data.frame(gwas_associations@associations,stringsAsFactors=F)
 			risk_alleles<-data.frame(gwas_associations@risk_alleles)
 			gwas_results<-merge(associations,risk_alleles,by="association_id")
-			gwas_results<-merge(gwas_results,assoc2study,by="association_id")
+			col.keep<-c("variant_id","association_id","risk_allele","beta_gc","se_gc","risk_frequency","pvalue","z_scores","z.x")
+			names_col.keep<-c("rsid","association_id","effect_allele","beta_gc","se_gc","eaf","p","test_statistic","z.x")
 		
+						
 			gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
 			gwas_results$beta_gc<-log(gwas_results$or_per_copy_number)
 
@@ -103,11 +107,13 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 			gwas_results1<-gwas_results[!is.na(gwas_results$beta_gc),]
 			gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
 			# update to make allowance for presence of any z scores amongst the beta_units? 
-			if(all(!is.na(gwas_results2$beta_unit) & gwas_results2$beta_unit == "z score")){
-				gwas_results2$z.x<-gwas_results2$beta_number
-				Pos<-which(gwas_results2$beta_direction=="decrease")
-				gwas_results2$z.x[Pos]<-gwas_results2$z.x[Pos]*-1
-				gwas_results<-rbind(gwas_results1,gwas_results2)
+			if(nrow(gwas_results2)>0){
+				if(all(!is.na(gwas_results2$beta_unit) & gwas_results2$beta_unit == "z score")){
+					gwas_results2$z.x<-gwas_results2$beta_number
+					Pos<-which(gwas_results2$beta_direction=="decrease")
+					gwas_results2$z.x[Pos]<-gwas_results2$z.x[Pos]*-1
+					gwas_results<-rbind(gwas_results1,gwas_results2)
+				}
 			}
 			
 			if(!is.null(efo_id)) trait_efo<-efo_id
@@ -121,14 +127,20 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 			
 			if(!is.null(gwas_results))			
 			{
-				# Dat<-do.call(rbind,Dat)				
-				gwas_results<-gwas_results[,c("variant_id","association_id","study_id","risk_allele","beta_gc","se_gc","risk_frequency","pvalue","z_scores","z.x")]
-				names(gwas_results)<-c("rsid","association_id","study_id","effect_allele","beta_gc","se_gc","eaf","p","test_statistic","z.x")		
-				
-				ancestry_tab<-make_ancestry_table(association_id=gwas_results$association_id)
-				gwas_results.m<-merge(gwas_results,ancestry_tab,by="study_id")	
-				return(gwas_results.m)
+				if(map_association_to_study)
+				{
+					assoc2study<-map_association_to_study_id(associations=gwas_associations)		
+					gwas_results<-merge(gwas_results,assoc2study,by="association_id")					
+					ancestry_tab<-make_ancestry_table(association_id=gwas_results$association_id)					
+					gwas_results<-merge(gwas_results,ancestry_tab,by="study_id")
+					col.keep<-c(col.keep,"study_id")
+					names_col.keep<-c(names_col.keep,"study_id")
+				}					
+				gwas_results<-gwas_results[,col.keep]
+				names(gwas_results)<-c(names_col.keep)
+				return(gwas_results)
 			}
+			
 		}		
 	}
 	return(gwas_associations)	
@@ -137,8 +149,11 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL)
 
 map_association_to_study_id<-function(associations=NULL){
 	association_ids <- associations@associations$association_id
-	    names(association_ids) <- association_ids
+	    names(association_ids) <- association_ids	
+	
 	studies <-purrr::map(association_ids, ~ gwasrapidd::get_studies(association_id = .x))
+	
+	
 	association2study <-
 	      purrr::imap_dfr(
 	        studies,
@@ -147,11 +162,14 @@ map_association_to_study_id<-function(associations=NULL){
 	          study_id = .x@studies$study_id
 	        )
 	      )
+
 	return(association2study)
 }
 
 make_ancestry_table<-function(association_id=NULL){
+				
 	studies<-gwasrapidd::get_studies(association_id = association_id)
+	
 	ancestries <-
       dplyr::left_join(studies@ancestries,
                        studies@ancestral_groups,
@@ -198,8 +216,9 @@ get_gwas_associations<-function(reported_trait=NULL,efo_trait=NULL,efo_id=NULL,v
   
 	if(!is.null(reported_trait)) 
 	{
-		gwas_studies <- gwasrapidd::get_studies(reported_trait = reported_trait)
+
 		
+		gwas_studies <- gwasrapidd::get_studies(reported_trait = reported_trait)
 		reported_trait<-NULL 
 		if(class(unlist(gwas_studies)) != "character")		
 		{

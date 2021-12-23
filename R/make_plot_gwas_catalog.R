@@ -293,6 +293,107 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 	return(Dat.m)
 }
 
+#' Compare the genetic effect sizes in the test dataset to the GWAS catalog
+#'
+#' Compare the direction of effects and effect allele frequency between the test dataset and the GWAS catalog, in order to identify effect allele meta data errors
+#'
+#' @param dat the test dataset of interest
+#' @param beta name of the column containing the SNP effect size
+#' @param se name of the column containing the standard error for the SNP effect size. 
+#' @param trait the trait of interest
+#' @param efo_id ID for trait of interest in the experimental factor ontology 
+#' @param efo trait of interest in the experimental factor ontology
+#' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian") 
+#' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
+#' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog. 
+#'
+#' @return dataframe
+#' @export
+
+
+compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=TRUE,beta="beta",se="se",gwas_catalog=NULL)
+{
+	
+	if(is.null(gwas_catalog))
+	{
+		gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
+	}
+	
+	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
+	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
+
+	if(all(is.na(Dat.m$effect_allele.x))) stop(paste0("associations for ",message_trait," were found but all effect alleles are missing in the GWAS catalog. Therefore no comparison of effect size direction can be made"))
+	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
+	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
+	Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
+	Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
+	if(exclude_palindromic_snps)
+	{
+		Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
+	}
+	if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
+	{
+		# c("European","East Asian")
+		Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
+	}
+	# Dat.m1<-Dat.m
+	# Dat.m<-Dat.m1
+	Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y	
+	if(any(Pos)) 
+	{
+		Dat.m1<-Dat.m[Pos,]
+		Dat.m2<-Dat.m[!Pos,]
+		Dat.m1<-flip_strand(dat=Dat.m1,allele1_col="effect_allele.x")
+		# Dat.m1$effect_allele.x
+		# Dat.m1$effect_allele.y
+		# Dat.m1[,c("effect_allele.x","effect_allele.y","other_allele","rsid")]
+		Dat.m<-rbind(Dat.m1,Dat.m2)
+	}
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
+	if(any(Pos))
+	{
+		Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
+	}	
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
+
+	if(any(Pos)) 
+	{
+		stop("effect alleles not fully harmonised")	
+		# Dat.m[Pos,c("rsid","Effect.Allele.x","Effect.Allele.y","Other.Allele")]
+	}
+
+	Dat.m$z.y<-Dat.m[,beta]/Dat.m[,se] 
+	
+	if("pmid" %in% names(dat) & map_association_to_study)
+	{
+		gwas_studies<-gwasrapidd::get_studies(study_id=unique(Dat.m$study_id ))
+		Publications<-gwas_studies@publications
+		Publications<-Publications[!duplicated(Publications$study_id),]
+		Dat.m<-merge(Dat.m,Publications,by="study_id")
+	}
+	#identifty eaf conflicts
+	# ancestry2<-Dat.m$ancestral_group	
+	Dat.m$EAF<-"no conflict"
+	Dat.m$EAF[is.na(Dat.m$eaf.x)]<-NA
+	# EAF<-rep("black",nrow(Dat.m))
+	Pos1<-which(Dat.m$eaf.x<0.5 & Dat.m$eaf.y>0.5 | Dat.m$eaf.x>0.5 & Dat.m$eaf.y<0.5)
+	Dat.m$EAF[Pos1]<-"moderate conflict"	 
+	Pos2<-which(Dat.m$eaf.x<0.40 & Dat.m$eaf.y>0.60 | Dat.m$eaf.x>0.60 & Dat.m$eaf.y<0.40)
+	Dat.m$EAF[Pos2]<-"high conflict"
+	Pos3<-which(Dat.m$pmid==Dat.m$pubmed_id)
+	Pos4<-Pos1[Pos1 %in% Pos3] 
+	Dat.m$EAF[Pos4]<-"high conflict" #if there is a moderate eaf conflict (eaf close to 0.5) but both datasets are from the same study, then the conflict is upgraded to high
+
+	Dat.m$Z_scores<-"no conflict"
+	# Z_scores<-rep("black",nrow(Dat.m))
+	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"moderate conflict"
+	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >= 3.890592 & abs(Dat.m$z.x) >= 3.890592 )]<-"high conflict" # Z score of 3.890592 = 2 sided p value of 0.0001	
+	Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
+	return(Dat.m)
+}
+
 harmonise_effect_allele<-function(dat=NULL,beta=beta){
 	Pos<-which(dat$effect_allele.x!=dat$effect_allele.y)
 	beta.y<-dat[,beta][Pos]*-1
@@ -433,10 +534,43 @@ get_positions_biomart<-function(gwas_hits=NULL){
 #'
 #' @return list
 #' @export
+
 flag_gc_conflicts<-function(dat=NULL,beta="lnor",se="lnor_se",efo=NULL,trait=NULL,efo_id=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE){
 	
 	gc_dat<-compare_effect_to_gwascatalog(dat=dat,efo=efo,trait=trait,efo_id=efo_id,beta=beta,se=se,gwas_catalog_ancestral_group=gwas_catalog_ancestral_group,exclude_palindromic_snps=exclude_palindromic_snps)
 
+	effect_size_conflict<-gc_dat$Z_scores
+	gc_conflicts<-c("high conflict","moderate conflict","no conflict")
+	es_conflicts_list<-lapply(1:length(gc_conflicts),FUN=function(x)
+		length(effect_size_conflict[which(effect_size_conflict==gc_conflicts[x])]))
+	total<-length(which(!is.na(gc_dat$Z_scores)))
+	es_conflicts_list<-c(es_conflicts_list,total)
+	names(es_conflicts_list)<-c(gc_conflicts,"n_snps")
+
+	eaf_conflicts<-gc_dat$EAF
+	eaf_conflicts_list<-lapply(1:length(gc_conflicts),FUN=function(x)
+		length(eaf_conflicts[which(eaf_conflicts==gc_conflicts[x])]))
+	total<-length(which(!is.na(gc_dat$EAF)))
+	eaf_conflicts_list<-c(eaf_conflicts_list,total)
+	names(eaf_conflicts_list)<-c(gc_conflicts,"n_snps")	
+
+	# gc_ancestries<-paste(unique(gc_dat$ancestral_group),collapse="; ")	
+
+	all_conflicts_list<-list("effect_size_conflicts"=es_conflicts_list,"eaf_conflicts"=eaf_conflicts_list)
+	return(all_conflicts_list)
+}
+
+
+#' Flag conflicts with the GWAS catalog
+#'
+#' Flag conflicts with the GWAS catalog through comparison of reported effect alleles and reported effect allele frequency.  
+#'
+#' @param gc_dat dataset generated by compare_effect_to_gwascatalog2()
+#'
+#' @return list
+#' @export
+
+flag_gc_conflicts2<-function(gc_dat=NULL){
 	effect_size_conflict<-gc_dat$Z_scores
 	gc_conflicts<-c("high conflict","moderate conflict","no conflict")
 	es_conflicts_list<-lapply(1:length(gc_conflicts),FUN=function(x)

@@ -63,6 +63,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	if(any(names(ref_dat) %in% c(target_dat_effect_allele,target_dat_other_allele,target_dat_effect_allele))) warning("effect allele, other allele or eaf present in refererence dataset with same name as in target dataset")	
 
 	dat.m<-merge(ref_dat,target_dat,by.x=snp_reference,by.y=snp_target)
+
 	# dat.m[dat.m$SNP == "rs1298999",c("SNP",eaf,"maf_ref",target_dat_effect_allele,target_dat_other_allele,"minor_allele","major_allele","minor_allele2","major_allele2")]
 	Pos<-which(dat.m[,target_dat_effect_allele] != dat.m[,ref_dat_minor_allele])
 	
@@ -82,6 +83,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m2<-dat.m[Pos2,]
 	
 	
+
 	Pos<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
 	
 	dat.m1[,eaf][Pos]<-1-dat.m1[,eaf][Pos]
@@ -89,10 +91,15 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	OA<-dat.m1[,target_dat_other_allele][Pos]
 	dat.m1[,target_dat_effect_allele][Pos]<-OA
 	dat.m1[,target_dat_other_allele][Pos]<-EA
-	Pos1<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
-	if(sum(Pos1) > 0 ) stop("there are still mismatched alleles after flipping the strands")
 
+	Pos1<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
+
+	Pos2<-which(dat.m1[,target_dat_effect_allele] == dat.m1[,"minor_allele2"])
+
+	dat.m1<-dat.m1[Pos2,]
 	dat.m<-rbind(dat.m1,dat.m2)	
+
+	# if(sum(Pos1) > 0 ) stop("there are still mismatched alleles after flipping the strands")
 	
 	dat.m$alleles<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])
 	dat.m$alleles2<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])

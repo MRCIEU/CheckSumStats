@@ -4,7 +4,12 @@
 \alias{gwas_catalog_hits2}
 \title{GWAS top hits}
 \usage{
-gwas_catalog_hits2(trait = NULL, efo = NULL, efo_id = NULL)
+gwas_catalog_hits2(
+  trait = NULL,
+  efo = NULL,
+  efo_id = NULL,
+  map_association_to_study = TRUE
+)
 }
 \arguments{
 \item{trait}{the trait of interest as reported in the GWAS catalog}
@@ -12,6 +17,8 @@ gwas_catalog_hits2(trait = NULL, efo = NULL, efo_id = NULL)
 \item{efo}{trait of intersest in the experimental factor ontology}
 
 \item{efo_id}{ID for trait of interest in the experimental factor ontology}
+
+\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
 }
 \value{
 data frame

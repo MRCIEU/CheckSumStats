@@ -2,11 +2,13 @@
 
 export(combine_plots)
 export(compare_effect_to_gwascatalog)
+export(compare_effect_to_gwascatalog2)
 export(extract_sig_snps)
 export(extract_snps)
 export(find_hits_in_gwas_catalog)
 export(flag_af_conflicts)
 export(flag_gc_conflicts)
+export(flag_gc_conflicts2)
 export(format_data)
 export(get_efo)
 export(gwas_catalog_hits2)
