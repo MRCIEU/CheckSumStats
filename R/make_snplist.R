@@ -88,12 +88,14 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 					gwas_results<-gwas_results[!is.na(gwas_results$beta_gc),]
 					Pos1<-which(gwas_results$beta_direction == "increase")
 					Pos2<-which(gwas_results$beta_direction == "decrease")
-					if(!all(gwas_results$beta_gc>0)) stop("direction of beta_gc not always positive")
+					if(!all(gwas_results$beta_gc>=0)) stop("direction of beta_gc not always positive")
 					gwas_results$beta_gc[Pos2]<-gwas_results$beta_gc[Pos2]*-1
 					if(!all(unique(gwas_results$beta_direction) %in% c("increase","decrease"))) stop("beta_direction in gwas catalog not always increase or decrease")
 				}
 			}
-			Pos<-which(!is.na(gwas_results$standard_error))			
+			Pos<-which(!is.na(gwas_results$standard_error))		
+	
+
 			gwas_results$se_gc<-NA
 			gwas_results$se_gc[Pos]<-gwas_results$standard_error[Pos]
 			Pos<-which(is.na(gwas_results$se_gc))
