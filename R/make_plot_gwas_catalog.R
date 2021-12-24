@@ -323,7 +323,8 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
 
-	if(all(is.na(Dat.m$effect_allele.x))) stop(paste0("associations for ",message_trait," were found but all effect alleles are missing in the GWAS catalog. Therefore no comparison of effect size direction can be made"))
+
+	if(all(is.na(Dat.m$effect_allele.x))) warning(paste0("associations for ",message_trait," were found but all effect alleles are missing in the GWAS catalog. Therefore no comparison of effect size direction can be made"))
 	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
 	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
 	Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
