@@ -77,7 +77,8 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 			gwas_results$beta_gc<-log(gwas_results$or_per_copy_number)
 
 			Test<-FALSE 
-			if(all(is.na(gwas_results$beta_gc))){
+			if(all(is.na(gwas_results$beta_gc)))
+			{
 				if(!all(is.na(gwas_results$beta_number))){
 					gwas_results$beta_gc<-gwas_results$beta_number		
 					Test<-any(is.na(gwas_results$beta_gc))
@@ -94,8 +95,6 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 				}
 			}
 			Pos<-which(!is.na(gwas_results$standard_error))		
-	
-
 			gwas_results$se_gc<-NA
 			gwas_results$se_gc[Pos]<-gwas_results$standard_error[Pos]
 			Pos<-which(is.na(gwas_results$se_gc))
@@ -110,7 +109,8 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 			gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
 			# update to make allowance for presence of any z scores amongst the beta_units? 
 			if(nrow(gwas_results2)>0){
-				if(all(!is.na(gwas_results2$beta_unit) & gwas_results2$beta_unit == "z score")){
+				if(all(!is.na(gwas_results2$beta_unit) & gwas_results2$beta_unit == "z score"))
+				{
 					gwas_results2$z.x<-gwas_results2$beta_number
 					Pos<-which(gwas_results2$beta_direction=="decrease")
 					gwas_results2$z.x[Pos]<-gwas_results2$z.x[Pos]*-1
@@ -122,7 +122,8 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 			if(!is.null(efo)) trait_efo<-efo
 			if(!is.null(trait)) trait_efo<-trait
 			
-			if(is.null(gwas_results)){
+			if(is.null(gwas_results))
+			{
 				warning(paste0("no results found in GWAS catalog for ",trait_efo))
 				return("no results found")
 			}
