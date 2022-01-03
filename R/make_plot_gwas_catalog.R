@@ -353,6 +353,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 			# Dat.m1$effect_allele.y
 			# Dat.m1[,c("effect_allele.x","effect_allele.y","other_allele","rsid")]
 			Dat.m<-rbind(Dat.m1,Dat.m2)
+			if(nrow(Dat.m)==0) return("no SNP associations found in GWAS catalog")
 		}
 		Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
 		if(any(Pos))

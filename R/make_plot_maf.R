@@ -209,7 +209,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 flip_strand<-function(dat=NULL,allele1_col=NULL,allele2_col=NULL,restrict_to_snps=TRUE){
 	# Pos<-dat[,allele1]!=dat[,allele2]	
 
-	if(restrict_to_snps)
+	if(restrict_to_snps)#exclude genetic polymorphisms that aren't single nucleotide polymorphisms 
 	{
 		Pos<-nchar(dat[,allele1_col])==1
 		dat<-dat[Pos,]
