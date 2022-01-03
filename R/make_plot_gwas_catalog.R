@@ -321,9 +321,17 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	}
 	
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
-	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
+	Dat.m<-merge(gwas_catalog,dat,by="rsid")
 
+	if(exclude_palindromic_snps)
+		{
+			Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
+		}	
 
+	if(all(is.na(Dat.m$effect_allele.x)) | nrow(Dat.m)==0) 
+	{
+		return(paste0("associations for ",message_trait," were found in the GWAS catalog but all effect alleles were missing or all SNPs were palindromic. Therefore no comparison of effect size direction could be made"))
+	
 	if(!all(is.na(Dat.m$effect_allele.x))) 
 	{
 		
@@ -331,10 +339,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 		Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
 		Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
 		Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
-		if(exclude_palindromic_snps)
-		{
-			Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
-		}
+		
 		if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
 		{
 			# c("European","East Asian")
@@ -397,7 +402,6 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 		Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
 		return(Dat.m)
 	}
-	warning(paste0("associations for ",message_trait," were found but all effect alleles are missing in the GWAS catalog. Therefore no comparison of effect size direction can be made"))
 }
 
 harmonise_effect_allele<-function(dat=NULL,beta=beta){
