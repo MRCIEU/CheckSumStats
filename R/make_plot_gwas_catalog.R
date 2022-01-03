@@ -324,85 +324,80 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")
 
 	if(exclude_palindromic_snps)
-		{
-			Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
-		}	
-
-	if(all(is.na(Dat.m$effect_allele.x)) | nrow(Dat.m)==0) 
 	{
-		return(paste0("associations for ",message_trait," were found in the GWAS catalog but all effect alleles were missing or all SNPs were palindromic. Therefore no comparison of effect size direction could be made"))
+		Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
+	}	
+
+	if(all(is.na(Dat.m$effect_allele.x)) | nrow(Dat.m)==0) return(paste0("associations for ",message_trait," were found in the GWAS catalog but all effect alleles were missing or all SNPs were palindromic. Therefore no comparison of effect size direction could be made"))
 	
-	if(!all(is.na(Dat.m$effect_allele.x))) 
+	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
+	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
+	Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
+	Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
+	
+	if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
 	{
-		
-		Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
-		Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
-		Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
-		Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
-		
-		if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
-		{
-			# c("European","East Asian")
-			Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
-		}
-		# Dat.m1<-Dat.m
-		# Dat.m<-Dat.m1
-		Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
-		Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y	
-		if(any(Pos)) 
-		{
-			Dat.m1<-Dat.m[Pos,]
-			Dat.m2<-Dat.m[!Pos,]
-			Dat.m1<-flip_strand(dat=Dat.m1,allele1_col="effect_allele.x")
-			# Dat.m1$effect_allele.x
-			# Dat.m1$effect_allele.y
-			# Dat.m1[,c("effect_allele.x","effect_allele.y","other_allele","rsid")]
-			Dat.m<-rbind(Dat.m1,Dat.m2)
-			if(nrow(Dat.m)==0) return("no SNP associations found in GWAS catalog")
-		}
-		Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
-		if(any(Pos))
-		{
-			Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
-		}	
-		Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
-
-		if(any(Pos)) 
-		{
-			stop("effect alleles not fully harmonised")	
-			# Dat.m[Pos,c("rsid","Effect.Allele.x","Effect.Allele.y","Other.Allele")]
-		}
-
-		Dat.m$z.y<-Dat.m[,beta]/Dat.m[,se] 
-		
-		if("pmid" %in% names(dat) & map_association_to_study)
-		{
-			gwas_studies<-gwasrapidd::get_studies(study_id=unique(Dat.m$study_id ))
-			Publications<-gwas_studies@publications
-			Publications<-Publications[!duplicated(Publications$study_id),]
-			Dat.m<-merge(Dat.m,Publications,by="study_id")
-		}
-		#identifty eaf conflicts
-		# ancestry2<-Dat.m$ancestral_group	
-		Dat.m$EAF<-"no conflict"
-		Dat.m$EAF[is.na(Dat.m$eaf.x)]<-NA
-		# EAF<-rep("black",nrow(Dat.m))
-		Pos1<-which(Dat.m$eaf.x<0.5 & Dat.m$eaf.y>0.5 | Dat.m$eaf.x>0.5 & Dat.m$eaf.y<0.5)
-		Dat.m$EAF[Pos1]<-"moderate conflict"	 
-		Pos2<-which(Dat.m$eaf.x<0.40 & Dat.m$eaf.y>0.60 | Dat.m$eaf.x>0.60 & Dat.m$eaf.y<0.40)
-		Dat.m$EAF[Pos2]<-"high conflict"
-		Pos3<-which(Dat.m$pmid==Dat.m$pubmed_id)
-		Pos4<-Pos1[Pos1 %in% Pos3] 
-		Dat.m$EAF[Pos4]<-"high conflict" #if there is a moderate eaf conflict (eaf close to 0.5) but both datasets are from the same study, then the conflict is upgraded to high
-
-		Dat.m$Z_scores<-"no conflict"
-		# Z_scores<-rep("black",nrow(Dat.m))
-		Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"moderate conflict"
-		Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >= 3.890592 & abs(Dat.m$z.x) >= 3.890592 )]<-"high conflict" # Z score of 3.890592 = 2 sided p value of 0.0001	
-		Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
-		return(Dat.m)
+		# c("European","East Asian")
+		Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
 	}
+	# Dat.m1<-Dat.m
+	# Dat.m<-Dat.m1
+	Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y	
+	if(any(Pos)) 
+	{
+		Dat.m1<-Dat.m[Pos,]
+		Dat.m2<-Dat.m[!Pos,]
+		Dat.m1<-flip_strand(dat=Dat.m1,allele1_col="effect_allele.x")
+		# Dat.m1$effect_allele.x
+		# Dat.m1$effect_allele.y
+		# Dat.m1[,c("effect_allele.x","effect_allele.y","other_allele","rsid")]
+		Dat.m<-rbind(Dat.m1,Dat.m2)
+		if(nrow(Dat.m)==0) return("no SNP associations found in GWAS catalog")
+	}
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
+	if(any(Pos))
+	{
+		Dat.m<-harmonise_effect_allele(dat=Dat.m,beta=beta)
+	}	
+	Pos<-Dat.m$effect_allele.x!=Dat.m$effect_allele.y
+
+	if(any(Pos)) 
+	{
+		stop("effect alleles not fully harmonised")	
+		# Dat.m[Pos,c("rsid","Effect.Allele.x","Effect.Allele.y","Other.Allele")]
+	}
+
+	Dat.m$z.y<-Dat.m[,beta]/Dat.m[,se] 
+	
+	if("pmid" %in% names(dat) & map_association_to_study)
+	{
+		gwas_studies<-gwasrapidd::get_studies(study_id=unique(Dat.m$study_id ))
+		Publications<-gwas_studies@publications
+		Publications<-Publications[!duplicated(Publications$study_id),]
+		Dat.m<-merge(Dat.m,Publications,by="study_id")
+	}
+	#identifty eaf conflicts
+	# ancestry2<-Dat.m$ancestral_group	
+	Dat.m$EAF<-"no conflict"
+	Dat.m$EAF[is.na(Dat.m$eaf.x)]<-NA
+	# EAF<-rep("black",nrow(Dat.m))
+	Pos1<-which(Dat.m$eaf.x<0.5 & Dat.m$eaf.y>0.5 | Dat.m$eaf.x>0.5 & Dat.m$eaf.y<0.5)
+	Dat.m$EAF[Pos1]<-"moderate conflict"	 
+	Pos2<-which(Dat.m$eaf.x<0.40 & Dat.m$eaf.y>0.60 | Dat.m$eaf.x>0.60 & Dat.m$eaf.y<0.40)
+	Dat.m$EAF[Pos2]<-"high conflict"
+	Pos3<-which(Dat.m$pmid==Dat.m$pubmed_id)
+	Pos4<-Pos1[Pos1 %in% Pos3] 
+	Dat.m$EAF[Pos4]<-"high conflict" #if there is a moderate eaf conflict (eaf close to 0.5) but both datasets are from the same study, then the conflict is upgraded to high
+
+	Dat.m$Z_scores<-"no conflict"
+	# Z_scores<-rep("black",nrow(Dat.m))
+	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"moderate conflict"
+	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >= 3.890592 & abs(Dat.m$z.x) >= 3.890592 )]<-"high conflict" # Z score of 3.890592 = 2 sided p value of 0.0001	
+	Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
+	return(Dat.m)
 }
+
 
 harmonise_effect_allele<-function(dat=NULL,beta=beta){
 	Pos<-which(dat$effect_allele.x!=dat$effect_allele.y)
