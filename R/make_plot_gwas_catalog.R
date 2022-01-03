@@ -325,6 +325,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 
 	if(exclude_palindromic_snps)
 	{
+		Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
 		Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
 	}	
 
@@ -333,8 +334,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	Dat.m<-Dat.m[!is.na(Dat.m$effect_allele.x),]
 	Dat.m<-Dat.m[nchar(Dat.m$effect_allele.y)==1,]
 	Dat.m<-Dat.m[nchar(Dat.m$other_allele)==1,]
-	Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
-	
+		
 	if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
 	{
 		# c("European","East Asian")
