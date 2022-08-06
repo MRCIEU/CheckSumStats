@@ -54,7 +54,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #' @importFrom magrittr %>%
 #' @export
 
-gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE,gwas_catalog=NULL)
+gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE)
 {
 
 	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
