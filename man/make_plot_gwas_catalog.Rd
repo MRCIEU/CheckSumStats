@@ -19,10 +19,12 @@ make_plot_gwas_catalog(
   Title_xaxis_size = 10,
   force_all_trait_study_hits = FALSE,
   exclude_palindromic_snps = TRUE,
-  beta = "lnor",
-  se = "lnor_se",
+  beta = "beta",
+  se = "se",
   distance_threshold = 25000,
-  return_dat = TRUE
+  return_dat = FALSE,
+  map_association_to_study = TRUE,
+  gwas_catalog = NULL
 )
 }
 \arguments{
@@ -61,6 +63,10 @@ make_plot_gwas_catalog(
 \item{distance_threshold}{distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.}
 
 \item{return_dat}{if TRUE, the dataset used to generate the plot is returned to the user and no plot is made.}
+
+\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
+
+\item{gwas_catalog}{user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.}
 }
 \value{
 plot

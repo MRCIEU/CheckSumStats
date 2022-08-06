@@ -12,7 +12,9 @@
 #' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian") 
 #' @param force_all_trait_study_hits force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.
 #' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
-#' @param distance_threshold distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.   
+#' @param distance_threshold distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.  
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
+#' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.  
 #' @param legend include legend in plot. Default TRUE
 #' @param Title plot title
 #' @param Title_size_subplot size of title 
@@ -24,21 +26,20 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="lnor",se="lnor_se",distance_threshold=25000,return_dat=TRUE){
-
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL){
 	
-	Dat.m<-compare_effect_to_gwascatalog(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold)
-	Dat.m[Dat.m$Z_scores=="high conflict",]
+	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
+	
+	# Dat.m[Dat.m$Z_scores=="high conflict",]
 	Names<-grep("beta",names(Dat.m))
 	Names2<-grep("effect",names(Dat.m))
 	Names3<-grep("eaf",names(Dat.m))
 	Names4<-grep("ances",names(Dat.m))
-	Dat.m$rsid[Dat.m$Z_scores=="high conflict"]
+	# Dat.m$rsid[Dat.m$Z_scores=="high conflict"]
 
-	Dat.m[Dat.m$Z_scores=="high conflict",c(Names,Names2,Names3,Names4)]
+	# Dat.m[Dat.m$Z_scores=="high conflict",c(Names,Names2,Names3,Names4)]
 	# head(Dat.m)
 	# Dat.m[Dat.m$Z_scores=="high conflict",c("z.y","z.x")]
-
 
 	Dat.m$Z_scores[Dat.m$Z_scores=="high conflict"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="moderate conflict"]<-"blue"
@@ -82,12 +83,21 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	labels_colour<-labels_colour[Pos]
 
 	ancestry1<-Dat.m$ancestral_group
+	if(is.null(ancestry1))
+	{
+		ancestry1<-"Unknown"	
+	}
 	
 	labels_shape<-unique(ancestry1)[order(unique(ancestry1))]
+
 	values_shape<-labels_shape
 	values_shape[values_shape == "European"]<-15
 	values_shape[values_shape == "East Asian"]<-16
 	values_shape<-as.numeric(values_shape)
+	if(any(is.na(values_shape))) {
+		values_shape[is.na(values_shape)]<-17
+	}
+	
 	# values_shape<-c(16,15,17,18)
 	
 	if(is.null(Title)){
@@ -177,7 +187,7 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 
 	if(is.null(efo) & is.null(efo_id) & is.null(trait)) stop("you must specify either efo, efo_id or trait")
 	
-	gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait)
+	gwas_catalog<-gwas_catalog_hits(efo=efo,efo_id=efo_id,trait=trait)
 
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
@@ -307,17 +317,19 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 #' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
 #' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
 #' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog. 
+#' @param force_all_trait_study_hits force the comparison to include GWAS hits from the test dataset if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the test trait study has an unusually larger number of GWAS hits, which could, in turn, indicate analytical issues with the summary statistics 
+#' @param distance_threshold distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.  
 #'
 #' @return dataframe
 #' @export
 
 
-compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=TRUE,beta="beta",se="se",gwas_catalog=NULL)
+compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=TRUE,beta="beta",se="se",gwas_catalog=NULL,force_all_trait_study_hits=FALSE,distance_threshold=distance_threshold)
 {
 	
 	if(is.null(gwas_catalog))
 	{
-		gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
+		gwas_catalog<-gwas_catalog_hits(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
 	}
 	
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
@@ -390,6 +402,29 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	Pos4<-Pos1[Pos1 %in% Pos3] 
 	Dat.m$EAF[Pos4]<-"high conflict" #if there is a moderate eaf conflict (eaf close to 0.5) but both datasets are from the same study, then the conflict is upgraded to high
 
+	if(force_all_trait_study_hits)
+	{#this step assumes that dat contains GWAS hits defined in the test dataset 
+		gc_list<-find_hits_in_gwas_catalog(gwas_hits=dat$rsid,trait=trait,efo=efo,efo_id=efo_id,distance_threshold=distance_threshold)
+			
+		if(length(gc_list$not_in_gc)>0)
+		{
+		# if(any(!dat$rsid %in% gwas_catalog$rsid)){
+			# dat$rsid[!dat$rsid %in% gwas_catalog$rsid]
+			dat2<-dat[dat$rsid %in% gc_list$not_in_gc,] #the snps not in the GWAS catalog. Genomic coordinates for SNPs associated with trait/efo in the GWAS catalog did not overlap with these SNPs (including +/- 250 kb) 
+			Dat.m2<-merge(gwas_catalog,dat2,by="rsid",all.y=TRUE)
+			Dat.m2$z.y<-Dat.m2[,beta]/Dat.m2[,se]
+			Dat.m2$z.x<-0
+			# Dat.m$plot_x
+			Dat.m2$ancestral_group<-unique(dat$population)
+			Names<-names(Dat.m)[!names(Dat.m) %in% names(Dat.m2)]
+			for(i in 1:length(Names)){
+				Dat.m2[,Names[i]]<-NA
+			}
+			# Dat.m3<-Dat.m
+			Dat.m<-rbind(Dat.m,Dat.m2)
+		}
+	}
+
 	Dat.m$Z_scores<-"no conflict"
 	# Z_scores<-rep("black",nrow(Dat.m))
 	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"moderate conflict"
@@ -397,7 +432,6 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
 	return(Dat.m)
 }
-
 
 harmonise_effect_allele<-function(dat=NULL,beta=beta){
 	Pos<-which(dat$effect_allele.x!=dat$effect_allele.y)
@@ -438,6 +472,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))	
 
 	gwas_variants<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)	
+
 	
 	# gwas_variants<-gwasrapidd::get_variants(efo_trait = efo,efo_id=efo_id,reported_trait=trait)		
 	if(class(unlist(gwas_variants)) == "character")
@@ -510,7 +545,7 @@ get_positions_biomart<-function(gwas_hits=NULL){
 	# library(biomaRt)
 
 	# Get chromosomal positions and genes names from ENSEMBL. Should be build 38. Version object contains version ID for genome build used
-	Mart <- biomaRt::useMart(host="www.ensembl.org", biomart="ENSEMBL_MART_SNP",dataset="hsapiens_snp")
+	Mart <- biomaRt::useMart(host="https://www.ensembl.org", biomart="ENSEMBL_MART_SNP",dataset="hsapiens_snp")
 	Version<-biomaRt::listDatasets(Mart)[ biomaRt::listDatasets(Mart)$dataset=="hsapiens_snp","version"]
 	message(paste0("Using ",Version," of human genome from ensembl for genomic coordinates"))
 	Attr<-biomaRt::listAttributes(Mart)

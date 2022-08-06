@@ -60,65 +60,48 @@ order to perform the following tests:
 In this example we show how the package can be used to check the results
 and metadata from a case-control genome-wide association study of
 glioma. In this particular example, the non-effect allele column was
-mis-labelled as the effect allele.
+mis-labelled as the effect
+allele.
 
-## 1.1 Extract and format the summary data for glioma
+## <a id="step1"></a> 1.1 Check allele frequency metadata in the glioma GWAS
 
-The first step is to map the reported trait to the Experimental Factor
-Ontology (EFO), using the get\_efo function. The function identifies
-EFOs using the [ZOOMA REST API](https://www.ebi.ac.uk/spot/zooma/).
+First we investigate potential problems with the effect allele frequency
+column. We do this by comparing allele frequency in the glioma dataset
+to the 1000 genomes super populations. The function harmonises the test
+and reference dataset to reflect the minor allele in the 1000 genomes
+superpopulations. Therefore, the presence of SNPs with allele frequency
+\> 0.5 in the test dataset implies an allele frequency conflict.
 
-``` r
-library(CheckSumStats)
-EFO<-get_efo(trait="glioma")
-EFO
-#> $efo_id
-#> [1] "EFO_0000326" "EFO_0005543"
-#> 
-#> $confidence
-#> [1] "confidence:GOOD"
-```
-
-Then we make a list of SNP
-rsids.
+First we create a list of SNPs from the 1000 genomes reference set
 
 ``` r
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="glioma",ref1000G_superpops=TRUE)
-```
-
-We now have a list of SNPs that include known genetic associations for
-glioma in the GWAS catalog as well as a 1000 genomes reference set. The
-number of reported genetic associations for glioma in the GWAS catalog
-is:
-
-``` r
-length(snplist)-2297 
-# [1] 75
+utils::data("refdat_1000G_superpops")
+snplist<-unique(refdat_1000G_superpops$SNP)
 ```
 
 Next, we extract the summary associations statistics for these SNPs from
-the glioma dataset using the extract\_snps()
-function.
+the glioma
+dataset.
 
 ``` r
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
 ```
 
-In the above example, we extracted the summary data for the SNPs of
-interest from a tab separated text file that was stored on our local
-machine. In practice the File object is just the file path to your GWAS
-results. Note that the extract\_snps() function does not work on Windows
-machines. Alternatively, use the read.table() function to load your
-summary data into R and then extract the SNPs of interest. Another
-alternative is to source the summary data from an online repository,
-such as the [Open GWAS project](https://gwas.mrcieu.ac.uk/). For
-example, the equivalent scripts to extract summary data for thyroid
-cancer from Open GWAS are:
+If the extract\_snps function does not work, we recommend you use the
+fread function from the data.table package.
+
+``` r
+gli<-data.table::fread(File)
+```
+
+Alternatively, your summary dataset of interest migh be located in an
+online repository, such as the [Open GWAS
+project](https://gwas.mrcieu.ac.uk/). The equivalent scripts to extract
+summary data for thyroid cancer from Open GWAS are:
 
 ``` r
 EFO<-get_efo(trait="thyroid cancer")
-snplist<-make_snplist(efo_id = EFO$efo_id,trait="thyroid carcinoma")
 ao<-ieugwasr::gwasinfo()
 Pos<-grep("thyroid cancer",ao$trait,ignore.case=TRUE)
 ao$id[Pos]
@@ -127,11 +110,9 @@ thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)
 ```
 
 Returning to the glioma example, from the test dataset we have now
-extracted results corresponding to SNPs known to be associated with
-glioma in the GWAS catalog as well as SNPs present in the 1000 genomes
-reference set. Now we need to format the data, to get it into the
-expected format for the tests to
-come.
+extracted results corresponding to SNPs in the 1000 genomes reference
+set. Now we need to format the data, to get it into the expected
+format.
 
 ``` r
 Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
@@ -145,19 +126,30 @@ ratio and P value without confidence intervals or a standard error. The
 format\_data() function accepts these and other effect size reporting
 formats. See ?format\_data() for more info.
 
-Now we are ready to perform some checks on the
-data.
+Now we check the summary data for potential allele frequency conflicts.
+are ready to perform some checks on the data.
 
-## <a id="step2"></a> 1.2 Check allele frequency metadata in the glioma GWAS
+``` r
+af_conflicts<-flag_af_conflicts(target_dat=Dat)
+af_conflicts
+# $number_of_conflicts
+# [1] 88
 
-Next we create some plots to visualise potential problems with the
-effect allele frequency column. We do this by comparing allele frequency
-in the glioma dataset to the 1000 genomes super populations. The
-function harmonises the test and reference dataset to reflect the minor
-allele in the 1000 genomes superpopulations. Therefore, the presence of
-SNPs with allele frequency \> 0.5 in the test dataset implies an allele
-frequency
-conflict.
+# $proportion_conflicts
+# [1] 1
+
+# $number_of_snps
+# [1] 88
+```
+
+The flag\_af\_conflicts function returns the number of SNPs with an
+allele frequency conflict and also the number of SNPs used for the
+comparison with the 1000 genomes super populations. In this example, all
+SNPs are flagged with a conflict, indicating that the reported effect
+allele frequency actually reflects the non-effect allele.
+
+We can also create some plots to visualise the allele frequncy
+conflicts
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
@@ -209,9 +201,10 @@ genomes super population (r=-0.89). This confirms the reported ancestry
 of the test dataset. Note that this function assumes that reported
 effect allele frequency corresponds to either the effect allele (returns
 positive correlation coefficient) or non-effect allele (returns a
-negative correlation coefficient). In the presence of some types of
-metadata errors, the function will not return sensible results, e.g. see
-[fasting glucose example](#fasting_glucose).
+negative correlation coefficient). If reported allele frequency does not
+correspond consistently with either the effect or non-effect allele, the
+function will not return sensible results, e.g. see [fasting glucose
+example](#fasting_glucose).
 
 We can also ask the function to return the dataset used to generate the
 previous plot, by setting the return\_dat argument to TRUE.
@@ -220,37 +213,99 @@ previous plot, by setting the return\_dat argument to TRUE.
 plot_dat<-make_plot_maf(target_dat=Dat,return_dat=TRUE)
 ```
 
-Alternatively, we can use the flag\_af\_conflicts function. This can be
-used to programmatically identify allele frequency conflicts, which may
-be particularly useful when assessing large numbers of datasets and when
-one doesn’t wish to generate lots of plots for manual inspection.
-
-``` r
-flag_af_conflicts(target_dat=Dat)
-# $number_of_conflicts
-# [1] 88
-
-# $proportion_conflicts
-# [1] 1
-
-# $number_of_snps
-# [1] 88
-```
-
-The flag\_af\_conflicts function returns the number of SNPs with an
-allele frequency conflict and also the number of SNPs used for the
-comparison with the 1000 genomes super populations. In this example, all
-SNPs are flagged with a conflict, indicating that reported effect allele
-frequency reflects the non-effect allele.
-
-## 1.3 Check the effect allele metadata
+## 1.2 Check the effect allele metadata
 
 We next check that the reported effect allele metadata is correct, by
-comparing the reported effect alleles for glioma to the GWAS catalog. We
-do this using the make\_plot\_gwas\_catalog() function.
+comparing the reported effect alleles for glioma to the GWAS catalog.
+
+The first step is to download the GWAS catalog data corresponding to our
+trait of interest. We then extract the SNPs associated with glioma from
+the downloaded dataset. The GWAS catalog can be searched on either the
+plain text description of the trait (e.g. “glioma”) or the trait EFO. In
+this example, we search the GWAS catalog on EFO, retrieved using the
+get\_efo function.
 
 ``` r
-Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id =EFO$efo_id,trait="glioma")
+EFO<-get_efo(trait="glioma")
+EFO$efo_id
+# "EFO_0000326" "EFO_0005543"
+
+gwas_catalog<-gwas_catalog_hits(efo=NULL,efo_id=EFO$efo_id,trait=NULL,map_association_to_study=TRUE)
+snplist<-gwas_catalog$rsid
+```
+
+Next, we extract the summary associations statistics for these SNPs from
+the glioma
+dataset.
+
+``` r
+File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
+gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t")
+```
+
+If the extract\_snps function does not work, we recommend you use the
+fread function from the data.table package to read in the summary data
+file and thereafter extract the relevant rows.
+
+``` r
+gli<-data.table::fread(File)
+gli<-gli[gli$Locus %in% snplist,]
+```
+
+We then format the data to get into the expect
+format.
+
+``` r
+Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+
+gc_dat<-compare_effect_to_gwascatalog2(dat=Dat,efo_id=Efo$efo_id,trait="Glioma",map_association_to_study=FALSE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
+
+gc_conflicts<-flag_gc_conflicts2(gc_dat=gc_dat) 
+gc_conflicts
+# $effect_size_conflicts$`high conflict`
+# [1] 29
+
+# $effect_size_conflicts$`moderate conflict`
+# [1] 41
+
+# $effect_size_conflicts$`no conflict`
+# [1] 8
+
+# $effect_size_conflicts$n_snps
+# [1] 78
+
+# $eaf_conflicts
+# $eaf_conflicts$`high conflict`
+# [1] 36
+
+# $eaf_conflicts$`moderate conflict`
+# [1] 10
+
+# $eaf_conflicts$`no conflict`
+# [1] 3
+
+# $eaf_conflicts$n_snps
+# [1] 49
+```
+
+Moderate or high effect size conflicts are identified for 70 out of 78
+SNPs, while moderatate or high EAF conflicts are identified for 46 out
+of 49 SNPs (the number of SNPs differ because effect allele frequency
+was missing for 29 SNPs). This strongly indicates that the reported
+effect allele is actually the non-effect allele.
+
+This step can be quite slow if there are large numbers of genetic
+associations in the GWAS catalog. It can be sped up by restricting the
+search to one of efo, efo\_id or trait (rather than simultaneous
+combinations of the three) or by setting the map\_association\_to\_study
+argument to FALSE (but if set to FALSE information on association ID and
+study ancestry will not be retrieved).
+
+We can also create some plots to visualise the effect size conflicts
+
+``` r
+
+Plot2<-make_plot_gwas_catalog(dat=Dat,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se",map_association_to_study=TRUE)
 Plot2
 ```
 
@@ -263,7 +318,7 @@ datasets, respectively. For most SNPs, the allele associated with higher
 risk in the GWAS catalog is associated with lower risk in the test
 dataset. We call these discrepancies “effect size conflicts” and their
 presence can be interpreted as evidence for an effect allele metadata
-error. However, when comparing datasets, it’s important to make
+error. However, when comparing datasets, it’’s important to make
 allowance for chance deviations in effect direction, especially for test
 datasets generated in small sample sizes. For this reason, effect size
 conflicts are labelled as high if the two-sided P value for the Z score
@@ -287,7 +342,8 @@ setting the return\_dat argument to
 TRUE.
 
 ``` r
-plot_dat<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),return_dat=TRUE)
+plot_dat<-make_plot_gwas_catalog(dat=Dat,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se",map_association_to_study=TRUE,
+    return_dat=TRUE)
 ```
 
 We can also make a plot comparing effect allele frequency between the
@@ -295,7 +351,7 @@ test dataset and the GWAS
 catalog:
 
 ``` r
-Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",efo_id =EFO$efo_id,trait=unique(Dat$outcome))
+Plot3<-make_plot_gwas_catalog(dat=Dat,plot_type="plot_eaf",map_association_to_study=TRUE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
 Plot3
 ```
 
@@ -311,55 +367,13 @@ test dataset have frequencies \<0.5 in the GWAS catalog. We flag these
 discrepancies as EAF conflicts. EAF conflicts are labelled as moderate
 if EAF is close to 0.5 (i.e. 0.4 to 0.6) and as high if \<0.4 or \>0.6.
 This makes allowance for chance deviations in allele frequency around
-0.5. When making comparisons with the GWAS catalog it’s important to
+0.5. When making comparisons with the GWAS catalog it’’s important to
 consider whether the datasets are matched on ancestry. This
 consideration does not, however, apply for comparisons with the
 customised 1000 genomes reference dataset (see [step 1.2](#step2)
 above).
 
-Alternatively, we can identify conflicts with the GWAS catalog using
-flag\_gc\_conflicts(). This can be used to programmatically identify
-effect size and EAF conflicts, which may be particularly useful when
-assessing large numbers of datasets and when one doesn’t want to
-generate lots of plots for manual
-inspection.
-
-``` r
-gc_conflicts<-flag_gc_conflicts(dat=Dat,efo_id =EFO$efo_id,trait=unique(Dat$outcome),gwas_catalog_ancestral_group="European")
-gc_conflicts$effect_size_conflicts
-# $`high conflict`
-# [1] 19
-
-# $`moderate conflict`
-# [1] 21
-
-# $`no conflict`
-# [1] 2
-
-# $n_snps
-# [1] 42
-
-gc_conflicts$eaf_conflicts
-# $`high conflict`
-# [1] 12
-
-# $`moderate conflict`
-# [1] 4
-
-# $`no conflict`
-# [1] 0
-
-# $n_snps
-# [1] 16
-```
-
-Moderate or high effect size conflicts are identified for 40 out of 42
-SNPs, while moderatate or high EAF conflicts are identified for 16 out
-of 16 SNPs (the number of SNPs differ because effect allele frequency
-was missing for 26 SNPs). This strongly indicates that the reported
-effect allele is actually the non-effect allele.
-
-## 1.4 Check for errors or analytical issues in the summary data
+## 1.3 Check for errors or analytical issues in the summary data
 
 To identify potential errors or analytical issues in the summary data,
 we next compare the expected and reported effect sizes. In this example
@@ -372,29 +386,42 @@ make a list of SNPs corresponding to the GWAS catalog associations. Then
 we use the extract\_snps() function to extract those SNPs from the test
 dataset. We also set the argument “get\_sig\_snps” to TRUE, which tells
 the function to additionally extract GWAS significant SNPs from the test
-dataset (default p value is 5e-8). Alternatively to the extract\_snps()
-function, which does not work on Windows machines, you can use
-read.table() to read in your GWAS results file and then extract the two
-sets of SNPs. We then generate the expected effect sizes. Since the
-reported effect sizes correspond to log odds ratios, we use the
-predict\_lnor\_sh() function. This function was developed by [Sean
+dataset (default p value is 5e-8). We then generate the expected effect
+sizes. Since the reported effect sizes correspond to log odds ratios, we
+use the predict\_lnor\_sh() function. This function was developed by
+[Sean
 Harrison](https://seanharrisonblog.com/2020/04/11/estimating-an-odds-ratio-from-a-gwas-only-reporting-the-p-value).
 
 ``` r
+
+gwas_catalog<-gwas_catalog_hits(efo=NULL,efo_id=EFO$efo_id,trait=NULL,map_association_to_study=TRUE)
+snplist<-gwas_catalog$rsid
+
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="glioma",ref1000G_superpops=FALSE)
+
 gli<-extract_snps(snplist=snplist,path_to_target_file=File,path_to_target_file_sep="\t",get_sig_snps=TRUE, p_val_col_number=7)
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
-Pred<-predict_lnor_sh(dat=Dat)
-Plot4<-make_plot_pred_effect(dat=Pred)
-Plot4
 ```
 
+If the extract\_snps() doesn’’t work we recommend you use the fread
+function from the data.table package to load the summary data and
+thereforeafter extract the relevant SNPs.
+
+``` r
+gli<-data.table::fread(File)
+Pos1<-which(gli$p<5e-8)
+Pos2<-which(gli$Locus %in% snplist)
+Pos<-unique(c(Pos1,Pos2))
+gli<-gli[Pos,]
+```
+
+Dat\<-format\_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect\_allele=“Allele1”,other\_allele=“Allele2”,or=“OR”,or\_lci=“OR\_95.\_CI\_l”,or\_uci=“OR\_95.\_CI\_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
+Pred\<-predict\_lnor\_sh(dat=Dat)
+Plot4\<-make\_plot\_pred\_effect(dat=Pred) Plot4 \`\`\`
 ![“README-example1\_predplot1.png”](/man/figures/README-example1_predplot1.png)
 
 The plot shows a strong positive correlation between the expected and
 reported effect sizes, an intercept close to zero and a slope that is
-close to 1. This is reasonably close to what we’d expect to see in the
+close to 1. This is reasonably close to what we’’d expect to see in the
 absence of major analytical issues or errors in the summary data.
 Genetic association results for [arachidonic acid](#ara), [basal cell
 carcinoma](#bcc) and [colorectal cancer](#crc) provide examples where
@@ -429,17 +456,15 @@ be small, a relative bias of 10% will be very small on an absolute scale
 (e.g. scaling an odds ratio of 1.10 up by 10% is
 1.11).
 
-## 1.5 Check that the top hits in the glioma test dataset are reported in the GWAS catalog
+## 1.4 Check that the top hits in the glioma test dataset are reported in the GWAS catalog
 
 Next we check that the “top hits” for glioma in the test dataset are
 reported in the GWAS catalog. We define top hits as SNP-trait
 associations with P values \< 5e-8, a conventional threshold for
 statistical significance in GWAS. First we extract the top hits, using
-the extract\_sig\_snps() function but, alternatively, you could use the
-read.table() function to read in your entire dataset and then extract
-the top hits. We then search the GWAS catalog for all genetic
-associations for glioma that are within 50,000 base pairs of the top
-hits in the test dataset.
+the extract\_sig\_snps() function. We then search the GWAS catalog for
+all genetic associations for glioma that are within 50,000 base pairs of
+the top hits in the test dataset.
 
 A lack of overlap with the GWAS catalog could be a sign of false
 positives in the test dataset, which in turn could be a sign of
@@ -454,17 +479,24 @@ hits.
 ``` r
 File<-system.file("extdata", "glioma_test_dat.txt", package = "CheckSumStats")
 gli<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
-gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000) 
-gc_list
-#> $not_in_gc
-#> character(0)
-#>
-#> $in_gc
-#> [1] "rs2736100"  "rs2853676"  "rs10120688" "rs1063192"  "rs1412829" 
-#> [6] "rs2151280"  "rs2157719"  "rs7049105"  "rs4977756"  "rs6010620" 
-#> [11] "rs6089953" 
 ```
+
+If extract\_sig\_snps does not work, we recommend using the fread
+function from the data.table package to read in your entire dataset and
+then extract the top hits.
+
+``` r
+gli<-data.table::fread(File)
+Pos<-which(gli$p<5e-8)
+gli<-gli[Pos,]
+```
+
+Dat\<-format\_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect\_allele=“Allele1”,other\_allele=“Allele2”,or=“OR”,or\_lci=“OR\_95.\_CI\_l”,or\_uci=“OR\_95.\_CI\_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
+gc\_list\<-find\_hits\_in\_gwas\_catalog(gwas\_hits=Dat\(rsid,efo_id=Efo\)efo\_id,distance\_threshold=50000)
+gc\_list \#\> $not\_in\_gc \#\> character(0) \#\> \#\> $in\_gc \#\>
+\[1\] “rs2736100” “rs2853676” “rs10120688” “rs1063192” “rs1412829” \#\>
+\[6\] “rs2151280” “rs2157719” “rs7049105” “rs4977756” “rs6010620” \#\>
+\[11\] “rs6089953” \`\`\`
 
 All the top hits for glioma in the test dataset are either associated
 with glioma in the GWAS cataog or are in close physical proximity to a
@@ -474,13 +506,13 @@ example](#example3_notingc) illustrates a test dataset where most of the
 top hits are not reported in the GWAS
 catalog.
 
-## 1.6 Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
+## 1.5 Check whether the reported P values correspond to the reported effect sizes in the glioma dataset
 
 Next we generate some ZZ plots, in order to flag SNPs with P values that
-don’t coincide with their reported effect sizes. The zz\_plot() function
-compares Zp scores (inferred from the reported P values) to Zb scores
-(inferred from the reported effect size and standard error). We see a
-very strong agreement between the Zb and Zp scores.
+don’’t coincide with their reported effect sizes. The zz\_plot()
+function compares Zp scores (inferred from the reported P values) to Zb
+scores (inferred from the reported effect size and standard error). We
+see a very strong agreement between the Zb and Zp scores.
 
 ``` r
 Plot6<-zz_plot(dat=Dat)
@@ -489,7 +521,7 @@ Plot6
 
 ![“example1\_zzplot.png”](/man/figures/README-example1_zzplot.png)
 
-## 1.7 Combine all plots into a single report for the glioma GWAS
+## 1.6 Combine all plots into a single report for the glioma GWAS
 
 Next we combine all the plots into a single report.
 
@@ -512,16 +544,30 @@ quality or unreliable genetic variants excluded).
 
 ``` r
 library(CheckSumStats)
-EFO<-get_efo(trait="arachidonic acid measurement")
-EFO
+EFO<-get_efo(trait="arachidonic acid")
+gwas_catalog<-gwas_catalog_hits(efo=NULL,efo_id=EFO$efo_id[1],trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",map_association_to_study=TRUE)
+snplist1<-unique(gwas_catalog$rsid)
 
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",ref1000G_superpops=TRUE)
+utils::data("refdat_1000G_superpops")
+snplist2<-unique(refdat_1000G_superpops$SNP)
+snplist<-c(snplist1,snplist2)
+
 File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
 ara<-extract_snps(snplist=snplist,path_to_target_file=File)
-Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
 ```
 
-## 2.2 Check allele frequency metadata for arachidonic acid GWAS
+If the extract\_snps function does not work, we recommend you use the
+fread function from the data.table package.
+
+``` r
+ara<-data.table::fread(File)
+ara<-ara[ara$snp %in% snplist,]
+```
+
+Dat\<-format\_data(dat=ara,trait=“arachidonic
+acid”,population=“European”,ncontrol=“n”,rsid=“snp”,effect\_allele=“effect\_allele”,other\_allele=“other\_allele”,beta=“beta”,se=“se”,eaf=“effect\_allele\_freq”,p=“p”)
+\`\`\` \#\# 2.2 Check allele frequency metadata for arachidonic acid
+GWAS
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
@@ -539,7 +585,7 @@ allele.
 ## 2.3 Check effect allele metadata for arachidonic acid
 
 ``` r
-Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset")
+Plot2<-make_plot_gwas_catalog(dat=Dat,beta="beta",se="se",Title = "Comparison of associations in the GWAS catalog to the test dataset",gwas_catalog=gwas_catalog)
 Plot2
 ```
 
@@ -561,17 +607,27 @@ dataset.
 ``` r
 File<-system.file("extdata", "ara_test_dat.txt", package = "CheckSumStats")
 ara<-extract_sig_snps(path_to_target_file=File,p_val_col_number=7)
-Dat<-format_data(dat=ara,outcome="arachidonic acid",population="European",pmid=24823311,study="CHARGE",ncontrol="n",UKbiobank=FALSE,rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
-dim(Dat)
-#> [1] 1064   19
 ```
 
-1064 SNPs were extracted. It’s useful to clump the results to ensure
-independence amongst SNPs and to speed up the next steps. We call the
-ieugwasr package to perform the
-clumping.
+If the extract\_sig\_snps function doesn’’t work, use the fread function
+from the data.table package.
 
 ``` r
+ara<-data.table::fread(File)
+ara<-ara[ara$p<5e-8,]
+```
+
+Dat\<-format\_data(dat=ara,trait=“arachidonic
+acid”,population=“European”,ncontrol=“n”,rsid=“snp”,effect\_allele=“effect\_allele”,other\_allele=“other\_allele”,beta=“beta”,se=“se”,eaf=“effect\_allele\_freq”,p=“p”)
+
+\#\> \[1\] 1064 19 \`\`\`
+
+1064 SNPs were extracted. It’’s useful to clump the results to ensure
+independence amongst SNPs and to speed up the next steps. We call the
+ieugwasr package to perform the clumping.
+
+``` r
+
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=Dat$rsid, pval=Dat$p, id=Dat$id),pop="EUR")
 #> Please look at vignettes for options on running this locally if you need to run many instances of this command.
 #> Clumping , 1064 variants, using EUR population reference
@@ -611,7 +667,7 @@ frequencies.
 ## <a id="example3_notingc"></a> 2.5 Check that the top hits in the arachidonic acid test dataset are reported in the GWAS catalog
 
 ``` r
-gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
+gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",distance_threshold=50000) 
 gc_list
 #> $not_in_gc
 #>  [1] "rs10026364" "rs10488885" "rs10819512" "rs10938476" "rs10986188"
@@ -637,7 +693,7 @@ gc_list
 #> $in_gc
 #> [1] "rs174528" "rs472031" "rs1741"
 
-Plot5<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se",Title = "Comparison of top hits in test dataset to GWAS catalog")
+Plot5<-make_plot_gwas_catalog(dat=Dat,efo_id=NULL,trait="Plasma omega-6 polyunsaturated fatty acid levels (arachidonic acid)",force_all_trait_study_hits=TRUE,beta="beta",se="se",Title = "Comparison of top hits in test dataset to GWAS catalog")
 Plot5
 ```
 
@@ -674,7 +730,7 @@ reported effect sizes.
 
 ## 2.7 Combine all plots into a single report
 
-Let’s combine all the key figures into a single report
+Let’’s combine all the key figures into a single report
 
 ``` r
 Plot_list2<-c("Plot1","Plot2","Plot3","Plot4","Plot5","Plot6")
