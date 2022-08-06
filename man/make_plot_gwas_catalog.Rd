@@ -22,7 +22,7 @@ make_plot_gwas_catalog(
   beta = "beta",
   se = "se",
   distance_threshold = 25000,
-  return_dat = TRUE,
+  return_dat = FALSE,
   map_association_to_study = TRUE,
   gwas_catalog = NULL
 )

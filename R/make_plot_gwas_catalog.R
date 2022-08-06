@@ -26,7 +26,7 @@
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=TRUE,map_association_to_study=TRUE,gwas_catalog=NULL){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL){
 	
 	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
 	
@@ -40,7 +40,6 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	# Dat.m[Dat.m$Z_scores=="high conflict",c(Names,Names2,Names3,Names4)]
 	# head(Dat.m)
 	# Dat.m[Dat.m$Z_scores=="high conflict",c("z.y","z.x")]
-
 
 	Dat.m$Z_scores[Dat.m$Z_scores=="high conflict"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="moderate conflict"]<-"blue"
@@ -95,7 +94,10 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	values_shape[values_shape == "European"]<-15
 	values_shape[values_shape == "East Asian"]<-16
 	values_shape<-as.numeric(values_shape)
-	if(is.na(values_shape)) values_shape<-15
+	if(any(is.na(values_shape))) {
+		values_shape[is.na(values_shape)]<-17
+	}
+	
 	# values_shape<-c(16,15,17,18)
 	
 	if(is.null(Title)){
@@ -185,7 +187,7 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 
 	if(is.null(efo) & is.null(efo_id) & is.null(trait)) stop("you must specify either efo, efo_id or trait")
 	
-	gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait)
+	gwas_catalog<-gwas_catalog_hits(efo=efo,efo_id=efo_id,trait=trait)
 
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
 	Dat.m<-merge(gwas_catalog,dat,by="rsid")	
@@ -327,7 +329,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	
 	if(is.null(gwas_catalog))
 	{
-		gwas_catalog<-gwas_catalog_hits2(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
+		gwas_catalog<-gwas_catalog_hits(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
 	}
 	
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
@@ -470,6 +472,7 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))	
 
 	gwas_variants<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)	
+
 	
 	# gwas_variants<-gwasrapidd::get_variants(efo_trait = efo,efo_id=efo_id,reported_trait=trait)		
 	if(class(unlist(gwas_variants)) == "character")
@@ -542,7 +545,7 @@ get_positions_biomart<-function(gwas_hits=NULL){
 	# library(biomaRt)
 
 	# Get chromosomal positions and genes names from ENSEMBL. Should be build 38. Version object contains version ID for genome build used
-	Mart <- biomaRt::useMart(host="www.ensembl.org", biomart="ENSEMBL_MART_SNP",dataset="hsapiens_snp")
+	Mart <- biomaRt::useMart(host="https://www.ensembl.org", biomart="ENSEMBL_MART_SNP",dataset="hsapiens_snp")
 	Version<-biomaRt::listDatasets(Mart)[ biomaRt::listDatasets(Mart)$dataset=="hsapiens_snp","version"]
 	message(paste0("Using ",Version," of human genome from ensembl for genomic coordinates"))
 	Attr<-biomaRt::listAttributes(Mart)

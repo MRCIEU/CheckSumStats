@@ -18,7 +18,7 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 	
 	snplist<-""
 	 
-	top_hits<-gwas_catalog_hits2(efo_id=efo_id,trait=trait,efo=efo)	
+	top_hits<-gwas_catalog_hits(efo_id=efo_id,trait=trait,efo=efo)	
 	
 	if(class(top_hits)!="data.frame")
 	{
@@ -54,10 +54,11 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #' @importFrom magrittr %>%
 #' @export
 
-gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE)
+gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE,gwas_catalog=NULL)
 {
 
 	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
+
 			
 
 	if(class(gwas_associations) =="associations") 
@@ -133,12 +134,15 @@ gwas_catalog_hits2<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_
 				if(map_association_to_study)
 				{
 					assoc2study<-map_association_to_study_id(associations=gwas_associations)		
-					gwas_results<-merge(gwas_results,assoc2study,by="association_id")					
-					ancestry_tab<-make_ancestry_table(association_id=gwas_results$association_id)					
+					gwas_results<-merge(gwas_results,assoc2study,by="association_id")	
+
+					ancestry_tab<-make_ancestry_table(association_id=gwas_results$association_id)		
 					gwas_results<-merge(gwas_results,ancestry_tab,by="study_id")
-					col.keep<-c(col.keep,"study_id")
-					names_col.keep<-c(names_col.keep,"study_id")
-				}					
+					
+					col.keep<-c(col.keep,"study_id","ancestral_group")
+					names_col.keep<-c(names_col.keep,"study_id","ancestral_group")
+				}		
+					
 				gwas_results<-gwas_results[,col.keep]
 				names(gwas_results)<-c(names_col.keep)
 				return(gwas_results)

@@ -6,13 +6,10 @@
 \usage{
 format_data(
   dat = NULL,
-  outcome = NA,
+  trait = NA,
   population = NA,
-  pmid = NA,
-  study = NA,
   ncase = NA,
   ncontrol = NA,
-  UKbiobank = NA,
   rsid = NA,
   effect_allele = NA,
   other_allele = NA,
@@ -21,48 +18,26 @@ format_data(
   lnor = NA,
   lnor_se = NA,
   eaf = NA,
-  maf = NA,
   p = NA,
-  info1 = NA,
-  info2 = NA,
-  info3 = NA,
-  info4 = NA,
-  HWEp = NA,
-  phet = NA,
-  I2 = NA,
-  Q = NA,
-  Direction = NA,
-  effect_allele_confirmed = FALSE,
   or = NA,
   or_lci = NA,
   or_uci = NA,
   chr = NA,
   pos = NA,
-  ID = NULL,
   z_score = NA,
-  all_summary_stats = FALSE,
-  open_gwas = FALSE,
-  efo = NA,
-  efo_id = NA,
   drop_duplicate_rsids = TRUE
 )
 }
 \arguments{
 \item{dat}{the dataset to be formatted}
 
-\item{outcome}{the name of the outcome trait}
+\item{trait}{the name of the trait.}
 
-\item{population}{describe the ancestry of the dataset}
-
-\item{pmid}{pubmed identifier for a publication corresponding to the dataset}
-
-\item{study}{name of the study}
+\item{population}{describe the population ancestry of the dataset}
 
 \item{ncase}{number of cases or name of the column specifying the number of cases}
 
-\item{ncontrol}{number of controls or name of the column specifying the number of controls}
-
-\item{UKbiobank}{was the dataset generated in UK Biobank or in a dataset that overlaps with UK Biobank? default set to FALSE}
+\item{ncontrol}{number of controls or name of the column specifying the number of controls. If your summary data was generated in a linear model of a continuous trait, use ncontrol to indicate the total sample size.}
 
 \item{rsid}{name of the column containing the rs number or identifiers for the genetic variants}
 
@@ -70,9 +45,9 @@ format_data(
 
 \item{other_allele}{name of the non-effect allele column}
 
-\item{beta}{name of the column containing the SNP effect sizes.}
+\item{beta}{name of the column containing the SNP effect sizes. Use this argument if your summary data was generated in a linear model of a continuous trait.}
 
-\item{se}{standard error for the beta}
+\item{se}{standard error for the beta. Use this argument if your summary data was generated in a linear model of a continuous trait.}
 
 \item{lnor}{name of the column containing the log odds ratio. If missing, tries to infer it from the odds ratio}
 
@@ -80,29 +55,7 @@ format_data(
 
 \item{eaf}{name of the effect allele frequency column}
 
-\item{maf}{name of the minor allele frequency column}
-
 \item{p}{name of the pvalue columne}
-
-\item{info1}{name of the column containing metrics of imputation quality, such as info or r2 scores}
-
-\item{info2}{name of second column containing metrics of imputation quality, such as info or r2 scores}
-
-\item{info3}{name of third column containing metrics of imputation quality, such as info or r2 scores name of the third info score column}
-
-\item{info4}{name of fourth column containing metrics of imputation quality, such as info or r2 scores}
-
-\item{HWEp}{name of the column containing pvalues for tests of Hardy-Weinberg equilibrium}
-
-\item{phet}{name of the column containing pvalues for tests of between study heterogeneity}
-
-\item{I2}{name of the column containing I2 metric of between study heterogeneity}
-
-\item{Q}{name of the column containing Cochran Q test for between study heterogeneity}
-
-\item{Direction}{name of the column specifying the direction of effect in each individual study within a meta-analysis of multiple studies}
-
-\item{effect_allele_confirmed}{have you confirmed the identity of the effect allele column? default set to FALSE}
 
 \item{or}{name of column containing the odds ratio}
 
@@ -114,17 +67,7 @@ format_data(
 
 \item{pos}{genomic position for the genetic variant in base pairs}
 
-\item{ID}{identifier for the dataset}
-
 \item{z_score}{effect size estimate divided by its standard error}
-
-\item{all_summary_stats}{do you have the full set of summary data or only a subset of the summary data? Default set to FALSE}
-
-\item{open_gwas}{were the summary data downloaded from Open GWAS https://gwas.mrcieu.ac.uk/ ? Default set to FALSE}
-
-\item{efo}{outcome trait of interest in the experimental factor ontology.}
-
-\item{efo_id}{ID for outcome trait of interest in the experimental factor ontology.}
 
 \item{drop_duplicate_rsids}{drop duplicate rsids? logical. default TRUE. duplicate rsids may for example correspond to triallelic SNPs.}
 }
@@ -132,5 +75,5 @@ format_data(
 data frame
 }
 \description{
-Get the outcome summary data ready for the QC checks. The function assumes that the summary data was generated in a logistic regression model of a binary phenotype, e.g. cases and controls
+Get the trait summary data ready for the QC checks.
 }
