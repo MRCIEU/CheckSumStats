@@ -252,11 +252,11 @@ gli<-data.table::fread(File)
 gli<-gli[gli$Locus %in% snplist,]
 ```
 
-We then format the data to get into the expect
+We then format the data to get into the expected
 format.
 
 ``` r
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+Dat<-format_data(dat=gli,trait="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 
 gc_dat<-compare_effect_to_gwascatalog2(dat=Dat,efo_id=Efo$efo_id,trait="Glioma",map_association_to_study=FALSE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
 
