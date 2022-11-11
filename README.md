@@ -22,6 +22,7 @@ To install the latest version of CheckSumStats, perform as normal:
 ``` r
 install.packages("devtools")
 devtools::install_github("MRCIEU/CheckSumStats")
+library(CheckSumStats)
 ```
 
 If you are on a MAC and installation fails, owing to a problem with the
