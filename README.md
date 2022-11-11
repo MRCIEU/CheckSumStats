@@ -94,6 +94,8 @@ fread function from the data.table package.
 
 ``` r
 gli<-data.table::fread(File)
+#then restrict the dataset to the snplist. In this dataset the rsid column happens to be called Locus but it will likely be called something else in your dataset. 
+gli<-gli[gli$Locus %in% snplist,] 
 ```
 
 Alternatively, your summary dataset of interest migh be located in an
