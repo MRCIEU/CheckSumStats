@@ -569,12 +569,10 @@ fread function from the data.table package.
 ``` r
 ara<-data.table::fread(File)
 ara<-ara[ara$snp %in% snplist,]
-```
-
-Dat\<-format\_data(dat=ara,trait=“arachidonic
-acid”,population=“European”,ncontrol=“n”,rsid=“snp”,effect\_allele=“effect\_allele”,other\_allele=“other\_allele”,beta=“beta”,se=“se”,eaf=“effect\_allele\_freq”,p=“p”)
-\`\`\` \#\# 2.2 Check allele frequency metadata for arachidonic acid
-GWAS
+Dat<-format_data(dat=ara,trait="arachidonic
+acid",population="European",ncontrol="n",rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
+``` 
+## 2.2 Check allele frequency metadata for arachidonic acid GWAS
 
 ``` r
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
@@ -622,14 +620,14 @@ from the data.table package.
 ``` r
 ara<-data.table::fread(File)
 ara<-ara[ara$p<5e-8,]
+Dat<-format_data(dat=ara,trait="arachidonic
+acid",population="European",ncontrol="n",rsid="snp",effect_allele="effect_allele",other_allele="other_allele",beta="beta",se="se",eaf="effect_allele_freq",p="p")
+dim(Dat)
+#> [1] 1064 19 
 ```
 
-Dat\<-format\_data(dat=ara,trait=“arachidonic
-acid”,population=“European”,ncontrol=“n”,rsid=“snp”,effect\_allele=“effect\_allele”,other\_allele=“other\_allele”,beta=“beta”,se=“se”,eaf=“effect\_allele\_freq”,p=“p”)
 
-\#\> \[1\] 1064 19 \`\`\`
-
-1064 SNPs were extracted. It’’s useful to clump the results to ensure
+1064 SNPs were extracted. It’s useful to clump the results to ensure
 independence amongst SNPs and to speed up the next steps. We call the
 ieugwasr package to perform the clumping.
 
