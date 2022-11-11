@@ -493,7 +493,7 @@ then extract the top hits.
 gli<-data.table::fread(File)
 Pos<-which(gli$p<5e-8)
 gli<-gli[Pos,]
-Dat<-format_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect_allele=“Allele1”,other_allele=“Allele2”,or=“OR”,or_lci=“OR_95._CI_l”,or_uci=“OR_95._CI_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
+Dat<-format_data(dat=gli,trait="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000)
 gc_list 
 #> $not_in_gc 
