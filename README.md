@@ -261,7 +261,7 @@ format.
 ``` r
 Dat<-format_data(dat=gli,trait="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 
-gc_dat<-compare_effect_to_gwascatalog2(dat=Dat,efo_id=Efo$efo_id,trait="Glioma",map_association_to_study=FALSE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
+gc_dat<-compare_effect_to_gwascatalog2(dat=Dat,efo_id=EFO$efo_id,trait="Glioma",map_association_to_study=FALSE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
 
 gc_conflicts<-flag_gc_conflicts2(gc_dat=gc_dat) 
 gc_conflicts
