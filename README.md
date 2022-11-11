@@ -493,14 +493,17 @@ then extract the top hits.
 gli<-data.table::fread(File)
 Pos<-which(gli$p<5e-8)
 gli<-gli[Pos,]
+Dat<-format_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect_allele=“Allele1”,other_allele=“Allele2”,or=“OR”,or_lci=“OR_95._CI_l”,or_uci=“OR_95._CI_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
+gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=EFO$efo_id,distance_threshold=50000)
+gc_list 
+#> $not_in_gc 
+#> character(0) 
+#> 
+#> $in_gc 
+#>[1] “rs2736100” “rs2853676” “rs10120688” “rs1063192” “rs1412829” 
+#>[6] “rs2151280” “rs2157719” “rs7049105” “rs4977756” “rs6010620” 
+#>[11] “rs6089953” 
 ```
-
-Dat\<-format\_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect\_allele=“Allele1”,other\_allele=“Allele2”,or=“OR”,or\_lci=“OR\_95.\_CI\_l”,or\_uci=“OR\_95.\_CI\_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
-gc\_list\<-find\_hits\_in\_gwas\_catalog(gwas\_hits=Dat\(rsid,efo_id=Efo\)efo\_id,distance\_threshold=50000)
-gc\_list \#\> $not\_in\_gc \#\> character(0) \#\> \#\> $in\_gc \#\>
-\[1\] “rs2736100” “rs2853676” “rs10120688” “rs1063192” “rs1412829” \#\>
-\[6\] “rs2151280” “rs2157719” “rs7049105” “rs4977756” “rs6010620” \#\>
-\[11\] “rs6089953” \`\`\`
 
 All the top hits for glioma in the test dataset are either associated
 with glioma in the GWAS cataog or are in close physical proximity to a
