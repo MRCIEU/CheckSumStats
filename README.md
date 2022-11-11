@@ -321,7 +321,7 @@ datasets, respectively. For most SNPs, the allele associated with higher
 risk in the GWAS catalog is associated with lower risk in the test
 dataset. We call these discrepancies “effect size conflicts” and their
 presence can be interpreted as evidence for an effect allele metadata
-error. However, when comparing datasets, it’’s important to make
+error. However, when comparing datasets, it’s important to make
 allowance for chance deviations in effect direction, especially for test
 datasets generated in small sample sizes. For this reason, effect size
 conflicts are labelled as high if the two-sided P value for the Z score
@@ -415,12 +415,13 @@ Pos1<-which(gli$p<5e-8)
 Pos2<-which(gli$Locus %in% snplist)
 Pos<-unique(c(Pos1,Pos2))
 gli<-gli[Pos,]
+Dat<-format_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect_allele=“Allele1”,other_allele=“Allele2”,or=“OR”,or_lci=“OR_95._CI_l”,or_uci=“OR_95._CI_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
+Pred<-predict_lnor_sh(dat=Dat)
+Plot4<-make_plot_pred_effect(dat=Pred) 
+Plot4 
 ```
-
-Dat\<-format\_data(dat=gli,outcome=“Glioma”,population=“European”,pmid=22886559,study=“GliomaScan”,ncase=“cases”,ncontrol=“controls”,rsid=“Locus”,effect\_allele=“Allele1”,other\_allele=“Allele2”,or=“OR”,or\_lci=“OR\_95.\_CI\_l”,or\_uci=“OR\_95.\_CI\_u”,eaf=“eaf.controls”,p=“p”,efo=“glioma”)
-Pred\<-predict\_lnor\_sh(dat=Dat)
-Plot4\<-make\_plot\_pred\_effect(dat=Pred) Plot4 \`\`\`
 ![“README-example1\_predplot1.png”](/man/figures/README-example1_predplot1.png)
+
 
 The plot shows a strong positive correlation between the expected and
 reported effect sizes, an intercept close to zero and a slope that is
