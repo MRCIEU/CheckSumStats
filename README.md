@@ -30,7 +30,7 @@ biomaRt package, before installing the package you may first need to
 install developer tools using the following in terminal:
 
 ``` r
-xcode-select -install
+xcode-select --install
 ```
 
 ## General overview
