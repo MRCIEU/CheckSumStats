@@ -48,18 +48,18 @@ make_snplist<-function(trait=NULL,efo_id=NULL,efo=NULL,ref1000G_superpops=TRUE,s
 #' @param trait the trait of interest as reported in the GWAS catalog
 #' @param efo_id ID for trait of interest in the experimental factor ontology 
 #' @param efo trait of intersest in the experimental factor ontology
-#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. It is recommended that you run this function with map_association_to_study set to FALSE. Then, if large numbers of conflicting effect sizes are identified, re-run with this argument set to TRUE. Default = FALSE.  
 #'
 #' @return data frame
 #' @importFrom magrittr %>%
 #' @export
 
-gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=TRUE)
+gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_study=FALSE)
 {
 
 	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
 
-			
+	# gwas_associations<-gwasrapidd::union(gwas_associations_by_reported_trait, gwas_associations_by_efo_id)
 
 	if(class(gwas_associations) =="associations") 
 	{
@@ -76,7 +76,6 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 						
 			gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
 			gwas_results$beta_gc<-log(gwas_results$or_per_copy_number)
-
 			Test<-FALSE 
 			if(all(is.na(gwas_results$beta_gc)))
 			{
@@ -131,8 +130,17 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 			
 			if(!is.null(gwas_results))			
 			{
+				if(nrow(gwas_results)>100) warning("more than 100 genetic associations in the GWAS catalog, which may cause this function to run slowly. Consider searching on only reported trait or EFO (not both). If the function is still taking a long time to run, set  map_association_to_study to FALSE")
+				# we're only intereted in results where z.x or risk allele frequency are not missing. 
+				Pos<-which(!is.na(gwas_results$z.x) |  !is.na(gwas_results$risk_frequency))
+				gwas_results<-gwas_results[Pos,]
+				
 				if(map_association_to_study)
 				{
+										
+					# if(nrow(gwas_associations)>100){
+					# 	gwas_associations<-gwas_associations[1:100,]
+					# }
 					assoc2study<-map_association_to_study_id(associations=gwas_associations)		
 					gwas_results<-merge(gwas_results,assoc2study,by="association_id")	
 

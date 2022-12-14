@@ -1,11 +1,11 @@
 #' MAF plot 
 #'
-#' Make a plot comparing minor allele frequency between outcome and reference studies.
+#' Make a plot comparing minor allele frequency between test dataset and reference studies.
 #'
 #' @param ref_dat user supplied reference dataset. data frame. optional 
 #' @param ref_1000G if ref_dat is NULL, the user should indicate the 1000 genomes reference study of interest. options are: AFR, AMR, EAS, EUR, SAS or ALL. Default is to make plots for all super populations
 #' @param snp_reference rsid column in ref_dat
-#' @param target_dat  the outcome dataset of interest. Data frame. 
+#' @param target_dat  the test dataset of interest. Data frame. 
 #' @param snp_target rsid column in target_dat
 #' @param eaf name of the effect allele frequency column in target_dat 
 #' @param ref_dat_maf name of the minor allele frequency column in the reference dataset.  Only necessary if ref_dat is specified
@@ -15,8 +15,8 @@
 #' @param target_dat_other_allele name of the non-effect allele column in target_dat 
 #' @param target_dat_population population ancestry of target_dat 
 #' @param ref_dat_population name of column describing population ancestry of reference dataset. Only necessary if ref_dat is specified
-#' @param outcome name of the outcome trait corresponding to target_dat 
-#' @param ID ID for the outcome trait of interest 
+#' @param trait name of the trait corresponding to target_dat 
+#' @param ID optional ID for the trait of interest 
 #' @param target_study column in target_dat indicating name of target study 
 #' @param ref_study column in reference study indicating name of reference study. 
 #' Only necessary if ref_dat is specified
@@ -27,11 +27,13 @@
 #' @param Xlab X label
 #' @param cowplot_title title of overall plot
 #' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
+#' @param nocolour if TRUE, allele frequency conflicts are illustrated using shapes rather than colours.
+#' @param legend include legend in plot. Default TRUE 
 #'
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",outcome="outcome",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=8,Title_size=10,Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes",return_dat=FALSE){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",trait="trait",ID=NULL,target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title_xaxis_size=8,Title_size=10,Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes",return_dat=FALSE,nocolour=FALSE,legend=TRUE){	
 
 	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
 
@@ -105,21 +107,20 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m$alleles2<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])
 	
 	dat.m.test<-dat.m
-	outcome_plot<-outcome
-	if(is.null(outcome)){
+	outcome_plot<-trait
+	if(is.null(trait)){
 		outcome_plot<-""
 	}
 
-	if(!is.null(outcome) & !is.null(target_study) & !is.null(ID)){
-		outfile_name<-unique(paste0(dat.m.test[,outcome]," | ", dat.m.test$target_study," | ID=",dat.m.test[,ID]))
+	if(!is.null(trait) & !is.null(target_study) & !is.null(ID)){
+		outfile_name<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study," | ID=",dat.m.test[,ID]))
 		outfile_name<-gsub("\\|","",outfile_name)
 		outfile_name<-gsub(" ","_",outfile_name)
 		outfile_name<-gsub("__","_",outfile_name)
 		outfile_name<-gsub("=","",outfile_name)
 		outfile_name<-gsub("/","_",outfile_name)
-		outcome_plot<-unique(paste0(dat.m.test[,outcome]," | ", dat.m.test$target_study," | ID: ",dat.m.test[,ID]))		
+		outcome_plot<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study," | ID: ",dat.m.test[,ID]))		
 		target_study<-unique(paste0(dat.m.test$target_study," | ID: ",dat.m.test[,ID]))		
-		# outcome_plot2<-unique(paste0(dat.m.test[,outcome]," | ", dat.m.test[,study]," | ID: ",dat.m.test[,ID]))
 	}
 
 	Plot_list<-NULL
@@ -152,6 +153,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 
 		Colour<-rep("black",nrow(dat1))
 		Colour[which(dat1[,eaf]>0.5)]<-"red"
+		# dat1$Colour<-Colour
 		# Colour[dat1[,target_dat_effect_allele]!=dat1[,ref_dat_minor_allele]]<-"red"	
 		
 		# fix harmonisation functions above so that efffect allele strand flipped to minor_allele (not harmonised with minor_allele2)
@@ -186,8 +188,96 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		
 		Subtitle<-unique(paste0("Reported population: ",dat1$target_dat_population))
 		
-		Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + ggplot2::geom_point(colour=Colour) +ggplot2::ggtitle(Title) +ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
-			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1)) 
+		Shape2<-Colour
+		Shape2[Shape2=="red"]<-3
+		Shape2[Shape2=="blue"]<-2
+		Shape2[Shape2=="black"]<-1
+		
+		shape_labels<-unique(Shape2)
+		shape_labels<-shape_labels[order(as.numeric(shape_labels))]
+		shape_labels[shape_labels==3]<-"High"
+		shape_labels[shape_labels==2]<-"Moderate"
+		shape_labels[shape_labels==1]<-"None"
+		shape_values<-unique(Shape2)
+		shape_values<-as.numeric(shape_values[order(as.numeric(shape_values))])
+		# Shape2<-as.factor(Shape2)
+
+		# Colour<-as.factor(Colour)
+		colour_map<-data.frame(cbind(c("High","Moderate","None"),c("red","blue","black")))
+		names(colour_map)<-c("Labels","Values")
+		colour_map<-colour_map[colour_map$Values %in% Colour,]
+		colour_labels<-colour_map$Labels
+		colour_values<-colour_map$Values
+		Pos<-order(colour_labels)
+		colour_values<-colour_values[Pos]
+		colour_labels<-colour_labels[Pos]
+
+
+				
+		if(nocolour){
+			Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
+				ggplot2::geom_point(ggplot2::aes(shape=Shape2)) +
+				ggplot2::ggtitle(Title) +
+				ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+
+				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+			
+				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
+				ggplot2::scale_shape_manual(name = "Allele frequency conflict",
+			                     labels = shape_labels,
+			                     values = shape_values)+
+				ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+			}
+
+		if(!nocolour){
+			Plot<-ggplot2::ggplot(dat1) + 
+				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour)) +
+				ggplot2::ggtitle(Title) +
+				ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+
+				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
+				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+ 
+					ggplot2::scale_colour_manual(name = "Allele frequency conflict",
+			                     labels = colour_labels,
+			                     values = colour_values)+
+				ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+
+		}
+
+		if(!legend){	
+			if(nocolour){		
+				Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
+					ggplot2::geom_point(ggplot2::aes(shape=Shape2)) +
+					ggplot2::ggtitle(Title) +
+					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+
+					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
+					ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1)) + 
+					ggplot2::scale_shape_manual(name = "Allele frequency conflict",
+			                     labels = Labels,
+			                     values = Values)+
+					ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+					ggplot2::theme(legend.text=ggplot2::element_text(size=8))+
+					  ggplot2::theme(legend.position="none")+
+					  	ggplot2::theme(text = ggplot2::element_text(size=8)) 
+			}
+
+			if(!nocolour){		
+				ggplot2::ggplot(dat1) + 
+				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour)) +
+				ggplot2::ggtitle(Title) +
+				ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size1,hjust = 0))+
+				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
+				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+ 
+					ggplot2::scale_colour_manual(name = "Allele frequency conflict",
+			                     labels = colour_labels,
+			                     values = colour_values)+
+				ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				ggplot2::theme(legend.text=ggplot2::element_text(size=8))+
+				  ggplot2::theme(legend.position="none")+
+				    	ggplot2::theme(text = ggplot2::element_text(size=8)) 
+			}
+		}
+
+
 
 		if(length(Pops)> 1){
 				Plot_list[[i]]<-Plot
@@ -292,7 +382,7 @@ make_cow_plot<-function(Plot_list=NULL,Title="",Xlab="",Ylab="",out_file=NULL,re
 #'
 #' Infer possible ancestry through comparison of allele frequency amongst test dataset and 1000 genomes super populations. Returns list of Pearson correlation coefficients.  
 #'
-#' @param target_dat  the outcome dataset of interest. Data frame. 
+#' @param target_dat  the dataset of interest. Data frame. 
 #'
 #' @return list
 #' @export
@@ -310,7 +400,7 @@ infer_ancestry<-function(target_dat=NULL){
 #'
 #' Flag allele frequency conflicts through comparison of reported allele frequency to minor allele frequency in the 1000 genomes super populations.   
 #'
-#' @param target_dat  the outcome dataset of interest. Data frame. 
+#' @param target_dat  the dataset of interest. Data frame. 
 #'
 #' @return list
 #' @export

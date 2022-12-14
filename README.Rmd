@@ -94,7 +94,7 @@ thy <- ieugwasr::associations(id="ieu-a-1082", variants=snplist,proxies=0)
 Returning to the glioma example, from the test dataset we have now extracted results corresponding to SNPs in the 1000 genomes reference set. Now we need to format the data, to get it into the expected format. 
 
 ```{r format_data1,eval = FALSE}
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+Dat<-format_data(dat=gli,outcome="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 ```
 
 In this example, the glioma results file contained columns for the odds ratio and 95% confidence intervals. In practice, the format of the effect size columns is highly variable across studies. For example, some studies may report the log odds ratio and its standard error or the odds ratio and P value without confidence intervals or a standard error. The format_data() function accepts these and other effect size reporting formats. See ?format_data() for more info.    
@@ -190,7 +190,7 @@ gli<-gli[gli$Locus %in% snplist,]
 We then format the data to get into the expect format. 
 
 ```{r compare_gwascatalog_plot4, eval = FALSE}
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+Dat<-format_data(dat=gli,outcome="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 
 gc_dat<-compare_effect_to_gwascatalog2(dat=Dat,efo_id=Efo$efo_id,trait="Glioma",map_association_to_study=FALSE,gwas_catalog=gwas_catalog,beta="lnor",se="lnor_se")
 
@@ -280,7 +280,7 @@ Pos<-unique(c(Pos1,Pos2))
 gli<-gli[Pos,]
 ```
 
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+Dat<-format_data(dat=gli,outcome="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 Pred<-predict_lnor_sh(dat=Dat)
 Plot4<-make_plot_pred_effect(dat=Pred)
 Plot4
@@ -328,7 +328,7 @@ Pos<-which(gli$p<5e-8)
 gli<-gli[Pos,]
 ```
 
-Dat<-format_data(dat=gli,outcome="Glioma",population="European",pmid=22886559,study="GliomaScan",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p",efo="glioma")
+Dat<-format_data(dat=gli,outcome="Glioma",population="European",ncase="cases",ncontrol="controls",rsid="Locus",effect_allele="Allele1",other_allele="Allele2",or="OR",or_lci="OR_95._CI_l",or_uci="OR_95._CI_u",eaf="eaf.controls",p="p")
 gc_list<-find_hits_in_gwas_catalog(gwas_hits=Dat$rsid,efo_id=Efo$efo_id,distance_threshold=50000) 
 gc_list
 #> $not_in_gc
@@ -542,9 +542,10 @@ In this example we use the package to check the allele frequency metadata from a
 ```{r glucose1, eval = FALSE}
 library(CheckSumStats)
 EFO<-get_efo(trait="fasting glucose")
-snplist<-make_snplist(efo_id=EFO$efo_id,trait="fasting blood glucose",ref1000G_superpops=TRUE)
+utils::data("refdat_1000G_superpops")
+snplist<-unique(refdat_1000G_superpops$SNP)
 glu <- ieugwasr::associations(id="ebi-a-GCST005186", variants=snplist,proxies=0)  
-Dat<-format_data(dat=glu,outcome="Fasting glucose",population="European",pmid=22581228,study="",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
+Dat<-format_data(dat=glu,trait="Fasting glucose",population="European",ncontrol="n",rsid="rsid",effect_allele="ea",other_allele="nea",beta="beta",se="se",eaf="eaf",p="p")
 Plot1<-make_plot_maf(ref_1000G=c("AFR","AMR","EAS","EUR","SAS","ALL"),target_dat=Dat)
 Plot1
 ```
@@ -555,7 +556,9 @@ Each red data point corresponds to an allele frequency conflict and is identifie
 Comparison to the GWAS catalog confirms the error:
 
 ```{r glucose3, eval = FALSE}
-Plot2<-make_plot_gwas_catalog(dat=Dat,efo_id=EFO$efo_id,trait=unique(Dat$outcome),beta="beta",se="se",plot_type = "plot_eaf")
+gwas_catalog<-gwas_catalog_hits(efo=NULL,efo_id=EFO$efo_id,trait=NULL,map_association_to_study=TRUE)
+snplist<-gwas_catalog$rsid
+Plot2<-make_plot_gwas_catalog(dat=Dat,,gwas_catalog=gwas_catalog,trait=unique(Dat$trait),beta="beta",se="se",plot_type = "plot_eaf",map_association_to_study=TRUE)
 Plot2
 ```
 !["example2_gcplot2.png"](/man/figures/README-example2_gcplot2.png)
@@ -596,9 +599,10 @@ One of the limitations of using GWAS results from online platforms is that the s
 ```{r bcc1,eval = FALSE}
 library(CheckSumStats)
 EFO<-get_efo(trait="basal cell carcinoma")
-snplist<-make_snplist(efo_id = EFO$efo_id)
+gwas_catalog<-gwas_catalog_hits(efo=NULL,efo_id=EFO$efo_id,trait=NULL,map_association_to_study=TRUE)
+snplist<-gwas_catalog$rsid
 bcc <- ieugwasr::associations(id="ukb-b-8837", variants=snplist,proxies=0)  
-dat<-format_data(dat=bcc,outcome="Basal cell carcinoma",population="European",ncase=4290,ncontrol=458643,study="UKB",rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",lnor_se="se",eaf="eaf",p="p",efo_id = EFO$efo_id)
+dat<-format_data(dat=bcc,outcome="Basal cell carcinoma",population="European",ncase=4290,ncontrol=458643,rsid="rsid",effect_allele="ea",other_allele="nea",lnor="beta",lnor_se="se",eaf="eaf",p="p")
 Clump<-ieugwasr::ld_clump(clump_r2 = 0.01,clump_p=1e-8,dplyr::tibble(rsid=dat$rsid, pval=dat$p, id=dat$id),pop="EUR")
 dat2<-dat[dat$rsid %in% Clump$rsid,]
 Pred<-predict_lnor_sh(dat=dat2)
@@ -633,7 +637,7 @@ Discrepancies between expected and reported effect sizes can also arise from err
 ```{r crc1,eval = FALSE}
 File<-system.file("extdata", "crc_test_dat.txt", package = "CheckSumStats")
 crc<-read.table(File,sep="\t",head=TRUE,stringsAsFactors=FALSE)
-dat<-format_data(dat=crc,outcome="Colorectal cancer",population="East Asian",ncase=23572,ncontrol=48700,study="ACCC",rsid="rsid",effect_allele="Allele1",other_allele="Allele2",lnor="Effect",lnor_se="StdErr",eaf="Freq1",p="P.value")
+dat<-format_data(dat=crc,outcome="Colorectal cancer",population="East Asian",ncase=23572,ncontrol=48700,rsid="rsid",effect_allele="Allele1",other_allele="Allele2",lnor="Effect",lnor_se="StdErr",eaf="Freq1",p="P.value")
 Pred<-predict_lnor_sh(dat=dat)
 lm(Pred$lnor_pred ~ Pred$lnor)$coefficients
 #> (Intercept)   Pred$lnor 

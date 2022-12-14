@@ -16,7 +16,7 @@ make_plot_maf(
   target_dat_other_allele = "other_allele",
   ref_dat_minor_allele = "minor_allele",
   ref_dat_major_allele = "major_allele",
-  outcome = "outcome",
+  trait = "trait",
   ID = NULL,
   target_dat_population = "population",
   ref_dat_population = "population",
@@ -28,7 +28,9 @@ make_plot_maf(
   Ylab = "Allele frequency in test dataset",
   Xlab = "MAF in reference study",
   cowplot_title = "Allele frequency in test dataset vs 1000 genomes",
-  return_dat = FALSE
+  return_dat = FALSE,
+  nocolour = FALSE,
+  legend = TRUE
 )
 }
 \arguments{
@@ -36,7 +38,7 @@ make_plot_maf(
 
 \item{ref_1000G}{if ref_dat is NULL, the user should indicate the 1000 genomes reference study of interest. options are: AFR, AMR, EAS, EUR, SAS or ALL. Default is to make plots for all super populations}
 
-\item{target_dat}{the outcome dataset of interest. Data frame.}
+\item{target_dat}{the test dataset of interest. Data frame.}
 
 \item{eaf}{name of the effect allele frequency column in target_dat}
 
@@ -54,9 +56,9 @@ make_plot_maf(
 
 \item{ref_dat_major_allele}{name of the major allele column in the reference dataset. Only necessary if ref_dat is specified}
 
-\item{outcome}{name of the outcome trait corresponding to target_dat}
+\item{trait}{name of the trait corresponding to target_dat}
 
-\item{ID}{ID for the outcome trait of interest}
+\item{ID}{optional ID for the trait of interest}
 
 \item{target_dat_population}{population ancestry of target_dat}
 
@@ -80,10 +82,14 @@ Only necessary if ref_dat is specified}
 \item{cowplot_title}{title of overall plot}
 
 \item{return_dat}{if TRUE, the dataset used to generate the plot is returned to the user and no plot is made.}
+
+\item{nocolour}{if TRUE, allele frequency conflicts are illustrated using shapes rather than colours.}
+
+\item{legend}{include legend in plot. Default TRUE}
 }
 \value{
 plot
 }
 \description{
-Make a plot comparing minor allele frequency between outcome and reference studies.
+Make a plot comparing minor allele frequency between test dataset and reference studies.
 }

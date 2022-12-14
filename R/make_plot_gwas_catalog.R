@@ -21,12 +21,13 @@
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param Title_xaxis_size size of x axis title
+#' @param nocolour if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE
 #' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL,nocolour=FALSE){
 	
 	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
 	
@@ -42,6 +43,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	# Dat.m[Dat.m$Z_scores=="high conflict",c("z.y","z.x")]
 
 	Dat.m$Z_scores[Dat.m$Z_scores=="high conflict"]<-"red"
+	Dat.m$Z_scores[Dat.m$Z_scores=="not present in the GWAS catalog"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="moderate conflict"]<-"blue"
 	Dat.m$Z_scores[Dat.m$Z_scores=="no conflict"]<-"black"
 	labels_colour<-unique(Dat.m$Z_scores)
@@ -104,11 +106,30 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Title<-paste0(unique(dat$study)," | " ,unique(dat$ID) , " | EFO: ", efo)
 	}
 
+	# colour and shape values and labels for when nocolour argument is specified
+	plot_shape_values<-Dat.m$Z_scores
+				plot_shape_values[plot_shape_values=="red"]<-3
+				plot_shape_values[plot_shape_values=="blue"]<-2
+				plot_shape_values[plot_shape_values=="black"]<-1
+				shape_map<-data.frame(cbind(c(3,2,1),c("high","moderate","none")))
+				names(shape_map)<-c("values","labels")
+				if(force_all_trait_study_hits & any(Dat.m$z.x ==0)){
+					shape_map$labels[shape_map$labels == "high"]<-"high or not\npresent in GWAS catalog"
+				}
+				shape_map<-shape_map[order(shape_map$values),]
+				shape_values<-as.numeric(shape_map$values)
+				shape_labels<-shape_map$labels				
+
+				colour_map<-data.frame(cbind(c("gray","black"),c("East Asian","European")))
+				names(colour_map)<-c("values","labels")
+				colour_map<-colour_map[order(colour_map$labels),]
+				colour_values<-colour_map$values
+				colour_labels<-colour_map$labels	
 	
-	Subtitle<-paste0(Dat.m$outcome," | ",Dat.m$population)
+	Subtitle<-unique(paste0(Dat.m$trait," | ",Dat.m$population))
 
 	if(legend){
-			Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
+		Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
 				)+
 			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
 			 ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
@@ -122,6 +143,23 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 			              values=values_colour)+
 		 	ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
 			ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+			
+			if(nocolour){					
+				Plot<-ggplot2::ggplot(Dat.m) + 
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values)) +
+					ggplot2::ggtitle(Title) +
+					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
+					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
+				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+				ggplot2::scale_shape_manual(name = "Effect size conflict",
+		                     labels = shape_labels,
+		                     values = shape_values) + 		                  
+		 		ggplot2::scale_colour_manual(name="GWAS catalog ancestry",
+			              labels=colour_labels,
+			              values=colour_values)+
+		 		ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+			}
 		}
 
 	if(!legend){
@@ -136,6 +174,23 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	 	ggplot2::theme(legend.title=ggplot2::element_text(size=8),
 	 		legend.text=ggplot2::element_text(size=8),plot.subtitle = ggplot2::element_text(size = 8),
 	 		legend.position = "none")
+	 	
+	 	if(nocolour){					
+				Plot<-ggplot2::ggplot(Dat.m) + 
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values)) +
+					ggplot2::ggtitle(Title) +
+					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
+					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
+				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+				ggplot2::scale_shape_manual(name = "Effect size conflict",
+		                     labels = shape_labels,
+		                     values = shape_values) + 		                  
+		 		ggplot2::scale_colour_manual(name="GWAS catalog ancestry",
+			              labels=colour_labels,
+			              values=colour_values)+
+		 		ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				ggplot2::theme(legend.text=ggplot2::element_text(size=8), 		legend.position = "none")
+		}
 	}
 	 # ggplot2::scale_colour_manual(name="Z score conflict",
   #                     labels=unique(Z_scores)[order(unique(Z_scores))] ,
@@ -392,7 +447,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	#identifty eaf conflicts
 	# ancestry2<-Dat.m$ancestral_group	
 	Dat.m$EAF<-"no conflict"
-	Dat.m$EAF[is.na(Dat.m$eaf.x)]<-NA
+	Dat.m$EAF[is.na(Dat.m$eaf.x) | is.na(Dat.m$eaf.y)]<-NA
 	# EAF<-rep("black",nrow(Dat.m))
 	Pos1<-which(Dat.m$eaf.x<0.5 & Dat.m$eaf.y>0.5 | Dat.m$eaf.x>0.5 & Dat.m$eaf.y<0.5)
 	Dat.m$EAF[Pos1]<-"moderate conflict"	 
@@ -426,8 +481,11 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 	}
 
 	Dat.m$Z_scores<-"no conflict"
+	Dat.m$Z_scores[is.na(Dat.m$z.x) | is.na(Dat.m$z.y)]<-NA
+
 	# Z_scores<-rep("black",nrow(Dat.m))
 	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"moderate conflict"
+	Dat.m$Z_scores[which(as.numeric(Dat.m$z.x)==0) ]<-"not present in the GWAS catalog"
 	Dat.m$Z_scores[which(sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)) & abs(Dat.m$z.y) >= 3.890592 & abs(Dat.m$z.x) >= 3.890592 )]<-"high conflict" # Z score of 3.890592 = 2 sided p value of 0.0001	
 	Dat.m$Z_scores[which(Dat.m$pmid==Dat.m$pubmed_id & sign(Dat.m$z.y) != sign(as.numeric(Dat.m$z.x)))]<-"high conflict" #if the signs are different but Z.x and Z.y come from the same study, then there is a clear incompatability	
 	return(Dat.m)

@@ -24,7 +24,8 @@ make_plot_gwas_catalog(
   distance_threshold = 25000,
   return_dat = FALSE,
   map_association_to_study = TRUE,
-  gwas_catalog = NULL
+  gwas_catalog = NULL,
+  nocolour = FALSE
 )
 }
 \arguments{
@@ -67,6 +68,8 @@ make_plot_gwas_catalog(
 \item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
 
 \item{gwas_catalog}{user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.}
+
+\item{nocolour}{if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE}
 }
 \value{
 plot

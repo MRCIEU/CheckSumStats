@@ -8,8 +8,7 @@ gwas_catalog_hits(
   trait = NULL,
   efo = NULL,
   efo_id = NULL,
-  map_association_to_study = TRUE,
-  gwas_catalog = NULL
+  map_association_to_study = FALSE
 )
 }
 \arguments{
@@ -19,7 +18,7 @@ gwas_catalog_hits(
 
 \item{efo_id}{ID for trait of interest in the experimental factor ontology}
 
-\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
+\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. It is recommended that you run this function with map_association_to_study set to FALSE. Then, if large numbers of conflicting effect sizes are identified, re-run with this argument set to TRUE. Default = FALSE.}
 }
 \value{
 data frame

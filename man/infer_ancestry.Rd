@@ -7,7 +7,7 @@
 infer_ancestry(target_dat = NULL)
 }
 \arguments{
-\item{target_dat}{the outcome dataset of interest. Data frame.}
+\item{target_dat}{the dataset of interest. Data frame.}
 }
 \value{
 list
