@@ -14,11 +14,12 @@
 #' @param Title_size size of title
 #' @param Title_axis_size size of x axis title
 #' @param Ncol number of columns
+#' @param Tiff save plot in tiff format. Default is set to FALSE. If set to FALSE, the  plot is saved in png format. Not applicable if return_plot is set to TRUE. 
 #'
 #' @return plot 
 #' @export
 
-combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=800,height=1000,Title="",Xlab="",Ylab="",Title_size=0,Title_axis_size=0,by2cols=TRUE,Ncol=2){
+combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=800,height=1000,Title="",Xlab="",Ylab="",Title_size=0,Title_axis_size=0,by2cols=TRUE,Ncol=2,Tiff=FALSE){
 
 	if(is.null(Plot_list)){
 		Plot_list2<-ls()[grep("Plot[0-9]",ls())] 
@@ -31,7 +32,9 @@ combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=800
 
 	# Plot<-cowplot::plot_grid(plotlist=Plot_list[[1]])
 	if(by2cols){
+		odd_number_test<-length(Plot_list) %% 2 == 1 #when number is odd, the number of rows is rounded down, causing a plot to be omitted, e.g. when number of plots is 5, only 4 will be plotted, because 5/2=2.5, which rounded down to 2. Thus 2 rows and 2 columns get plotted. Therefore we must add a row to Nrow object when the number of plots is an odd number 
 		Nrow<-round(length(Plot_list)/2)
+		if(odd_number_test) Nrow<-Nrow+1
 		Plot<-cowplot::plot_grid(plotlist=Plot_list,nrow=Nrow,ncol=Ncol)
 	}
 	if(!by2cols){
@@ -62,9 +65,16 @@ combine_plots<-function(Plot_list=NULL,out_file=NULL,return_plot=FALSE,width=800
 	                   gp=grid::gpar(fontface="bold", col="black", fontsize=Title_axis_size))
 
 	if(!return_plot){
-		grDevices::png(out_file, width = width, height = height,)
-			gridExtra::grid.arrange(gridExtra::arrangeGrob(Plot, left = y.grob, bottom = x.grob))
-		grDevices::dev.off()	
+		if(!Tiff){
+			grDevices::tiff(out_file, width = width, height = height,)
+				gridExtra::grid.arrange(gridExtra::arrangeGrob(Plot, left = y.grob, bottom = x.grob))
+			grDevices::dev.off()	
+		}
+		if(Tiff){
+			grDevices::png(out_file, width = width, height = height,)
+				gridExtra::grid.arrange(gridExtra::arrangeGrob(Plot, left = y.grob, bottom = x.grob))
+			grDevices::dev.off()	
+		}
 	}
 	if(return_plot){
 		return(Plot)

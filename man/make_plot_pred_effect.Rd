@@ -21,7 +21,8 @@ make_plot_pred_effect(
   beta = "lnor",
   se = "lnor_se",
   sd_est = "sd_est",
-  exclude_1000G_MAF_refdat = TRUE
+  exclude_1000G_MAF_refdat = TRUE,
+  nocolour = FALSE
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ make_plot_pred_effect(
 \item{sd_est}{the standard deviation of the phenotypic mean. Can either be a numeric vector of length 1 or name of the column in dat containing the standard deviation value (in which case should be constant across SNPs). Only applicable for continuous traits. If not supplied by the user, the standard deviation is approximated using sd_est, estimated by the predict_beta_sd() function. The sd_est is then used to standardise the reported effect size. If the reported effect size is already standardised (ie is in SD units) then sd_est should be set to NULL}
 
 \item{exclude_1000G_MAF_refdat}{exclude rsids from the 1000 genome MAF reference dataset.}
+
+\item{nocolour}{if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE}
 }
 \value{
 plot

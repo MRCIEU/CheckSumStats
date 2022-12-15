@@ -31,17 +31,11 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	
 	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
 	
-	# Dat.m[Dat.m$Z_scores=="high conflict",]
 	Names<-grep("beta",names(Dat.m))
 	Names2<-grep("effect",names(Dat.m))
 	Names3<-grep("eaf",names(Dat.m))
 	Names4<-grep("ances",names(Dat.m))
-	# Dat.m$rsid[Dat.m$Z_scores=="high conflict"]
-
-	# Dat.m[Dat.m$Z_scores=="high conflict",c(Names,Names2,Names3,Names4)]
-	# head(Dat.m)
-	# Dat.m[Dat.m$Z_scores=="high conflict",c("z.y","z.x")]
-
+	
 	Dat.m$Z_scores[Dat.m$Z_scores=="high conflict"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="not present in the GWAS catalog"]<-"red"
 	Dat.m$Z_scores[Dat.m$Z_scores=="moderate conflict"]<-"blue"
@@ -106,25 +100,27 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		Title<-paste0(unique(dat$study)," | " ,unique(dat$ID) , " | EFO: ", efo)
 	}
 
-	# colour and shape values and labels for when nocolour argument is specified
+	################### 
+	#nocolour argument: colour and shape values and labels for when nocolour argument is TRUE
 	plot_shape_values<-Dat.m$Z_scores
-				plot_shape_values[plot_shape_values=="red"]<-3
-				plot_shape_values[plot_shape_values=="blue"]<-2
-				plot_shape_values[plot_shape_values=="black"]<-1
-				shape_map<-data.frame(cbind(c(3,2,1),c("high","moderate","none")))
-				names(shape_map)<-c("values","labels")
-				if(force_all_trait_study_hits & any(Dat.m$z.x ==0)){
-					shape_map$labels[shape_map$labels == "high"]<-"high or not\npresent in GWAS catalog"
-				}
-				shape_map<-shape_map[order(shape_map$values),]
-				shape_values<-as.numeric(shape_map$values)
-				shape_labels<-shape_map$labels				
+	plot_shape_values[plot_shape_values=="red"]<-3
+	plot_shape_values[plot_shape_values=="blue"]<-2
+	plot_shape_values[plot_shape_values=="black"]<-1
+	shape_map<-data.frame(cbind(c(3,2,1),c("high","moderate","none")))
+	
+	names(shape_map)<-c("values","labels")
+	if(force_all_trait_study_hits & any(Dat.m$z.x ==0)){
+		shape_map$labels[shape_map$labels == "high"]<-"high or not\npresent in GWAS catalog"
+	}
+	shape_map<-shape_map[order(shape_map$values),]
+	shape_values<-as.numeric(shape_map$values)
+	shape_labels<-shape_map$labels				
 
-				colour_map<-data.frame(cbind(c("gray","black"),c("East Asian","European")))
-				names(colour_map)<-c("values","labels")
-				colour_map<-colour_map[order(colour_map$labels),]
-				colour_values<-colour_map$values
-				colour_labels<-colour_map$labels	
+	colour_map<-data.frame(cbind(c("gray","black"),c("East Asian","European")))
+	names(colour_map)<-c("values","labels")
+	colour_map<-colour_map[order(colour_map$labels),]
+	colour_values<-colour_map$values
+	colour_labels<-colour_map$labels	
 	
 	Subtitle<-unique(paste0(Dat.m$trait," | ",Dat.m$population))
 
@@ -188,18 +184,9 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		 		ggplot2::scale_colour_manual(name="GWAS catalog ancestry",
 			              labels=colour_labels,
 			              values=colour_values)+
-		 		ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
-				ggplot2::theme(legend.text=ggplot2::element_text(size=8), 		legend.position = "none")
+		 		ggplot2::theme(legend.position = "none")
 		}
-	}
-	 # ggplot2::scale_colour_manual(name="Z score conflict",
-  #                     labels=unique(Z_scores)[order(unique(Z_scores))] ,
-  #                     values=unique(Z_scores)[order(unique(Z_scores))]) 	 
-
-	  # ggplot2::scale_colour_manual(name="Z score conflict",
-                      # labels=c("none", "moderate","high"),
-                      # values=c("black","blue", "red")) 	 
-  	 
+	} 
   	
 	return(Plot)
 }

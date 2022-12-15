@@ -16,7 +16,8 @@ combine_plots(
   Title_size = 0,
   Title_axis_size = 0,
   by2cols = TRUE,
-  Ncol = 2
+  Ncol = 2,
+  Tiff = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ combine_plots(
 \item{by2cols}{logical argument. If true, forces plot to have 2 columns}
 
 \item{Ncol}{number of columns}
+
+\item{Tiff}{save plot in tiff format. Default is set to FALSE. If set to FALSE, the  plot is saved in png format. Not applicable if return_plot is set to TRUE.}
 }
 \value{
 plot

@@ -252,8 +252,8 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
 					ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = Subtitle_size1)) + 
 					ggplot2::scale_shape_manual(name = "Allele frequency conflict",
-			                     labels = Labels,
-			                     values = Values)+
+			                     labels = shape_labels,
+			                     values = shape_values)+
 					ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
 					ggplot2::theme(legend.text=ggplot2::element_text(size=8))+
 					  ggplot2::theme(legend.position="none")+
