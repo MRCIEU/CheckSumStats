@@ -84,8 +84,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m1<-dat.m[Pos1,]
 	dat.m2<-dat.m[Pos2,]
 	
-	
-
 	Pos<-which(dat.m1[,target_dat_effect_allele] != dat.m1[,"minor_allele2"])
 	
 	dat.m1[,eaf][Pos]<-1-dat.m1[,eaf][Pos]
@@ -212,8 +210,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		colour_values<-colour_values[Pos]
 		colour_labels<-colour_labels[Pos]
 
-
-				
 		if(nocolour){
 			Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
 				ggplot2::geom_point(ggplot2::aes(shape=Shape2)) +
