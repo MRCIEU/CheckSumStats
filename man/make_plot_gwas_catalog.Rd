@@ -13,10 +13,8 @@ make_plot_gwas_catalog(
   gwas_catalog_ancestral_group = c("European", "East Asian"),
   legend = TRUE,
   Title = "Comparison of Z scores between test dataset & GWAS catalog",
-  Title_size_subplot = 10,
   Ylab = "Z score in test dataset",
   Xlab = "Z score in GWAS catalog",
-  Title_xaxis_size = 10,
   force_all_trait_study_hits = FALSE,
   exclude_palindromic_snps = TRUE,
   beta = "beta",
@@ -45,13 +43,9 @@ make_plot_gwas_catalog(
 
 \item{Title}{plot title}
 
-\item{Title_size_subplot}{size of title}
-
 \item{Ylab}{label for Y axis}
 
 \item{Xlab}{label for X axis}
-
-\item{Title_xaxis_size}{size of x axis title}
 
 \item{force_all_trait_study_hits}{force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.}
 

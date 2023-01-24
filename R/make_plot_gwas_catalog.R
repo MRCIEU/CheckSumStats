@@ -17,17 +17,15 @@
 #' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.  
 #' @param legend include legend in plot. Default TRUE
 #' @param Title plot title
-#' @param Title_size_subplot size of title 
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
-#' @param Title_xaxis_size size of x axis title
 #' @param nocolour if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE
 #' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Title_size_subplot=10,Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",Title_xaxis_size=10,force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL,nocolour=FALSE){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL,nocolour=FALSE){
 	
 	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
 	
@@ -124,11 +122,21 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	
 	Subtitle<-unique(paste0(Dat.m$trait," | ",Dat.m$population))
 
+	my_theme<-ggplot2::theme(
+		plot.title = ggplot2::element_text(size = 50,hjust = 0),
+		plot.subtitle = ggplot2::element_text(size =40),
+		axis.title.x=ggplot2::element_text(size=50),
+		axis.title.y=ggplot2::element_text(size=50),
+		axis.text=ggplot2::element_text(size=32),
+		legend.title=ggplot2::element_text(size=32),
+		legend.text=ggplot2::element_text(size=32))
+
 	if(legend){
-		Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
-				)+
-			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
-			 ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
+		Plot<-ggplot2::ggplot(Dat.m) + 
+			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=20) + 
+			ggplot2::ggtitle(Title) +
+			ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 						
+			ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
 		                     labels = labels_shape,
 		                     # labels = unique(ancestry1)[order(unique(ancestry1))],
 		                     # labels = c("European","East Asian"),
@@ -137,54 +145,70 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		 	ggplot2::scale_colour_manual(name=Name,
 			              labels=labels_colour,
 			              values=values_colour)+
-		 	ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
-			ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+		 	my_theme
+		 	# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"),
+				# )+
+		 	# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+		 	# ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+			# ggplot2::theme(legend.text=ggplot2::element_text(size=8))
 			
 			if(nocolour){					
 				Plot<-ggplot2::ggplot(Dat.m) + 
-					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values)) +
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=20) +
 					ggplot2::ggtitle(Title) +
-					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
-					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
-				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 				
 				ggplot2::scale_shape_manual(name = "Effect size conflict",
 		                     labels = shape_labels,
 		                     values = shape_values) + 		                  
 		 		ggplot2::scale_colour_manual(name="GWAS catalog ancestry",
 			              labels=colour_labels,
 			              values=colour_values)+
-		 		ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
-				ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+		 		my_theme
+		 		# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
+		 		# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+		 		# ggplot2::theme(legend.title=ggplot2::element_text(size=8))+
+				# ggplot2::theme(legend.text=ggplot2::element_text(size=8))
+
 			}
 		}
 
 	if(!legend){
-		Plot<-ggplot2::ggplot(Dat.m) + ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1)) +ggplot2::ggtitle(Title) +ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
-		ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))+
+		Plot<-ggplot2::ggplot(Dat.m) +
+		ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=20) +
+		ggplot2::ggtitle(Title) +
+		ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
 		 ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
 	                    labels = labels_shape,	                     
 	                     values = values_shape) + 
 	 	ggplot2::scale_colour_manual(name=Name,
 		              labels=labels_colour,
 		              values=values_colour)+
-	 	ggplot2::theme(legend.title=ggplot2::element_text(size=8),
-	 		legend.text=ggplot2::element_text(size=8),plot.subtitle = ggplot2::element_text(size = 8),
-	 		legend.position = "none")
+	 	my_theme+
+	 	ggplot2::theme(legend.position = "none")
+	 	
+	 	# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
+		# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))+
+	 	# ggplot2::theme(legend.title=ggplot2::element_text(size=8),
+	 	# 	legend.text=ggplot2::element_text(size=8),plot.subtitle = ggplot2::element_text(size = 8),
+	 	# 	legend.position = "none")
 	 	
 	 	if(nocolour){					
 				Plot<-ggplot2::ggplot(Dat.m) + 
-					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values)) +
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=20) +
 					ggplot2::ggtitle(Title) +
-					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
-					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
-				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
+					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 					
 				ggplot2::scale_shape_manual(name = "Effect size conflict",
 		                     labels = shape_labels,
 		                     values = shape_values) + 		                  
 		 		ggplot2::scale_colour_manual(name="GWAS catalog ancestry",
 			              labels=colour_labels,
 			              values=colour_values)+
-		 		ggplot2::theme(legend.position = "none")
+				my_theme+
+ 				ggplot2::theme(legend.position = "none")
+	 
+		
+		 		# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size_subplot, face = "plain"))+
+				# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size),plot.subtitle = ggplot2::element_text(size = 8))+
 		}
 	} 
   	

@@ -17,20 +17,18 @@ make_plot_maf(
   ref_dat_minor_allele = "minor_allele",
   ref_dat_major_allele = "major_allele",
   trait = "trait",
-  ID = NULL,
   target_dat_population = "population",
   ref_dat_population = "population",
   target_study = "study",
   ref_study = "study",
-  Title_xaxis_size = 8,
-  Title_size = 10,
   Title = "Comparison of allele frequency between test dataset & reference study",
   Ylab = "Allele frequency in test dataset",
   Xlab = "MAF in reference study",
   cowplot_title = "Allele frequency in test dataset vs 1000 genomes",
   return_dat = FALSE,
   nocolour = FALSE,
-  legend = TRUE
+  legend = TRUE,
+  allele_frequency_conflict = 1
 )
 }
 \arguments{
@@ -58,8 +56,6 @@ make_plot_maf(
 
 \item{trait}{name of the trait corresponding to target_dat}
 
-\item{ID}{optional ID for the trait of interest}
-
 \item{target_dat_population}{population ancestry of target_dat}
 
 \item{ref_dat_population}{name of column describing population ancestry of reference dataset. Only necessary if ref_dat is specified}
@@ -68,10 +64,6 @@ make_plot_maf(
 
 \item{ref_study}{column in reference study indicating name of reference study.
 Only necessary if ref_dat is specified}
-
-\item{Title_xaxis_size}{size of title on x axis}
-
-\item{Title_size}{size of plot title}
 
 \item{Title}{plot title}
 
@@ -86,6 +78,8 @@ Only necessary if ref_dat is specified}
 \item{nocolour}{if TRUE, allele frequency conflicts are illustrated using shapes rather than colours.}
 
 \item{legend}{include legend in plot. Default TRUE}
+
+\item{allele_frequency_conflict}{how to define allele frequency conflicts. 1= flag SNPs in the test dataset whose reported minor allele has frequency >0.5. 2= additionally flag SNPs with allele frequency differening by more than 10 points from allele frequency in the reference dataset. Default = 1}
 }
 \value{
 plot

@@ -11,9 +11,7 @@ make_plot_pred_effect(
   subtitle = "",
   maf_filter = FALSE,
   bias = FALSE,
-  Title_size = 10,
   Title = "Expected versus reported effect size",
-  Title_xaxis_size = 10,
   legend = TRUE,
   standard_errors = FALSE,
   pred_beta = "lnor_pred",
@@ -38,11 +36,7 @@ make_plot_pred_effect(
 
 \item{bias}{logical argument. If TRUE, plots the \% deviation of the expected from the reported effect size on the Y axis against the reported effect size on the X axis.}
 
-\item{Title_size}{size of title}
-
 \item{Title}{plot title}
-
-\item{Title_xaxis_size}{size of x axis title}
 
 \item{legend}{logical argument. If true, includes figure legend in plot}
 

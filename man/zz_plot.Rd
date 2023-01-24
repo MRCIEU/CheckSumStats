@@ -6,11 +6,9 @@
 \usage{
 zz_plot(
   dat = NULL,
-  Title_size = 10,
   Title = "ZZ plot",
   Ylab = "Z score inferred from p value",
   Xlab = "Z score inferred from effect size and standard error",
-  Title_xaxis_size = 10,
   beta = "lnor",
   se = "lnor_se",
   exclude_1000G_MAF_refdat = TRUE
@@ -19,15 +17,11 @@ zz_plot(
 \arguments{
 \item{dat}{the target dataset of interest}
 
-\item{Title_size}{size of title}
-
 \item{Title}{plot title}
 
 \item{Ylab}{label for Y axis}
 
 \item{Xlab}{label for X axis}
-
-\item{Title_xaxis_size}{size of x axis title}
 
 \item{beta}{the name of the column containing the SNP effect size}
 

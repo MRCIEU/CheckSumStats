@@ -13,11 +13,9 @@
 #' @param subtitle subtitle
 #' @param maf_filter minor allele frequency threshold. If not NULL, genetic variants with a minor allele frequency below this threshold are excluded
 #' @param legend logical argument. If true, includes figure legend in plot
-#' @param Title_size size of title
 #' @param Title plot title
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
-#' @param Title_xaxis_size size of x axis title
 #' @param standard_errors logical argument. If TRUE, plots the expected versus the reported standard errors for the effect sizes
 #' @param exclude_1000G_MAF_refdat exclude rsids from the 1000 genome MAF reference dataset. 
 #' @param nocolour if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE
@@ -25,9 +23,9 @@
 #' @return plot 
 #' @export
 
-make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title_size=10,Title="Expected versus reported effect size",Title_xaxis_size=10,legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE,nocolour=FALSE){
+make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title="Expected versus reported effect size",legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE,nocolour=FALSE){
 
-	if(any(class(dat) == "data.table")) warning("The supplied dat is in data.table format, whereas this script expects dat to be data.frame format. This might cause problems.")
+	if(any(class(dat) == "data.table")) warning("The supplied dat is in data.table format, whereas this script expects dat to be data.frame format.")
 	dat<-data.frame(dat)
 	if("ncase" %in% names(dat)){
 		if(all(!is.na(dat$ncase))){
@@ -133,28 +131,44 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expec
 		subtitle<-paste0("intercept=",round(int,3)," | ","slope=",round(slope,3))
 	}		
 
+	my_theme<-ggplot2::theme(
+		plot.title = ggplot2::element_text(size = 50,hjust = 0),
+		plot.subtitle = ggplot2::element_text(size =40),
+		axis.title.x=ggplot2::element_text(size=50),
+		axis.title.y=ggplot2::element_text(size=50),
+		axis.text=ggplot2::element_text(size=32),
+		legend.title=ggplot2::element_text(size=32),
+		legend.text=ggplot2::element_text(size=32))
+
+	geom_point_size1<-20
 
 	if(!legend){
 		Plot<-ggplot2::ggplot(dat) + 
-			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+
-			ggplot2::theme(legend.position = "none")  + 
+			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf),size=geom_point_size1)+			
 			ggplot2::ggtitle(Title) +
-			ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) +
-			ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
-			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
+			ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) +			
+			my_theme+
+			ggplot2::theme(legend.position = "none")   
 			
+			# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
+			# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
 			# ggplot2::scale_colour_manual(name = "MAF",
 	        # labels = Labels,
-	        # values = Values)
-
+	        # values = Values)+
+				
+			
 
 		if(nocolour){
 			Plot<-ggplot2::ggplot(dat) + 
-				ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=MAF))+ggplot2::theme(legend.position = "none")  + 
+				ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=MAF),size=geom_point_size1)+			
 				ggplot2::ggtitle(Title) +
 				ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + 
-				ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
-				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))+ggplot2::scale_colour_grey()
+				ggplot2::scale_colour_grey()+
+				my_theme+
+				ggplot2::theme(legend.position = "none")
+
+				# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
+				# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
 
 		}
 
@@ -162,19 +176,23 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expec
 
 	if(legend){
 		Plot<-ggplot2::ggplot(dat) + 
-			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf))+ 
+			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=maf),size=geom_point_size1)+ 
 			ggplot2::ggtitle(Title) +
 			ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + 
-			ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
-			ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
+			my_theme
+			# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
+			# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))
 		
 		if(nocolour){
 			Plot<-ggplot2::ggplot(dat) + 
-				ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=MAF))+ ggplot2::ggtitle(Title) +
-					ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + 
-					ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
-				ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))+
-				ggplot2::scale_colour_grey()
+				ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=MAF),size=geom_point_size1)+ 
+				ggplot2::ggtitle(Title) +
+				ggplot2::labs(y= Ylab, x =Xlab,subtitle=subtitle) + 
+				ggplot2::scale_colour_grey()+
+				my_theme
+				# ggplot2::theme(plot.title = ggplot2::element_text(size = Title_size, face = "plain"),plot.subtitle = ggplot2::element_text(size = Subtitle_size1))+
+				# ggplot2::theme(axis.title=ggplot2::element_text(size=Title_xaxis_size))+
+				# 
 
 		}
 	}
