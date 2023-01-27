@@ -25,7 +25,7 @@
 
 make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title="Expected versus reported effect size",legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE,nocolour=FALSE){
 
-	if(any(class(dat) == "data.table")) warning("The supplied dat is in data.table format, whereas this script expects dat to be data.frame format.")
+	# if(any(class(dat) == "data.table")) warning("The supplied dat is in data.table format, whereas this script expects dat to be data.frame format.")
 	dat<-data.frame(dat)
 	if("ncase" %in% names(dat)){
 		if(all(!is.na(dat$ncase))){

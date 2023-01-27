@@ -120,7 +120,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	colour_values<-colour_map$values
 	colour_labels<-colour_map$labels	
 	
-	Subtitle<-unique(paste0(Dat.m$trait," | ",Dat.m$population))
+	Subtitle<-unique(paste0(Dat.m$trait," | reported ancestry in test dataset: ",Dat.m$population))
 
 	my_theme<-ggplot2::theme(
 		plot.title = ggplot2::element_text(size = 50,hjust = 0),
@@ -131,9 +131,12 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 		legend.title=ggplot2::element_text(size=32),
 		legend.text=ggplot2::element_text(size=32))
 
+	geom_point_size1<-20
+	shape_width<-3
+
 	if(legend){
 		Plot<-ggplot2::ggplot(Dat.m) + 
-			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=20) + 
+			ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=geom_point_size1,stroke=shape_width) + 
 			ggplot2::ggtitle(Title) +
 			ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 						
 			ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
@@ -154,7 +157,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 			
 			if(nocolour){					
 				Plot<-ggplot2::ggplot(Dat.m) + 
-					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=20) +
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 				
 				ggplot2::scale_shape_manual(name = "Effect size conflict",
@@ -174,7 +177,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 
 	if(!legend){
 		Plot<-ggplot2::ggplot(Dat.m) +
-		ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=20) +
+		ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=colour,shape=ancestry1),size=geom_point_size1,stroke=shape_width) +
 		ggplot2::ggtitle(Title) +
 		ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 
 		 ggplot2::scale_shape_manual(name = "GWAS catalog ancestry",
@@ -194,7 +197,7 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	 	
 	 	if(nocolour){					
 				Plot<-ggplot2::ggplot(Dat.m) + 
-					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=20) +
+					ggplot2::geom_point(ggplot2::aes(x=plot_x, y=plot_y,colour=ancestry1,shape=plot_shape_values),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle) + 					
 				ggplot2::scale_shape_manual(name = "Effect size conflict",

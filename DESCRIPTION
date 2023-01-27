@@ -33,7 +33,8 @@ Imports:
     tibble,
     magrittr,
     curl,
-    plyr
+    plyr,
+    ggpubr
 Remotes:
     bioc::release/biomaRt,
     ramiromagno/gwasrapidd

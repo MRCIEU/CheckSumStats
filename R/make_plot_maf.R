@@ -31,13 +31,16 @@
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",trait="trait",target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes",return_dat=FALSE,nocolour=FALSE,legend=TRUE,allele_frequency_conflict=1){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",trait="trait",target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes super populations",return_dat=FALSE,nocolour=FALSE,legend=TRUE,allele_frequency_conflict=1){	
 
 	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
 
 	# should exclude palindromic SNPs which can cause apparent conflicts when target and reference datasets on different strands for some SNPs. drop palindromic SNPs or show in different shape?
 	# ref_dat<-load_refdata(refstudy=refstudy,Dir=Dir)
 	utils::data("refdat_1000G_superpops",envir =environment())
+
+	# there seems to be an error in this SNP, which always shows allele frequency conflicts. 
+	refdat_1000G_superpops<-refdat_1000G_superpops[refdat_1000G_superpops$SNP != "rs5768749",]
 	if(is.null(ref_dat)){
 		ref_dat<-refdat_1000G_superpops[refdat_1000G_superpops$population %in% ref_1000G,]
 		ref_dat$study <- paste0("1000G ",ref_1000G)
@@ -63,6 +66,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	if(any(names(ref_dat) %in% c(target_dat_effect_allele,target_dat_other_allele,target_dat_effect_allele))) warning("effect allele, other allele or eaf present in refererence dataset with same name as in target dataset")	
 
 	dat.m<-merge(ref_dat,target_dat,by.x=snp_reference,by.y=snp_target)
+
 
 	# dat.m[dat.m$SNP == "rs1298999",c("SNP",eaf,"maf_ref",target_dat_effect_allele,target_dat_other_allele,"minor_allele","major_allele","minor_allele2","major_allele2")]
 	Pos<-which(dat.m[,target_dat_effect_allele] != dat.m[,ref_dat_minor_allele])
@@ -124,8 +128,9 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	Pops<-unique(dat.m.test$ref_dat_population)
 	dat.m.test$conflict<-FALSE
 	dat.m.test$conflict[dat.m.test$eaf>0.5]<-TRUE
-	if(return_dat) return(dat.m.test)
 
+	if(return_dat) return(dat.m.test)
+	plotdata_for_cowplot_legend<-NULL
 	for(i in 1:length(Pops))
 	{
 		# print(Pops[i])
@@ -149,7 +154,8 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		# if(subtitle_off) Title<-""
 
 		Colour<-rep("black",nrow(dat1))
-		Colour[which(dat1[,eaf]>0.5)]<-"red"
+		Colour[which(dat1[,eaf]>0.5)]<-"blue"
+		Colour[which(dat1[,eaf]>=0.58)]<-"red"
 		# dat1$Colour<-Colour
 		# Colour[dat1[,target_dat_effect_allele]!=dat1[,ref_dat_minor_allele]]<-"red"	
 		
@@ -177,7 +183,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		# dat2.m<-merge(dat2,ref_dat,by="rsid")
 		# head(dat2.m[,c("rsid","Effect.Allele","Other.Allele","eaf", "maf", "minor_allele2","major_allele2" )])
 		
-		Subtitle<-unique(paste0("Reported population: ",dat1$target_dat_population))
+		Subtitle<-unique(paste0("Reported ancestry in test dataset: ",dat1$target_dat_population))
 		
 		Shape2<-Colour
 		Shape2[Shape2=="red"]<-3
@@ -203,9 +209,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		colour_values<-colour_values[Pos]
 		colour_labels<-colour_labels[Pos]
 
-
-
-
 		Title_size1<-50
 		Subtitle_size1<-40
 		Legend_title_size1<-32
@@ -223,8 +226,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 
 		}
 
-		
-
 		my_theme<-ggplot2::theme(
 			plot.title = ggplot2::element_text(size = Title_size1,hjust = 0),
 			plot.subtitle = ggplot2::element_text(size =Subtitle_size1),
@@ -236,13 +237,15 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 			)
 
 		geom_point_size1<-20
+		shape_width<-3
 
 		# create plotdata_for_cowplot_legend. This is for passing to the make_cow_plot function. 
-		if(legend & length(Pops)> 1){
+		# plotdata_for_cowplot_legend<-NULL
+		if(legend & length(Pops)> 1 & i == 1){
 			if(nocolour)
 			{				
 				plotdata_for_cowplot_legend<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
-					ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1) +
+					ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +				
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+				
 					ggplot2::scale_shape_manual(name = "Allele frequency conflict",
@@ -253,7 +256,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 			if(!nocolour)
 			{
 				plotdata_for_cowplot_legend<-ggplot2::ggplot(dat1) + 
-					ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1) +
+					ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+ 
 					ggplot2::scale_colour_manual(name = "",
@@ -262,14 +265,15 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 					my_theme
 			}
 		}
-
+		
 		if(length(Pops)> 1) {
-			legend<-FALSE
+			legend<-FALSE #if legend=TRUE and pops>1 we set legend to FALSE here. This is to avoid plotting the legend multiple times for each pop panel. We rather create a single legend in the cowplot
 		}
+		
 
 		if(nocolour){
 			Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
-				ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1) +
+				ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1,stroke=shape_width) +
 				ggplot2::ggtitle(Title) +				
 				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+				
 				ggplot2::scale_shape_manual(name = "Allele frequency conflict",
@@ -282,7 +286,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 
 		if(!nocolour){
 			Plot<-ggplot2::ggplot(dat1) + 
-				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1) +
+				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1,stroke=shape_width) +
 				ggplot2::ggtitle(Title) +
 				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+ 
 				ggplot2::scale_colour_manual(name = "",
@@ -294,7 +298,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		if(!legend){	
 			if(nocolour){		
 				Plot<-ggplot2::ggplot(dat1, ggplot2::aes(x=maf, y=eaf)) + 
-					ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1) +
+					ggplot2::geom_point(ggplot2::aes(shape=Shape2),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+ 
 					ggplot2::scale_shape_manual(name = "Allele frequency conflict",
@@ -306,7 +310,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 
 			if(!nocolour){		
 				Plot<-ggplot2::ggplot(dat1) + 
-				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1) +
+				ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1,stroke=shape_width) +
 				ggplot2::ggtitle(Title) +
 				ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+
 				ggplot2::scale_colour_manual(name = "",

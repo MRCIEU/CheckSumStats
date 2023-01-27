@@ -24,7 +24,7 @@ make_plot_maf(
   Title = "Comparison of allele frequency between test dataset & reference study",
   Ylab = "Allele frequency in test dataset",
   Xlab = "MAF in reference study",
-  cowplot_title = "Allele frequency in test dataset vs 1000 genomes",
+  cowplot_title = "Allele frequency in test dataset vs 1000 genomes super populations",
   return_dat = FALSE,
   nocolour = FALSE,
   legend = TRUE,
