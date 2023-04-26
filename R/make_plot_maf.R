@@ -27,11 +27,12 @@
 #' @param nocolour if TRUE, allele frequency conflicts are illustrated using shapes rather than colours.
 #' @param legend include legend in plot. Default TRUE 
 #' @param allele_frequency_conflict how to define allele frequency conflicts. 1= flag SNPs in the test dataset whose reported minor allele has frequency >0.5. 2= additionally flag SNPs with allele frequency differening by more than 10 points from allele frequency in the reference dataset. Default = 1 
+#' @param publication_quality produce a very high resolution image e.g. for publication purposes. Default FALSE
 #'
 #' @return plot 
 #' @export
 
-make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",trait="trait",target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes super populations",return_dat=FALSE,nocolour=FALSE,legend=TRUE,allele_frequency_conflict=1){	
+make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS","ALL"),target_dat=NULL,eaf="eaf",snp_target="rsid",snp_reference="SNP",ref_dat_maf="MAF",target_dat_effect_allele="effect_allele",target_dat_other_allele="other_allele",ref_dat_minor_allele="minor_allele",ref_dat_major_allele="major_allele",trait="trait",target_dat_population="population",ref_dat_population="population",target_study="study",ref_study="study",Title="Comparison of allele frequency between test dataset & reference study",Ylab="Allele frequency in test dataset",Xlab="MAF in reference study",cowplot_title="Allele frequency in test dataset vs 1000 genomes super populations",return_dat=FALSE,nocolour=FALSE,legend=TRUE,allele_frequency_conflict=1,publication_quality=FALSE){	
 
 	if(all(is.na(target_dat$eaf))) stop("eaf is missing for all SNPs in target dataset")
 
@@ -107,19 +108,21 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 	dat.m$alleles2<-paste0(dat.m[,ref_dat_minor_allele],dat.m[,ref_dat_major_allele])
 	
 	dat.m.test<-dat.m
-	outcome_plot<-trait
-	if(is.null(trait)){
-		outcome_plot<-""
-	}
+	
+	# this section defining outcome_plot and outfile_name seems redundant and can probably be removed
+	# outcome_plot<-trait
+	# if(is.null(trait)){
+	# 	outcome_plot<-""
+	# }
 
 	if(!is.null(trait) & !is.null(target_study)){
-		outfile_name<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study))
-		outfile_name<-gsub("\\|","",outfile_name)
-		outfile_name<-gsub(" ","_",outfile_name)
-		outfile_name<-gsub("__","_",outfile_name)
-		outfile_name<-gsub("=","",outfile_name)
-		outfile_name<-gsub("/","_",outfile_name)
-		outcome_plot<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study))		
+		# outfile_name<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study))
+		# outfile_name<-gsub("\\|","",outfile_name)
+		# outfile_name<-gsub(" ","_",outfile_name)
+		# outfile_name<-gsub("__","_",outfile_name)
+		# outfile_name<-gsub("=","",outfile_name)
+		# outfile_name<-gsub("/","_",outfile_name)
+		# outcome_plot<-unique(paste0(dat.m.test[,trait]," | ", dat.m.test$target_study))		
 		target_study<-unique(paste0(dat.m.test$target_study))		
 	}
 
@@ -209,22 +212,46 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		colour_values<-colour_values[Pos]
 		colour_labels<-colour_labels[Pos]
 
-		Title_size1<-50
-		Subtitle_size1<-40
-		Legend_title_size1<-32
-		Legend_text_size1<-32
-		Axis.text_size1<-32
-		Axis_title_size_x1<-50
-		Axis_title_size_y1<-50
+		Title_size1<-3
+		Subtitle_size1<-2
+		Legend_title_size1<-20
+		Legend_text_size1<-10
+		Axis.text_size1<-10
+		Axis_title_size_x1<-10
+		Axis_title_size_y1<-10		
+		geom_point_size1<-2
+		shape_width<-1
 		if(length(unique(dat.m.test$ref_dat_population)) > 1){
 			Title_size1<-0
 			Subtitle_size1<-0
-			# Axis_title_size_x1<-50
 			Axis_title_size_y1<-0
-			# Legend_title_size1<-0
-			# Legend_text_size1<-0
+			cow_plot_title_size=20
+			cow_plot_title_axis_size=20
+			cow_plot_subtitle_size=10
+		}	
 
-		}
+		if(publication_quality){
+			Title_size1<-50
+			Subtitle_size1<-40
+			Legend_title_size1<-32
+			Legend_text_size1<-32
+			Axis.text_size1<-32
+			Axis_title_size_x1<-50
+			Axis_title_size_y1<-50			
+			geom_point_size1<-20
+			shape_width<-3
+				if(length(unique(dat.m.test$ref_dat_population)) > 1){
+				Title_size1<-0
+				Subtitle_size1<-0
+				# Axis_title_size_x1<-50
+				Axis_title_size_y1<-0
+				# Legend_title_size1<-0
+				# Legend_text_size1<-0
+				cow_plot_title_size=50
+				cow_plot_title_axis_size=50
+				cow_plot_subtitle_size=32				
+			}
+		} 
 
 		my_theme<-ggplot2::theme(
 			plot.title = ggplot2::element_text(size = Title_size1,hjust = 0),
@@ -236,8 +263,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 			legend.text=ggplot2::element_text(size=Legend_text_size1)
 			)
 
-		geom_point_size1<-20
-		shape_width<-3
 
 		# create plotdata_for_cowplot_legend. This is for passing to the make_cow_plot function. 
 		# plotdata_for_cowplot_legend<-NULL
@@ -259,7 +284,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 					ggplot2::geom_point(ggplot2::aes(x=maf, y=eaf,colour=Colour),size=geom_point_size1,stroke=shape_width) +
 					ggplot2::ggtitle(Title) +
 					ggplot2::labs(y= Ylab, x =Xlab,subtitle=Subtitle)+ 
-					ggplot2::scale_colour_manual(name = "",
+					ggplot2::scale_colour_manual(name = "Allele frequency conflict",
 				                     labels = colour_labels,
 				                     values = colour_values)+
 					my_theme
@@ -334,7 +359,7 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 				cowplot_title<-target_study
 		}	
 		
-		Plot<-make_cow_plot(Plot_list=Plot_list,Title=cowplot_title,Xlab="",Ylab="Allele frequency in test dataset",return_plot=TRUE,Title_axis_size=50,Title_size=50,Subtitle=Subtitle,Subtitle_size=32,plotdata_for_cowplot_legend=plotdata_for_cowplot_legend)
+		Plot<-make_cow_plot(Plot_list=Plot_list,Title=cowplot_title,Xlab="",Ylab="Allele frequency in test dataset",return_plot=TRUE,Title_axis_size=cow_plot_title_axis_size,Title_size=cow_plot_title_size,Subtitle=Subtitle,Subtitle_size=cow_plot_subtitle_size,plotdata_for_cowplot_legend=plotdata_for_cowplot_legend)
 	}
 		# Title_axis_size
 	return(Plot)

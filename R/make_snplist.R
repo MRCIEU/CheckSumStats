@@ -59,6 +59,7 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 
 	gwas_associations<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)
 
+	# gwas_associations<-gwas_associations_by_reported_trait
 	# gwas_associations<-gwasrapidd::union(gwas_associations_by_reported_trait, gwas_associations_by_efo_id)
 
 	if(class(gwas_associations) =="associations") 
@@ -70,17 +71,22 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 			associations<-data.frame(gwas_associations@associations,stringsAsFactors=F)
 			risk_alleles<-data.frame(gwas_associations@risk_alleles)
 			gwas_results<-merge(associations,risk_alleles,by="association_id")
-			col.keep<-c("variant_id","association_id","risk_allele","beta_gc","se_gc","risk_frequency","pvalue","z_scores","z.x")
-			names_col.keep<-c("rsid","association_id","effect_allele","beta_gc","se_gc","eaf","p","test_statistic","z.x")
+			col.keep<-c("variant_id","association_id","risk_allele","beta_gc","se_gc","risk_frequency","pvalue","z_scores","z.x","beta_unit","beta_description")
+			# "type"
+			names_col.keep<-c("rsid","association_id","effect_allele","beta_gc","se_gc","eaf","p","test_statistic","z.x","beta_unit","beta_description")
+			# ,"type"
 		
-						
 			gwas_results$z_scores<-stats::qnorm(gwas_results$pvalue/2,lower.tail=F)
+			
 			gwas_results$beta_gc<-log(gwas_results$or_per_copy_number)
+
+			# gwas_results[!is.na(gwas_results$beta_gc),]
 			Test<-FALSE 
-			if(all(is.na(gwas_results$beta_gc)))
+			if(any(is.na(gwas_results$beta_gc)))
 			{
 				if(!all(is.na(gwas_results$beta_number))){
-					gwas_results$beta_gc<-gwas_results$beta_number		
+					Pos<-which(is.na(gwas_results$beta_gc))
+					gwas_results$beta_gc[Pos]<-gwas_results$beta_number[Pos]		
 					Test<-any(is.na(gwas_results$beta_gc))
 					if(Test){
 						gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
@@ -89,9 +95,14 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 					gwas_results<-gwas_results[!is.na(gwas_results$beta_gc),]
 					Pos1<-which(gwas_results$beta_direction == "increase")
 					Pos2<-which(gwas_results$beta_direction == "decrease")
-					if(!all(gwas_results$beta_gc>=0)) stop("direction of beta_gc not always positive")
+					head(gwas_results[gwas_results$beta_gc<0,])
+					if(any(gwas_results$beta_gc<0 & is.na(gwas_results$or_per_copy_number))) warning("negative beta_gc values present that aren't log odds ratios")
 					gwas_results$beta_gc[Pos2]<-gwas_results$beta_gc[Pos2]*-1
-					if(!all(unique(gwas_results$beta_direction) %in% c("increase","decrease"))) stop("beta_direction in gwas catalog not always increase or decrease")
+					if(!all(unique(gwas_results$beta_direction) %in% c("increase","decrease"))) 
+					{
+						OR<-gwas_results$or_per_copy_number[!gwas_results$beta_direction %in% c("increase","decrease")]
+						if(any(is.na(OR))) warning("beta_direction in gwas catalog not always increase or decrease and these rows don't look like odds ratios")
+					}
 				}
 			}
 			Pos<-which(!is.na(gwas_results$standard_error))		
@@ -106,6 +117,7 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 			# beta_gc still missing. This happens when there is at least one odds ratio amongst the rows. Sometimes the odds ratio colmn is missing beta_number corresponds to signed Z scores. 
 			gwas_results$z.x<-gwas_results$beta_gc / gwas_results$se_gc 
 			gwas_results1<-gwas_results[!is.na(gwas_results$beta_gc),]
+			
 			gwas_results2<-gwas_results[is.na(gwas_results$beta_gc),]
 			# update to make allowance for presence of any z scores amongst the beta_units? 
 			if(nrow(gwas_results2)>0){
@@ -130,11 +142,17 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 			
 			if(!is.null(gwas_results))			
 			{
-				if(nrow(gwas_results)>100) warning("more than 100 genetic associations in the GWAS catalog, which may cause this function to run slowly. Consider searching on only reported trait or EFO (not both). If the function is still taking a long time to run, set  map_association_to_study to FALSE")
+				if(nrow(gwas_results)>100) warning("more than 100 genetic associations in the GWAS catalog, which may cause this function to run slowly. To speed things up, you could consider searching on only the reported trait or EFO (not both). The function can also be sped up by setting map_association_to_study to FALSE")
 				# we're only intereted in results where z.x or risk allele frequency are not missing. 
 				Pos<-which(!is.na(gwas_results$z.x) |  !is.na(gwas_results$risk_frequency))
+
 				gwas_results<-gwas_results[Pos,]
 				
+				if(nrow(gwas_results)==0)
+				{
+					return("no associations found with non missing signed effect sizes or non missing eaf")
+				}
+
 				if(map_association_to_study)
 				{
 										
@@ -142,17 +160,21 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 					# 	gwas_associations<-gwas_associations[1:100,]
 					# }
 					assoc2study<-map_association_to_study_id(associations=gwas_associations)		
+					# assoc2study<-association2study
 					gwas_results<-merge(gwas_results,assoc2study,by="association_id")	
 
 					ancestry_tab<-make_ancestry_table(association_id=gwas_results$association_id)		
+					# ancestry_tab<-anc2
 					gwas_results<-merge(gwas_results,ancestry_tab,by="study_id")
+			
 					
 					col.keep<-c(col.keep,"study_id","ancestral_group")
 					names_col.keep<-c(names_col.keep,"study_id","ancestral_group")
-				}		
-					
+				}
+
 				gwas_results<-gwas_results[,col.keep]
 				names(gwas_results)<-c(names_col.keep)
+				gwas_results$trait<-trait_efo
 				return(gwas_results)
 			}
 			
@@ -166,8 +188,7 @@ map_association_to_study_id<-function(associations=NULL){
 	association_ids <- associations@associations$association_id
 	    names(association_ids) <- association_ids	
 	
-	studies <-purrr::map(association_ids, ~ gwasrapidd::get_studies(association_id = .x))
-	
+	studies <-purrr::map(association_ids, ~ gwasrapidd::get_studies(association_id = .x))	
 	
 	association2study <-
 	      purrr::imap_dfr(

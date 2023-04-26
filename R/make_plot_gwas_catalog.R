@@ -384,7 +384,7 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 #' @param efo trait of interest in the experimental factor ontology
 #' @param gwas_catalog_ancestral_group restrict the comparison to these ancestral groups in the GWAS catalog. Default is set to (c("European","East Asian") 
 #' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
-#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = FALSE.
 #' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog. 
 #' @param force_all_trait_study_hits force the comparison to include GWAS hits from the test dataset if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the test trait study has an unusually larger number of GWAS hits, which could, in turn, indicate analytical issues with the summary statistics 
 #' @param distance_threshold distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.  
@@ -393,7 +393,7 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 #' @export
 
 
-compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=TRUE,beta="beta",se="se",gwas_catalog=NULL,force_all_trait_study_hits=FALSE,distance_threshold=distance_threshold)
+compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=FALSE,beta="beta",se="se",gwas_catalog=NULL,force_all_trait_study_hits=FALSE,distance_threshold=distance_threshold)
 {
 	
 	if(is.null(gwas_catalog))
@@ -409,6 +409,7 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 		Alleles<-paste0(Dat.m$effect_allele.y,Dat.m$other_allele)
 		Dat.m<-Dat.m[!Alleles %in% c("AT","TA","GC","CG"),]
 	}	
+
 
 	if(all(is.na(Dat.m$effect_allele.x)) | nrow(Dat.m)==0) return(paste0("associations for ",message_trait," were found in the GWAS catalog but all effect alleles were missing or all SNPs were palindromic. Therefore no comparison of effect size direction could be made"))
 	

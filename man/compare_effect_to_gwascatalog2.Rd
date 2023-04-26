@@ -11,7 +11,7 @@ compare_effect_to_gwascatalog2(
   trait = NULL,
   gwas_catalog_ancestral_group = c("European", "East Asian"),
   exclude_palindromic_snps = TRUE,
-  map_association_to_study = TRUE,
+  map_association_to_study = FALSE,
   beta = "beta",
   se = "se",
   gwas_catalog = NULL,
@@ -32,7 +32,7 @@ compare_effect_to_gwascatalog2(
 
 \item{exclude_palindromic_snps}{should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands.}
 
-\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
+\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = FALSE.}
 
 \item{beta}{name of the column containing the SNP effect size}
 

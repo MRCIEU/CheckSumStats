@@ -28,7 +28,8 @@ make_plot_maf(
   return_dat = FALSE,
   nocolour = FALSE,
   legend = TRUE,
-  allele_frequency_conflict = 1
+  allele_frequency_conflict = 1,
+  publication_quality = FALSE
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ Only necessary if ref_dat is specified}
 \item{legend}{include legend in plot. Default TRUE}
 
 \item{allele_frequency_conflict}{how to define allele frequency conflicts. 1= flag SNPs in the test dataset whose reported minor allele has frequency >0.5. 2= additionally flag SNPs with allele frequency differening by more than 10 points from allele frequency in the reference dataset. Default = 1}
+
+\item{publication_quality}{produce a very high resolution image e.g. for publication purposes. Default FALSE}
 }
 \value{
 plot
