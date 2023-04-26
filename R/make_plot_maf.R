@@ -174,17 +174,6 @@ make_plot_maf<-function(ref_dat=NULL,ref_1000G=c("AFR","AMR", "EAS", "EUR", "SAS
 		dat1$eaf<-dat1[,eaf]
 		dat1$maf<-dat1[,"maf_ref"]
 
-		# Temp<-dat1[dat1$eaf > 0.5,c("Effect.Allele","minor_allele","Other.Allele","major_allele","eaf","maf","alleles")]
-		# dim(Temp)
-		# length(which(Temp$alleles %in% c("CG","GC","TA","AT")))
-
-		# snps<-dat1$rsid[dat1$eaf>0.55]
-		# dat1[dat1$eaf>0.55,c("minor_allele","major_allele","Effect.Allele","Other.Allele","maf","eaf")]
-		# dat2<-dat[dat$rsid %in% snps, ]
-		# dat2[,c("rsid","Effect.Allele","Other.Allele","eaf")]
-		# head(ref_dat)
-		# dat2.m<-merge(dat2,ref_dat,by="rsid")
-		# head(dat2.m[,c("rsid","Effect.Allele","Other.Allele","eaf", "maf", "minor_allele2","major_allele2" )])
 		
 		Subtitle<-unique(paste0("Reported ancestry in test dataset: ",dat1$target_dat_population))
 		

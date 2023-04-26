@@ -303,16 +303,9 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 	}
 
 	Dat.m$z.y<-Dat.m[,beta]/Dat.m[,se] 
-	# Dat.m$z.x<-Dat.m$beta_gc/Dat.m$se_gc
-
-	# Dat.m$z.y<-Dat.m$lnor.y/Dat.m$se.y
-	# Dat.m$z.x<-Dat.m$lnor.x/Dat.m$se.x
-
-	# head(Dat.m[,c("p.x","z.x","p.y","z.y")])
-	# max(Dat.m$p.x)
-	# dim(Dat.m)
-	# Ylab<-""
-	# Xlab<-""
+	
+	
+	
 
 	if("pmid" %in% names(dat))
 	{

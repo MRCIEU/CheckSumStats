@@ -95,7 +95,7 @@ gwas_catalog_hits<-function(trait=NULL,efo=NULL,efo_id=NULL,map_association_to_s
 					gwas_results<-gwas_results[!is.na(gwas_results$beta_gc),]
 					Pos1<-which(gwas_results$beta_direction == "increase")
 					Pos2<-which(gwas_results$beta_direction == "decrease")
-					head(gwas_results[gwas_results$beta_gc<0,])
+					
 					if(any(gwas_results$beta_gc<0 & is.na(gwas_results$or_per_copy_number))) warning("negative beta_gc values present that aren't log odds ratios")
 					gwas_results$beta_gc[Pos2]<-gwas_results$beta_gc[Pos2]*-1
 					if(!all(unique(gwas_results$beta_direction) %in% c("increase","decrease"))) 
