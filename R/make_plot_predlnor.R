@@ -19,11 +19,12 @@
 #' @param standard_errors logical argument. If TRUE, plots the expected versus the reported standard errors for the effect sizes
 #' @param exclude_1000G_MAF_refdat exclude rsids from the 1000 genome MAF reference dataset. 
 #' @param nocolour if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE
+#' @param publication_quality produce a very high resolution image e.g. for publication purposes. Default FALSE
 #'
 #' @return plot 
 #' @export
 
-make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title="Expected versus reported effect size",legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE,nocolour=FALSE){
+make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expected effect size",subtitle="",maf_filter=FALSE,bias=FALSE,Title="Expected versus reported effect size",legend=TRUE,standard_errors=FALSE,pred_beta="lnor_pred",pred_beta_se="lnor_se_pred",beta="lnor",se="lnor_se",sd_est="sd_est",exclude_1000G_MAF_refdat=TRUE,nocolour=FALSE,publication_quality=FALSE){
 
 	# if(any(class(dat) == "data.table")) warning("The supplied dat is in data.table format, whereas this script expects dat to be data.frame format.")
 	dat<-data.frame(dat)
@@ -131,16 +132,38 @@ make_plot_pred_effect<-function(dat=NULL,Xlab="Reported effect size",Ylab="Expec
 		subtitle<-paste0("intercept=",round(int,3)," | ","slope=",round(slope,3))
 	}		
 
-	my_theme<-ggplot2::theme(
-		plot.title = ggplot2::element_text(size = 50,hjust = 0),
-		plot.subtitle = ggplot2::element_text(size =40),
-		axis.title.x=ggplot2::element_text(size=50),
-		axis.title.y=ggplot2::element_text(size=50),
-		axis.text=ggplot2::element_text(size=32),
-		legend.title=ggplot2::element_text(size=32),
-		legend.text=ggplot2::element_text(size=32))
+	Title_size1<-20
+	Subtitle_size1<-10
+	Legend_title_size1<-20
+	Legend_text_size1<-10
+	Axis.text_size1<-10
+	Axis_title_size_x1<-10
+	Axis_title_size_y1<-10		
+	geom_point_size1<-2
+	# shape_width<-1	
 
-	geom_point_size1<-20
+	if(publication_quality){
+		Title_size1<-50
+		Subtitle_size1<-40
+		Legend_title_size1<-32
+		Legend_text_size1<-32
+		Axis.text_size1<-32
+		Axis_title_size_x1<-50
+		Axis_title_size_y1<-50			
+		geom_point_size1<-20
+		# shape_width<-3		
+	} 
+	
+
+	my_theme<-ggplot2::theme(
+		plot.title = ggplot2::element_text(size = Title_size1,hjust = 0),
+		plot.subtitle = ggplot2::element_text(size =Subtitle_size1),
+		axis.title.x=ggplot2::element_text(size=Axis_title_size_x1),
+		axis.title.y=ggplot2::element_text(size=Axis_title_size_y1),
+		axis.text=ggplot2::element_text(size=Axis.text_size1),
+		legend.title=ggplot2::element_text(size=Legend_title_size1),
+		legend.text=ggplot2::element_text(size=Legend_text_size1))
+
 
 	if(!legend){
 		Plot<-ggplot2::ggplot(dat) + 

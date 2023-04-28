@@ -21,9 +21,11 @@ make_plot_gwas_catalog(
   se = "se",
   distance_threshold = 25000,
   return_dat = FALSE,
-  map_association_to_study = TRUE,
+  map_association_to_study = FALSE,
   gwas_catalog = NULL,
-  nocolour = FALSE
+  nocolour = FALSE,
+  publication_quality = FALSE,
+  gc_dat = NULL
 )
 }
 \arguments{
@@ -59,11 +61,15 @@ make_plot_gwas_catalog(
 
 \item{return_dat}{if TRUE, the dataset used to generate the plot is returned to the user and no plot is made.}
 
-\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE}
+\item{map_association_to_study}{map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = FALSE}
 
 \item{gwas_catalog}{user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.}
 
 \item{nocolour}{if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE}
+
+\item{publication_quality}{produce a high resolution image e.g. for publication purposes. Default FALSE}
+
+\item{gc_dat}{output of compare_effect_to_gwascatalog2. This will typically be ignored by most users. Default NULL}
 }
 \value{
 plot

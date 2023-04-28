@@ -20,7 +20,8 @@ make_plot_pred_effect(
   se = "lnor_se",
   sd_est = "sd_est",
   exclude_1000G_MAF_refdat = TRUE,
-  nocolour = FALSE
+  nocolour = FALSE,
+  publication_quality = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ make_plot_pred_effect(
 \item{exclude_1000G_MAF_refdat}{exclude rsids from the 1000 genome MAF reference dataset.}
 
 \item{nocolour}{if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE}
+
+\item{publication_quality}{produce a very high resolution image e.g. for publication purposes. Default FALSE}
 }
 \value{
 plot

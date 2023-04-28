@@ -13,21 +13,27 @@
 #' @param force_all_trait_study_hits force the plot to include GWAS hits from the outcome study if they are not in the GWAS catalog? This should be set to TRUE only if dat is restricted to GWAS hits for the trait of interest. This is useful for visualising whether the outcome/trait study has an unusually larger number of GWAS hits, which could, in turn, indicate that the summary statistics have not been adequately cleaned.
 #' @param exclude_palindromic_snps should the function exclude palindromic SNPs? default set to TRUE. If set to FALSE, then conflicts with the GWAS catalog could reflect comparison of different reference strands. 
 #' @param distance_threshold distance threshold for deciding if the GWAS hit in the test dataset is present in the GWAS catalog. For example, a distance_threshold of 25000 means that the GWAS hit in the test dataset must be within 25000 base pairs of a GWAS catalog association, otherwise it is reported as missing from the GWAS catalog.  
-#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = TRUE
+#' @param map_association_to_study map associations to study in GWAS catalog. This supports matching of results on PMID and study ancestry, which increases accuracy of comparisons, but is slow when there are large numbers of associations. Default = FALSE
 #' @param gwas_catalog user supplied data frame containing results from the GWAS catalog for the trait of interest. If set to NULL then the function will retrieve results from the GWAS catalog.  
+#' @param gc_dat output of compare_effect_to_gwascatalog2. This will typically be ignored by most users. Default NULL
 #' @param legend include legend in plot. Default TRUE
 #' @param Title plot title
 #' @param Ylab label for Y axis 
 #' @param Xlab label for X axis
 #' @param nocolour if TRUE, effect size conflicts are illustrated using shapes rather than colours. Default FALSE
+#' @param publication_quality produce a high resolution image e.g. for publication purposes. Default FALSE
 #' @param return_dat if TRUE, the dataset used to generate the plot is returned to the user and no plot is made. 
 #'
 #' @return plot 
 #' @export
 
-make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=TRUE,gwas_catalog=NULL,nocolour=FALSE){
+make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,efo=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),legend=TRUE,Title="Comparison of Z scores between test dataset & GWAS catalog",Ylab="Z score in test dataset",Xlab="Z score in GWAS catalog",force_all_trait_study_hits=FALSE,exclude_palindromic_snps=TRUE,beta="beta",se="se",distance_threshold=25000,return_dat=FALSE,map_association_to_study=FALSE,gwas_catalog=NULL,nocolour=FALSE,publication_quality=FALSE,gc_dat=NULL){
 	
+	if(is.null(gc_dat)){
 	Dat.m<-compare_effect_to_gwascatalog2(dat=dat,beta=beta,se=se,efo_id=efo_id,efo=efo,trait=trait,force_all_trait_study_hits=force_all_trait_study_hits,exclude_palindromic_snps=exclude_palindromic_snps,distance_threshold=distance_threshold,gwas_catalog=gwas_catalog,map_association_to_study=map_association_to_study )
+	}else{
+		Dat.m<-gc_dat
+	}
 	
 	Names<-grep("beta",names(Dat.m))
 	Names2<-grep("effect",names(Dat.m))
@@ -122,17 +128,38 @@ make_plot_gwas_catalog<-function(dat=NULL,plot_type="plot_zscores",efo_id=NULL,e
 	
 	Subtitle<-unique(paste0(Dat.m$trait," | reported ancestry in test dataset: ",Dat.m$population))
 
-	my_theme<-ggplot2::theme(
-		plot.title = ggplot2::element_text(size = 50,hjust = 0),
-		plot.subtitle = ggplot2::element_text(size =40),
-		axis.title.x=ggplot2::element_text(size=50),
-		axis.title.y=ggplot2::element_text(size=50),
-		axis.text=ggplot2::element_text(size=32),
-		legend.title=ggplot2::element_text(size=32),
-		legend.text=ggplot2::element_text(size=32))
+	Title_size1<-20
+	Subtitle_size1<-10
+	Legend_title_size1<-20
+	Legend_text_size1<-10
+	Axis.text_size1<-10
+	Axis_title_size_x1<-10
+	Axis_title_size_y1<-10		
+	geom_point_size1<-2
+	shape_width<-1	
 
-	geom_point_size1<-20
-	shape_width<-3
+	if(publication_quality){
+		Title_size1<-50
+		Subtitle_size1<-40
+		Legend_title_size1<-32
+		Legend_text_size1<-32
+		Axis.text_size1<-32
+		Axis_title_size_x1<-50
+		Axis_title_size_y1<-50			
+		geom_point_size1<-20
+		shape_width<-3
+	} 
+
+	my_theme<-ggplot2::theme(
+		plot.title = ggplot2::element_text(size = Title_size1,hjust = 0),
+		plot.subtitle = ggplot2::element_text(size =Subtitle_size1),
+		axis.title.x=ggplot2::element_text(size=Axis_title_size_x1),
+		axis.title.y=ggplot2::element_text(size=Axis_title_size_y1),
+		axis.text=ggplot2::element_text(size=Axis.text_size1),
+		legend.title=ggplot2::element_text(size=Legend_title_size1),
+		legend.text=ggplot2::element_text(size=Legend_text_size1))
+
+
 
 	if(legend){
 		Plot<-ggplot2::ggplot(Dat.m) + 
@@ -389,9 +416,16 @@ compare_effect_to_gwascatalog<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL
 compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NULL,gwas_catalog_ancestral_group=c("European","East Asian"),exclude_palindromic_snps=TRUE,map_association_to_study=FALSE,beta="beta",se="se",gwas_catalog=NULL,force_all_trait_study_hits=FALSE,distance_threshold=distance_threshold)
 {
 	
+	if(!beta %in% names(dat)) stop("could not find the effect size column; please specify the name of your effect size column using the beta argument")
+
 	if(is.null(gwas_catalog))
 	{
 		gwas_catalog<-gwas_catalog_hits(efo=efo,efo_id=efo_id,trait=trait,map_association_to_study=map_association_to_study)
+	}
+	
+	if(length(gwas_catalog) ==1)
+	{
+		if(gwas_catalog=="no results found") return(gwas_catalog)
 	}
 	
 	message_trait<-paste(c(efo,efo_id,trait),collapse="/")
@@ -412,8 +446,10 @@ compare_effect_to_gwascatalog2<-function(dat=NULL,efo=NULL,efo_id=NULL,trait=NUL
 		
 	if(!is.null(gwas_catalog_ancestral_group) & map_association_to_study)
 	{
-		# c("European","East Asian")
-		Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
+		if(!is.null(Dat.m$ancestral_group))
+		{
+			Dat.m<-Dat.m[Dat.m$ancestral_group %in% gwas_catalog_ancestral_group,]	
+		}
 	}
 	# Dat.m1<-Dat.m
 	# Dat.m<-Dat.m1
@@ -536,8 +572,13 @@ find_hits_in_gwas_catalog<-function(gwas_hits=NULL,trait=NULL,efo=NULL,efo_id=NU
 	if(!is.null(efo)) efo<-trimws(unlist(strsplit(efo,split=";")))	
 	if(!is.null(efo_id)) efo_id<-trimws(unlist(strsplit(efo_id,split=";")))	
 	if(!is.null(trait)) trait<-trimws(unlist(strsplit(trait,split=";")))	
-
+ 
 	gwas_variants<-get_gwas_associations(reported_trait=trait,efo_trait=efo,efo_id=efo_id)	
+
+	if(class(gwas_variants) != "associations")
+	{
+		if(gwas_variants == "no results found") return(gwas_variants)
+	}
 
 	
 	# gwas_variants<-gwasrapidd::get_variants(efo_trait = efo,efo_id=efo_id,reported_trait=trait)		

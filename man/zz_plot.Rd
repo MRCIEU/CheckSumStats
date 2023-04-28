@@ -11,7 +11,8 @@ zz_plot(
   Xlab = "Z score inferred from effect size and standard error",
   beta = "lnor",
   se = "lnor_se",
-  exclude_1000G_MAF_refdat = TRUE
+  exclude_1000G_MAF_refdat = TRUE,
+  publication_quality = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ zz_plot(
 \item{se}{the name of the column containing the standard error for the SNP effect size}
 
 \item{exclude_1000G_MAF_refdat}{exclude rsids from the 1000 genome MAF reference dataset.}
+
+\item{publication_quality}{produce a very high resolution image e.g. for publication purposes. Default FALSE}
 }
 \value{
 plot
