@@ -47,7 +47,7 @@ zz_plot<-function(dat=NULL,Title="ZZ plot",Ylab="Z score inferred from p value",
 	Axis_title_size_x1<-10
 	Axis_title_size_y1<-10		
 	geom_point_size1<-2
-	# shape_width<-1	
+	shape_width<-1	
 
 	if(publication_quality){
 		Title_size1<-50
@@ -58,7 +58,7 @@ zz_plot<-function(dat=NULL,Title="ZZ plot",Ylab="Z score inferred from p value",
 		Axis_title_size_x1<-50
 		Axis_title_size_y1<-50			
 		geom_point_size1<-20
-		# shape_width<-3		
+		shape_width<-3		
 	} 
 	
 	my_theme<-ggplot2::theme(
@@ -70,8 +70,6 @@ zz_plot<-function(dat=NULL,Title="ZZ plot",Ylab="Z score inferred from p value",
 		legend.title=ggplot2::element_text(size=Legend_title_size1),
 		legend.text=ggplot2::element_text(size=Legend_text_size1))
 
-
-	geom_point_size1<-20
 
 	plot<-ggplot2::ggplot(dat, ggplot2::aes(x=plot_x, y=plot_y)) + 
 		ggplot2::geom_point(colour=Colour,size=geom_point_size1) + 
